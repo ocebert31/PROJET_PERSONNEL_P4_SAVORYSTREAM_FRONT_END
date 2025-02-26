@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useForm } from "react-hook-form";
 import { useFormSchema } from "../../hooks/useFormSchema";
+import { useForm } from "react-hook-form";
 
 vi.mock("react-hook-form", async (importOriginal) => {
   const original = await importOriginal<typeof import("react-hook-form")>();
@@ -16,10 +16,17 @@ vi.mock("react-hook-form", async (importOriginal) => {
 });
 
 describe("useFormSchema", () => {
-  it("should call useForm with the yupResolver of the registerSchema", () => {
-    renderHook(() => useFormSchema());
-    expect(useForm).toHaveBeenCalledWith(
-        expect.objectContaining({ resolver: expect.any(Function) })
-    );  
+  const renderUseFormSchema = (isLoginPage: boolean) => renderHook(() => useFormSchema(isLoginPage));
+  const mockSchema = expect.objectContaining({ resolver: expect.any(Function) });
+
+  it("should call useForm with the correct schema when not on the login page", () => {
+    renderUseFormSchema(false);
+    expect(useForm).toHaveBeenCalledWith(mockSchema);
+  });
+
+  it("should call useForm with the correct schema when on the login page", () => {
+    renderUseFormSchema(true);
+    expect(useForm).toHaveBeenCalledWith(mockSchema);
   });
 });
+

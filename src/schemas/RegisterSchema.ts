@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-export const registerSchema = yup.object({
+export const registerSchema = (isLoginPage: boolean) => yup.object({
   email: yup
     .string()
     .email("L'email est invalide") 
@@ -14,7 +14,7 @@ export const registerSchema = yup.object({
   confirmPassword: yup
     .string()
     .when(["password"], ([password], schema) => {
-      if (password && password.length > 0) {
+      if (password && password.length > 0 && !isLoginPage) {
         return schema
           .oneOf([yup.ref("password")], "Les mots de passe doivent correspondre")
           .required("Confirmation requise");

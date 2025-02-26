@@ -41,8 +41,13 @@ const noConfirmPasswordData = {
     password: 'password123',
 };
 
+const validLoginData = {
+    email: 'login@example.com',
+    password: 'password123',
+};
+
 const validateData = async (data: any) => {
-    return registerSchema.validate(data);
+    return registerSchema(false).validate(data);
 };
   
 const validateError = (error: unknown, expectedError: string | null) => {
@@ -54,12 +59,12 @@ const validateError = (error: unknown, expectedError: string | null) => {
     }
 };
   
-const validateSchema = async (data: any, expectedError: string | null = null) => {
+const validateSchema = async (data: any, expectedError: string | null = null, isLoginPage: boolean = false) => {
     try {
         if (expectedError) {
             await validateData(data);
         } else {
-            await expect(registerSchema.isValid(data)).resolves.toBe(true); 
+            await expect(registerSchema(isLoginPage).isValid(data)).resolves.toBe(true); 
         }
     } catch (error) {
         validateError(error, expectedError); 
@@ -67,7 +72,7 @@ const validateSchema = async (data: any, expectedError: string | null = null) =>
 };
   
 
-describe('registerSchema validation', () => {
+describe('registerSchema validation when it is Register Page', () => {
     it('should validate correct data', async () => {
         await validateSchema(validData);
     });
@@ -94,5 +99,11 @@ describe('registerSchema validation', () => {
 
     it('should require confirmPassword', async () => {
         await validateSchema(noConfirmPasswordData, "Confirmation requise");
+    });
+});
+
+describe('registerSchema validation when it is Login Page', () => {
+    it('should not require confirmPassword on login page (isLoginPage = true)', async () => {
+        await validateSchema(validLoginData, "", true);
     });
 });
