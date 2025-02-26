@@ -5,10 +5,11 @@ import { postRegister } from "../services/authenticationService";
 import { RegisterFormData } from "../types/User";
 
 function RegisterPage () {
-  const { register, handleSubmit, formState: { errors }} = useFormSchema();
+  const { register, handleSubmit, formState: { errors }, reset} = useFormSchema(false);
 
   const onSubmit = async (data: RegisterFormData) => {
     await postRegister(data)
+    reset();
   };
 
   return (
