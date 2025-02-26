@@ -4,22 +4,29 @@ import RouterComponent from '../../routes/RouterComponent';
 import '@testing-library/jest-dom';
 import { describe, it, expect } from 'vitest';
 
-describe('RouterComponent', () => {
-  it('renders RegisterPage when navigating to /register', () => {
-    render(
-      <MemoryRouter initialEntries={['/register']}>
-        <RouterComponent />
-      </MemoryRouter>
-    );
-    expect(screen.getByText(/Inscription/i)).toBeInTheDocument();
-  });
+const renderWithRouter = (initialRoute: string) => {
+  render(
+    <MemoryRouter initialEntries={[initialRoute]}>
+      <RouterComponent />
+    </MemoryRouter>
+  );
+};
 
-  it('does not render RegisterPage when navigating to another route', () => {
-    render(
-      <MemoryRouter initialEntries={['/other-route']}>
-        <RouterComponent />
-      </MemoryRouter>
-    );
-    expect(screen.queryByText(/Inscription/i)).not.toBeInTheDocument();
+describe('Navigation behavior', () => {
+  const routes = [
+    { path: '/register', text: /Inscription/i },
+    { path: '/login', text: /Connexion/i }
+  ];
+
+  routes.forEach(({ path, text }) => {
+    it(`renders the correct page when navigating to ${path}`, () => {
+      renderWithRouter(path);
+      expect(screen.getByText(text)).toBeInTheDocument();
+    });
+
+    it(`does not render the page when not on ${path}`, () => {
+      renderWithRouter('/other-route');
+      expect(screen.queryByText(text)).not.toBeInTheDocument();
+    });
   });
 });
