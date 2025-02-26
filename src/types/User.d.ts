@@ -11,9 +11,11 @@ export type InputFieldProps = {
     'data-testid'?: string;
 };
 
-export interface RegisterFormData {
-    password: string;
-    confirmPassword?: string;
+export interface FormData {
     email: string;
+    password: string;
 }
-  
+
+export interface RegisterFormData extends FormData {
+    confirmPassword?: string;
+}
