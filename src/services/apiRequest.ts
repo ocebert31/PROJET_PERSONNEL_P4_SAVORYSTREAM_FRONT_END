@@ -1,16 +1,17 @@
-const url = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL_AUTH;
 
 interface FetchRequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     body?: any;
     token?: string | null;
+    url?: string;
 }
 
-async function fetchRequest(endpoint: string, { method = 'GET', body = null, token = null }: FetchRequestOptions): Promise<any> {
+async function fetchRequest(endpoint: string, { method = 'GET', body = null, token = null, url = BASE_URL }: FetchRequestOptions): Promise<any> {
     try {
         verifyBodyIsEmpty(body);
         const sanitizedBody = sanitizeBody(body);
-        const response = await triggerFetch(endpoint, method, token, sanitizedBody);
+        const response = await triggerFetch(endpoint, method, token, sanitizedBody, url);
         await ensureResponseIsOk(response);
         return response.json();
     } catch (error: any) {
@@ -35,7 +36,7 @@ function sanitizeBody (body: any) {
     return body; 
 };
 
-async function triggerFetch(endpoint: string, method: string, token: string | null, body: any): Promise<Response> {
+async function triggerFetch(endpoint: string, method: string, token: string | null, body: any, url: string | null): Promise<Response> {
     const response = await fetch(`${url}${endpoint}`, {
         method,
         headers: {
@@ -48,9 +49,8 @@ async function triggerFetch(endpoint: string, method: string, token: string | nu
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || response.statusText); 
-      }
-    
-      return response;
+    }
+    return response;
 }
 
 async function ensureResponseIsOk(response: Response): Promise<void> {
@@ -65,4 +65,4 @@ async function ensureResponseIsOk(response: Response): Promise<void> {
     }
 }
 
-export { fetchRequest, sanitizeBody, triggerFetch, ensureResponseIsOk, verifyBodyIsEmpty, url };
+export { fetchRequest, sanitizeBody, triggerFetch, ensureResponseIsOk, verifyBodyIsEmpty, BASE_URL };
