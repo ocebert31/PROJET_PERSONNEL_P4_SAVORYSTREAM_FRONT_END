@@ -15,7 +15,8 @@ const renderWithRouter = (initialRoute: string) => {
 describe('Navigation behavior', () => {
   const routes = [
     { path: '/register', text: /Inscription/i },
-    { path: '/login', text: /Connexion/i }
+    { path: '/login', text: /Connexion/i },
+    { path: '/', text: /Home Page/i }
   ];
 
   routes.forEach(({ path, text }) => {
