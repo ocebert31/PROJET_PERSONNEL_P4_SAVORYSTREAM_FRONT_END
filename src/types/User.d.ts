@@ -7,8 +7,9 @@ export type InputFieldProps = {
     htmlFor: string;
     id: string;
     register: UseFormRegister<any>;
-    error?: string;
+    error?: string | undefined;
     'data-testid'?: string;
+    type: string;
 };
 
 export interface FormData {
