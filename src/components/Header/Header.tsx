@@ -7,6 +7,7 @@ function Header() {
                 <Link to='/' className='text-white'>Accueil</Link>
                 <Link to='/register' className='text-white'>Inscription</Link>
                 <Link to='/login' className='text-white'>Connexion</Link>
+                <Link to='/create-sauce' className='text-white'>Créer une sauce</Link>
             </nav>
         </header>
     );
