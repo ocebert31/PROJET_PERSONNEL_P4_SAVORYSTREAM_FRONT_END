@@ -9,7 +9,7 @@ describe('InputField Component', () => {
     label: 'TestLabel',
     name: 'email',
     register: mockRegister,
-    error: '',
+    errors: '',
     id: 'email-input',
     htmlFor: 'email-input',
     type: 'text',
@@ -36,10 +36,9 @@ describe('InputField Component', () => {
   });
 
   it('shows an error message when provided', () => {
-    const errorMessage = "L'email est requis";
-    renderInputField({ error: errorMessage });
-
-    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+    const errors = { email: { message: "L'email est requis" } };
+    renderInputField({ name: 'email', errors });
+    expect(screen.getByText(errors.email.message)).toBeInTheDocument();
   });
 
   it('hides the error message when no error is provided', () => {

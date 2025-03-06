@@ -1,4 +1,4 @@
-import { UseFormRegister } from "react-hook-form";
+import { FieldError, UseFormRegister } from 'react-hook-form';
 import { string } from "yup";
 
 export type InputFieldProps = {
@@ -7,7 +7,7 @@ export type InputFieldProps = {
     htmlFor: string;
     id: string;
     register: UseFormRegister<any>;
-    error?: string | undefined;
+    errors?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
     'data-testid'?: string;
     type: string;
 };
