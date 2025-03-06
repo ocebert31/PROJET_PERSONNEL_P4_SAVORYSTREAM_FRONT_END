@@ -16,17 +16,20 @@ describe('Navigation behavior', () => {
   const routes = [
     { path: '/register', text: /Inscription/i },
     { path: '/login', text: /Connexion/i },
-    { path: '/', text: /Home Page/i }
+    { path: '/', text: /Page d'Accueil/i },
+    { path: '/create-sauce', text: /Création d'une sauce/i }
   ];
 
   routes.forEach(({ path, text }) => {
     it(`renders the correct page when navigating to ${path}`, () => {
       renderWithRouter(path);
+      screen.debug()
       expect(screen.getByText(text)).toBeInTheDocument();
     });
 
     it(`does not render the page when not on ${path}`, () => {
       renderWithRouter('/other-route');
+      screen.debug()
       expect(screen.queryByText(text)).not.toBeInTheDocument();
     });
   });
