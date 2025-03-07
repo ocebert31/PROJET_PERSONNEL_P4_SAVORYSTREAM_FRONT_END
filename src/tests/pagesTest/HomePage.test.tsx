@@ -14,9 +14,9 @@ describe('HomePage', () => {
   it('should display sauces correctly', async () => {
     (getSauces as Mock).mockResolvedValueOnce(mockSauces);
     render(<HomePage />);
-    await waitFor(() => screen.getByText('Sauce A'));
-    expect(screen.getByText('Sauce A')).toBeInTheDocument();
-    expect(screen.getByText('Description de Sauce A')).toBeInTheDocument();
+    await waitFor(() => screen.getByText('Nom de la sauce'));
+    expect(screen.getByText('Nom de la sauce')).toBeInTheDocument();
+    expect(screen.getByText('Description de la sauce')).toBeInTheDocument();
   });
 
   it('should handle errors gracefully', async () => {

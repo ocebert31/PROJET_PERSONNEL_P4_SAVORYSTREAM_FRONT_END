@@ -1,10 +1,19 @@
 export type Sauce = {
-    id: string, 
+    id: string,
     nom: string, 
-    quantite: string[], 
     prix: number, 
     description: string, 
     ingredients: string[], 
+    quantite: string[], 
     caracteristique: string, 
-    created_at: string, 
+}
+
+export interface ItemListManagerProps {
+    label: string;
+    id: string;
+    list: string[];
+    setList: React.Dispatch<React.SetStateAction<string[]>>;
+    field: keyof Sauce;
+    setValue: (field: keyof Sauce, value: string[]) => void;
+    className?: string;
 }

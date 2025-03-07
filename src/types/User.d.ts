@@ -9,7 +9,7 @@ export type InputFieldProps = {
     register: UseFormRegister<any>;
     errors?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
     'data-testid'?: string;
-    type: string;
+    type?: string;
 };
 
 export interface FormData {

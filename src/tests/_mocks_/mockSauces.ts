@@ -1,13 +1,19 @@
-export const mockSauces = [
-    {
-      id: '1',
-      nom: 'Sauce A',
-      quantite: ['100'],
-      prix: 5.99,
-      description: 'Description de Sauce A',
-      ingredients: ['Tomate', 'Épices'],
-      caracteristique: 'Épicée',
-      created_at: '2023-03-01T12:00:00Z',
-    },
-  ];
-  
+import { Sauce } from '../../types/Sauce';
+
+const baseSauce: Sauce = {
+  id: "1",
+  nom: 'Nom de la sauce',
+  quantite: ['100ml'],
+  prix: 0,
+  description: 'Description de la sauce',
+  ingredients: ['Ingrédient principal'],
+  caracteristique: 'Caractéristique de la sauce',
+};
+
+export const mockSauces: Sauce[] = [
+  { ...baseSauce},
+];
+
+export const mockNewSauce: Sauce = {
+  ...baseSauce,
+};
