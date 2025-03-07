@@ -54,5 +54,12 @@ describe('InputField Component', () => {
     renderInputField({ type });
     const input = screen.getByLabelText(defaultProps.label);
     expect(input).toHaveAttribute('type', type);
+  }); 
+
+  it('renders textarea when type is "textarea"', () => {
+    renderInputField({ type: 'textarea' });
+    const textarea = screen.getByLabelText(defaultProps.label);
+    expect(textarea).toBeInTheDocument();
+    expect(textarea.tagName).toBe('TEXTAREA');
   });
 });
