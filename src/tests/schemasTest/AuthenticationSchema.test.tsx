@@ -1,4 +1,4 @@
-import { registerSchema } from '../../schemas/RegisterSchema';
+import { AuthenticationSchema } from '../../schemas/AuthenticationSchema';
 import { describe, it, expect } from 'vitest';
 import { ValidationError } from 'yup';
 
@@ -47,7 +47,7 @@ const validLoginData = {
 };
 
 const validateData = async (data: any) => {
-    return registerSchema(false).validate(data);
+    return AuthenticationSchema(false).validate(data);
 };
   
 const validateError = (error: unknown, expectedError: string | null) => {
@@ -64,7 +64,7 @@ const validateSchema = async (data: any, expectedError: string | null = null, is
         if (expectedError) {
             await validateData(data);
         } else {
-            await expect(registerSchema(isLoginPage).isValid(data)).resolves.toBe(true); 
+            await expect(AuthenticationSchema(isLoginPage).isValid(data)).resolves.toBe(true); 
         }
     } catch (error) {
         validateError(error, expectedError); 

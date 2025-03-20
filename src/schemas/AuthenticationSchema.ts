@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-export const registerSchema = (isLoginPage: boolean) => yup.object({
+export const AuthenticationSchema = (isLoginPage: boolean) => yup.object({
   email: yup
     .string()
     .email("L'email est invalide") 

@@ -1,10 +1,10 @@
 import InputFieldForm from "../common/InputFieldForm";
-import { useFormSchema } from "../hooks/useFormSchema";
+import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
 import { postRegister } from "../services/authenticationService";
 import { RegisterFormData } from "../types/User";
 
 function RegisterPage() {
-  const { register, handleSubmit, formState: { errors }, reset } = useFormSchema(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(false);
 
   const onSubmit = async (data: RegisterFormData) => {
     await postRegister(data);

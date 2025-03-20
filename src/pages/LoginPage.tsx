@@ -1,10 +1,10 @@
 import InputFieldForm from "../common/InputFieldForm";
-import { useFormSchema } from "../hooks/useFormSchema";
+import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
 import { postLogin } from "../services/authenticationService";
 import { FormData } from "../types/User";
 
 function LoginPage() {
-  const { register, handleSubmit, formState: { errors }, reset } = useFormSchema(true);
+  const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(true);
 
   const onSubmit = async (data: FormData) => {
     await postLogin(data);
