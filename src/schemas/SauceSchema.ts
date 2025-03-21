@@ -19,9 +19,11 @@ export const CreateSauceSchema = yup.object({
     
     ingredients: yup.array()
         .of(yup.string().required("Chaque ingrédient doit être renseigné"))
-        .min(1, "Au moins un ingrédient est requis"),
+        .min(1, "Au moins un ingrédient est requis")
+        .required("Les ingrédients sont requis"), 
     
     quantite: yup.array()
         .of(yup.string().required("Chaque quantité doit être renseignée"))
         .min(1, "Au moins une quantité est requise")
+        .required("Les quantités sont requises")
 });

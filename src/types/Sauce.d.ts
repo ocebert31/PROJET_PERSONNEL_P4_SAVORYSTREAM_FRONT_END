@@ -1,5 +1,5 @@
 export type Sauce = {
-    id: string,
+    id?: string,
     nom: string, 
     prix: number, 
     description: string, 
@@ -12,8 +12,8 @@ export interface ItemListManagerProps {
     label: string;
     id: string;
     list: string[];
-    setList: React.Dispatch<React.SetStateAction<string[]>>;
     field: keyof Sauce;
     setValue: (field: keyof Sauce, value: string[]) => void;
-    className?: string;
+    error?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
 }
+
