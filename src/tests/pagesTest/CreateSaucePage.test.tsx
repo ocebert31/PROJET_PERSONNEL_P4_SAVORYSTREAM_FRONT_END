@@ -1,14 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import CreateSaucePage from '../../pages/CreateSaucePage';
-import * as createSauces from '../../services/sauceServices';
+import { createSauces } from '../../services/sauceServices';
 import { vi, describe, beforeEach, test, expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { mockNewSauce } from '../_mocks_/mockSauces';
 import { Sauce } from '../../types/Sauce';
 
-vi.mock('../../services/sauceServices', () => ({
-  createSauces: vi.fn().mockResolvedValue(mockNewSauce),
-}));
+vi.mock("../../services/sauceServices", async () => {
+  const actual = await vi.importActual("../../services/sauceServices");
+  return {
+    ...actual,
+    createSauces: vi.fn(),
+  };
+});
 
 const getNameInput = () => screen.getByLabelText(/Nom de la sauce/i);
 const getDescriptionInput = () => screen.getByLabelText('Description');
@@ -46,7 +50,7 @@ describe('CreateSaucePage - Form behavior', () => {
     const invalidSauce = { ...mockNewSauce, prix: 'invalid' as any };
     await fillAndSubmitForm(invalidSauce);
     await waitFor(() => {
-      expect(createSauces.createSauces).not.toHaveBeenCalled();
+      expect(createSauces).not.toHaveBeenCalled();
       expect(screen.getByText(/Le prix doit être un nombre/i)).toBeInTheDocument();
     });
   });
@@ -54,7 +58,7 @@ describe('CreateSaucePage - Form behavior', () => {
   test('should display error message if a required field is missing', async () => {
     await userEvent.click(getSubmittButton());  
     await waitFor(() => {
-      expect(createSauces.createSauces).not.toHaveBeenCalled();
+      expect(createSauces).not.toHaveBeenCalled();
       expect(screen.getByText(/Nom de la sauce est requis/i)).toBeInTheDocument();
     });
   });
