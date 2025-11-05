@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ensureResponseIsOk } from "../../services/apiRequest";
+import { ensureResponseIsOk } from "../../../services/apiRequest";
 
 describe("ensureResponseIsOk", () => {
   describe("Success cases", () => {

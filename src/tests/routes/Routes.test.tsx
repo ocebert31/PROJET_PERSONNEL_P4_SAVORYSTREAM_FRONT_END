@@ -17,7 +17,6 @@ describe('Navigation behavior', () => {
     { path: '/register', text: /Inscription/i },
     { path: '/login', text: /Connexion/i },
     { path: '/', text: /Page d'Accueil/i },
-    { path: '/create-sauce', text: /Création d'une sauce/i }
   ];
 
   routes.forEach(({ path, text }) => {

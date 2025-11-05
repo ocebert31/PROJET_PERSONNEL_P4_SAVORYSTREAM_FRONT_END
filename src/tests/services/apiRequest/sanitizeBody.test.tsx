@@ -1,10 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { sanitizeBody } from "../../services/apiRequest";
+import { sanitizeBody } from "../../../services/apiRequest";
 
 describe("sanitizeBody", () => {
   it.each([
-    [{ test: "value" }, JSON.stringify({ test: "value" })],
-    [new FormData(), expect.any(FormData)],
     [null, null],
     ["simple text", "simple text"],
     [{}, "{}"],

@@ -17,7 +17,7 @@ describe('Header component', () => {
     });
 
     it('renders links', () => {
-        const links = ['Accueil', 'Inscription', 'Connexion', 'Créer une sauce'];
+        const links = ['Accueil', 'Inscription', 'Connexion'];
         links.forEach((link) => {
             expect(screen.getByText(link)).toBeInTheDocument();
         });
@@ -28,7 +28,6 @@ describe('Header component', () => {
             { text: 'Accueil', href: '/' },
             { text: 'Inscription', href: '/register' },
             { text: 'Connexion', href: '/login' },
-            { text: 'Créer une sauce', href: '/create-sauce' },
         ];
     
         links.forEach(({ text, href }) => {

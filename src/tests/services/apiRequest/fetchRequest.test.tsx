@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { fetchRequest } from "../../services/apiRequest";
-import { mockFetch } from "../mocks/apiRequest";
+import { fetchRequest } from "../../../services/apiRequest";
+import { mockFetch } from "../../mocks/apiRequest";
 
 describe("fetchRequest", () => {
     beforeEach(() => {
