@@ -4,6 +4,8 @@
 
 @import "tailwindcss";
 
+@import "flowbite";
+
 @theme {
     --color-primary: oklch(56.26% 0.1397 28.28);
 }

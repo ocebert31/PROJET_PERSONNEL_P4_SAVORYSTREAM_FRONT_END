@@ -1,0 +1,99 @@
+[
+    {
+        "id": 1,
+        "name": "Sauce Barbecue",
+        "description": "Une sauce fumée et légèrement sucrée, parfaite pour les grillades.",
+        "caracteristique": "Goût fumé, texture épaisse, couleur brun foncé",
+        "image_url": "/assets/bbq.jpg",
+        "is_available": true,
+        "accroche": "Le goût authentique du feu de bois dans chaque bouchée 🔥",
+        "ingredients": [
+            { "id": 1, "name": "Tomate", "quantité": "200g" },
+            { "id": 2, "name": "Sucre brun", "quantité": "30g" },
+            { "id": 3, "name": "Vinaigre", "quantité": "50ml" },
+            { "id": 4, "name": "Paprika fumé", "quantité": "5g" }
+        ],
+        "conditionnements": [
+            { "id": 1, "volume": "250ml", "prix": 3.99 },
+            { "id": 2, "volume": "500ml", "prix": 6.49 }
+        ],
+        "stock": { "quantité_dispo": 120 }
+    },
+    {
+        "id": 2,
+        "name": "Sauce Curry Doux",
+        "description": "Une sauce onctueuse et épicée juste ce qu’il faut, inspirée des saveurs indiennes.",
+        "caracteristique": "Douce, épicée, couleur jaune doré",
+        "image_url": "/assets/curry.jpg",
+        "is_available": true,
+        "accroche": "Un voyage parfumé vers l’Inde à chaque cuillère ✨",
+        "ingredients": [
+            { "id": 1, "name": "Crème", "quantité": "150ml" },
+            { "id": 2, "name": "Curry doux", "quantité": "10g" },
+            { "id": 3, "name": "Oignon", "quantité": "30g" },
+            { "id": 4, "name": "Ail", "quantité": "5g" }
+        ],
+        "conditionnements": [
+            { "id": 1, "volume": "250ml", "prix": 4.29 },
+            { "id": 2, "volume": "1L", "prix": 9.99 }
+        ],
+        "stock": { "quantité_dispo": 45 }
+    },
+    {
+        "id": 3,
+        "name": "Sauce Chili Extra Forte",
+        "description": "Pour les amateurs de sensations fortes — une sauce piquante à base de piments rouges.",
+        "caracteristique": "Très piquante, liquide, rouge vif",
+        "image_url": "assets/chili.jpg",
+        "is_available": false,
+        "accroche": "Oserez-vous dompter sa flamme rouge ? 🌶️",
+        "ingredients": [
+            { "id": 1, "name": "Piments rouges", "quantité": "150g" },
+            { "id": 2, "name": "Vinaigre blanc", "quantité": "50ml" },
+            { "id": 3, "name": "Sel", "quantité": "3g" }
+        ],
+        "conditionnements": [
+            { "id": 1, "volume": "150ml", "prix": 5.49 },
+            { "id": 2, "volume": "500ml", "prix": 11.99 }
+        ],
+        "stock": { "quantité_dispo": 0 }
+    },
+    {
+        "id": 4,
+        "name": "Sauce Fromage Bleu",
+        "description": "Une sauce crémeuse et relevée pour accompagner viandes et légumes.",
+        "caracteristique": "Goût fort, texture lisse, couleur blanche",
+        "image_url": "assets/fromage_bleu.jpg",
+        "is_available": true,
+        "accroche": "Le caractère du bleu, la douceur de la crème 💙",
+        "ingredients": [
+            { "id": 1, "name": "Crème fraîche", "quantité": "200ml" },
+            { "id": 2, "name": "Fromage bleu", "quantité": "80g" },
+            { "id": 3, "name": "Beurre", "quantité": "20g" }
+        ],
+        "conditionnements": [
+            { "id": 1, "volume": "200ml", "prix": 4.79 },
+            { "id": 2, "volume": "500ml", "prix": 8.99 }
+        ],
+        "stock": { "quantité_dispo": 60 }
+    },
+    {
+        "id": 5,
+        "name": "Sauce Aïoli Maison",
+        "description": "Une sauce méditerranéenne à base d’ail et d’huile d’olive.",
+        "caracteristique": "Goût prononcé d’ail, texture épaisse, couleur jaune pâle",
+        "image_url": "assets/aïoli.jpg",
+        "is_available": false,
+        "accroche": "Un rayon de soleil provençal dans votre assiette ☀️",
+        "ingredients": [
+            { "id": 1, "name": "Ail", "quantité": "10g" },
+            { "id": 2, "name": "Huile d’olive", "quantité": "100ml" },
+            { "id": 3, "name": "Œuf", "quantité": "1" },
+            { "id": 4, "name": "Jus de citron", "quantité": "10ml" }
+        ],
+        "conditionnements": [
+            { "id": 1, "volume": "250ml", "prix": 3.49 }
+        ],
+        "stock": { "quantité_dispo": 0 }
+    }
+]

@@ -16,7 +16,7 @@ describe('Navigation behavior', () => {
   const routes = [
     { path: '/register', text: /Inscription/i },
     { path: '/login', text: /Connexion/i },
-    { path: '/', text: /Page d'Accueil/i },
+    { path: '/', text: /Nos Sauces Maison 🍶/i },
   ];
 
   routes.forEach(({ path, text }) => {
