@@ -28,13 +28,21 @@ describe('LoginPage - Form behavior', () => {
     test('should initialize form fields correctly', () => {
         expect(getEmailInput()).toBeInTheDocument();
         expect(getPasswordInput()).toBeInTheDocument();
-    });
+    }); 
 
     test('should call postLogin with valid data on form submission', async () => {
         const email = `${uuidv4()}@example.com`;
         const password = 'ValidPassword123!';
+
+        (postLogin.postLogin as vi.Mock).mockResolvedValue({
+            token: 'fake-token',
+        });
+
         await fillAndSubmitForm(email, password);
-        await waitFor(() => expect(postLogin.postLogin).toHaveBeenCalledWith({ email, password }));
+
+        await waitFor(() =>
+            expect(postLogin.postLogin).toHaveBeenCalledWith({ email, password })
+        );
     });
 
     test('should not submit form with invalid data', async () => {

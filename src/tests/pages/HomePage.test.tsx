@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import HomePage from "../../pages/HomePage";
+import { MemoryRouter } from "react-router-dom"; 
 
 vi.mock("../../data/sauces.json", () => ({
     default: [
@@ -32,21 +33,27 @@ vi.mock("../../data/sauces.json", () => ({
 }));
 
 describe("HomePage", () => {
+    const renderHomePage = () => render(
+        <MemoryRouter> 
+            <HomePage /> 
+        </MemoryRouter>
+    );
+
     it("should render the main title", () => {
-        render(<HomePage />);
+        renderHomePage();
         const title = screen.getByText("Nos Sauces Maison 🍶");
         expect(title).toBeInTheDocument();
     });
 
     it("should render all sauces from the JSON", () => {
-        render(<HomePage />);
+        renderHomePage();
         expect(screen.getByText("Sauce Barbecue")).toBeInTheDocument();
         expect(screen.getByText("Sauce Samurai")).toBeInTheDocument();
         expect(screen.getByText("Sauce Mystère")).toBeInTheDocument();
     });
     
         it("should render sauce images with correct alt text", () => {
-        render(<HomePage />);
+        renderHomePage();
         const images = screen.getAllByRole("img");
         expect(images).toHaveLength(3);
         expect(images[0]).toHaveAttribute("alt", "Sauce Barbecue");
@@ -55,24 +62,24 @@ describe("HomePage", () => {
     });
 
     it("should display the price for sauces with conditionnements", () => {
-        render(<HomePage />);
+        renderHomePage();
         expect(screen.getByText("3.99 €")).toBeInTheDocument();
         expect(screen.getByText("4.49 €")).toBeInTheDocument();
     });
 
     it("should display 'N/A €' when no conditionnement is available", () => {
-        render(<HomePage />);
+        renderHomePage();
         expect(screen.getByText("N/A €")).toBeInTheDocument();
     });
 
     it("should display 'Disponible' for available sauces", () => {
-        render(<HomePage />);
+        renderHomePage();
         const availableBadges = screen.getAllByText("Disponible");
         expect(availableBadges.length).toBeGreaterThanOrEqual(1);
     });
 
     it("should display 'En rupture' for unavailable sauces", () => {
-        render(<HomePage />);
+        renderHomePage();
         expect(screen.getByText("En rupture")).toBeInTheDocument();
     });
 });
