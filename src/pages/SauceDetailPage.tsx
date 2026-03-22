@@ -1,10 +1,10 @@
 import { useParams } from "react-router-dom";
-import SauceTabs from "../components/Sauce/Detail/SauceTabs";
+import SauceDetailBreadcrumb from "../components/Sauce/Detail/Layout/SauceDetailBreadcrumb";
+import SauceDetailMedia from "../components/Sauce/Detail/Layout/SauceDetailMedia";
+import SauceDetailNotFound from "../components/Sauce/Detail/Layout/SauceDetailNotFound";
+import SauceDetailPurchasePanel from "../components/Sauce/Detail/Purchase/SauceDetailPurchasePanel";
+import SauceTabs from "../components/Sauce/Detail/Tabs/SauceTabs";
 import { useSauceDetail } from "../hooks/useSauceDetail";
-import SauceDetailNotFound from "../components/sauce-detail/SauceDetailNotFound";
-import SauceDetailBreadcrumb from "../components/sauce-detail/SauceDetailBreadcrumb";
-import SauceDetailMedia from "../components/sauce-detail/SauceDetailMedia";
-import SauceDetailPurchasePanel from "../components/sauce-detail/SauceDetailPurchasePanel";
 
 function SauceDetail() {
   const { id } = useParams<{ id: string }>();

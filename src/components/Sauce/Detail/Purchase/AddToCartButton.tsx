@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { AddToCartProps } from "../../../types/Sauce";
-import AddSauceToCart from "./AddSauceToCart";
+import type { AddToCartProps } from "@/types/Sauce";
+import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 
 function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
   if (!sauce || !selected) return null;

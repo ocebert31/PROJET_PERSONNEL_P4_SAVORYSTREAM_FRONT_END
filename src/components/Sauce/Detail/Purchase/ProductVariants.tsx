@@ -1,10 +1,10 @@
-import { ProductVariantsProps } from "../../../types/Sauce";
+import type { ProductVariantsProps } from "@/types/Sauce";
 
 const ProductVariants = ({ variants, selectedId, onSelect, isAvailable = true }: ProductVariantsProps) => {
   return (
     <div className="flex flex-wrap gap-3">
       {variants.map((v) => (
-        <button key={v.id} type="button" onClick={() => onSelect(v.id)}disabled={!isAvailable}
+        <button key={v.id} type="button" onClick={() => onSelect(v.id)} disabled={!isAvailable}
           className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
             !isAvailable
               ? "cursor-not-allowed bg-border text-muted"

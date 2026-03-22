@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SauceTabsProps } from "../../../types/Sauce";
+import type { SauceTabsProps } from "../../../../types/Sauce";
 
 function SauceTabs({ caracteristique, ingredients }: SauceTabsProps) {
   const [activeTab, setActiveTab] = useState<"caracteristique" | "ingredients">("caracteristique");

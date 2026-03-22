@@ -58,3 +58,12 @@ export interface SauceBuySectionProps {
   quantity: number;
   setQuantity: Dispatch<SetStateAction<number>>;
 }
+
+export type SauceDetailPurchasePanelProps = {
+  sauce: Sauce;
+  selected: Conditioning | undefined;
+  selectedCond: number | null;
+  quantity: number;
+  setSelectedCond: Dispatch<SetStateAction<number | null>>;
+  setQuantity: Dispatch<SetStateAction<number>>;
+};

@@ -1,16 +1,6 @@
-import type { Dispatch, SetStateAction } from "react";
-import ProductVariants from "../Sauce/Detail/ProductVariants";
-import SauceBuySection from "../Sauce/Detail/SauceBuySection";
-import type { Conditioning, Sauce } from "../../types/Sauce";
-
-type SauceDetailPurchasePanelProps = {
-  sauce: Sauce;
-  selected: Conditioning | undefined;
-  selectedCond: number | null;
-  quantity: number;
-  setSelectedCond: Dispatch<SetStateAction<number | null>>;
-  setQuantity: Dispatch<SetStateAction<number>>;
-};
+import type { SauceDetailPurchasePanelProps } from "@/types/Sauce";
+import ProductVariants from "@/components/Sauce/Detail/Purchase/ProductVariants";
+import SauceBuySection from "@/components/Sauce/Detail/Purchase/SauceBuySection";
 
 function SauceDetailPurchasePanel({ sauce, selected, selectedCond, quantity, setSelectedCond, setQuantity }: SauceDetailPurchasePanelProps) {
   return (

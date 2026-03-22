@@ -1,4 +1,4 @@
-import { SauceItem, Conditioning, Sauce } from "../../../types/Sauce";
+import type { Conditioning, Sauce, SauceItem } from "@/types/Sauce";
 
 function AddSauceToCart(sauce: Sauce, selected: Conditioning, quantity: number) {
   const cart: SauceItem[] = JSON.parse(localStorage.getItem("cart") || "[]");
