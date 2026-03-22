@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 
-interface Sauce {
+export interface Sauce {
   id: number;
   name: string;
   description: string;
@@ -9,22 +9,23 @@ interface Sauce {
   image_url: string;
   conditionnements: Conditioning[];
   ingredients?: Ingredient[];
+  accroche?: string;
 }
 
-interface Conditioning {
+export interface Conditioning {
   id: number;
   volume: string;
   prix: number;
   stock?: number;
 }
 
-interface Ingredient {
+export interface Ingredient {
   id: number;
   name: string;
   quantité: string;
 }
 
-interface SauceItem {
+export interface SauceItem {
   sauceId: number;
   condId: number;
   name: string;
@@ -33,25 +34,25 @@ interface SauceItem {
   quantity: number;
 }
 
-interface ProductVariantsProps {
+export interface ProductVariantsProps {
   variants: Conditioning[];
   selectedId: number | null;
   onSelect: (id: number) => void;
   isAvailable?: boolean;
 }
 
-interface AddToCartProps {
-  sauce: Sauce
+export interface AddToCartProps {
+  sauce: Sauce;
   selected: Conditioning | null;
-  quantity: number
+  quantity: number;
 }
 
-interface SauceTabsProps {
+export interface SauceTabsProps {
   caracteristique?: string;
   ingredients?: Ingredient[];
 }
 
-interface SauceBuySectionProps {
+export interface SauceBuySectionProps {
   sauce: Sauce;
   selected: Conditioning;
   quantity: number;
