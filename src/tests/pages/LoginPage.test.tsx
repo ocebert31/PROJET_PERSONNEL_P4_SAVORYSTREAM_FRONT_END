@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import LoginPage from '../../pages/LoginPage';
 import * as postLogin from '../../services/authenticationService';
-import { vi, describe, beforeEach, test, expect } from 'vitest';
+import { vi, describe, beforeEach, test, expect, type Mock } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
@@ -9,7 +10,7 @@ vi.mock('../../services/authenticationService', () => ({
     postLogin: vi.fn(),
 }));
 
-const getEmailInput = () => screen.getByLabelText(/Nom/i);
+const getEmailInput = () => screen.getByLabelText(/Email/i);
 const getPasswordInput = () => screen.getByLabelText('Mot de passe');
 const getSubmitButton = () => screen.getByRole('button', { name: /Se connecter/i });
 
@@ -22,7 +23,11 @@ const fillAndSubmitForm = async (email: string, password: string) => {
 describe('LoginPage - Form behavior', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        render(<LoginPage />);
+        render(
+            <MemoryRouter>
+                <LoginPage />
+            </MemoryRouter>
+        );
     });
 
     test('should initialize form fields correctly', () => {
@@ -34,7 +39,7 @@ describe('LoginPage - Form behavior', () => {
         const email = `${uuidv4()}@example.com`;
         const password = 'ValidPassword123!';
 
-        (postLogin.postLogin as vi.Mock).mockResolvedValue({
+        (postLogin.postLogin as Mock).mockResolvedValue({
             token: 'fake-token',
         });
 

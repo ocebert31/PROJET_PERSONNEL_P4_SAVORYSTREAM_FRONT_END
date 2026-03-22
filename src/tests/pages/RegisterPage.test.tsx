@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import RegisterPage from '../../pages/RegisterPage';
 import * as postRegister from '../../services/authenticationService';
 import { vi, describe, beforeEach, test, expect } from 'vitest';
@@ -10,7 +11,7 @@ vi.mock('../../services/authenticationService', () => ({
 }));
 
 const getFormElements = () => ({
-    emailInput: screen.getByLabelText(/Nom/i) as HTMLInputElement,
+    emailInput: screen.getByLabelText(/Email/i) as HTMLInputElement,
     passwordInput: screen.getByLabelText('Mot de passe') as HTMLInputElement,
     confirmPasswordInput: screen.getByLabelText('Confirmer le mot de passe') as HTMLInputElement,
     submitButton: screen.getByRole('button', { name: /S'inscrire/i })
@@ -31,7 +32,11 @@ const checkErrorMessage = (message: RegExp) => {
 describe('RegisterPage - Form behavior', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        render(<RegisterPage />);
+        render(
+            <MemoryRouter>
+                <RegisterPage />
+            </MemoryRouter>
+        );
     });
 
     test('should initialize form fields correctly', () => {

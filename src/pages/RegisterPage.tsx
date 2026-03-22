@@ -1,7 +1,10 @@
 import InputFieldForm from "../common/InputFieldForm";
+import AuthCard from "../components/Auth/AuthCard";
+import AuthPageLayout from "../components/Auth/AuthPageLayout";
 import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
 import { postRegister } from "../services/authenticationService";
 import { RegisterFormData } from "../types/User";
+import { Link } from "react-router-dom";
 
 function RegisterPage() {
   const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(false);
@@ -12,21 +15,22 @@ function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-sm p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-semibold text-primary text-center mb-8">Inscription</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <InputFieldForm label="Nom" name="email" htmlFor="email" id="email" register={register} errors={errors} type="text"/>
+    <AuthPageLayout variant="secondary">
+      <AuthCard eyebrow="Rejoignez-nous" title="Inscription" subtitle="Créez votre compte pour commander et suivre vos livraisons."
+        footer={
+          <p className="mt-8 text-center text-sm text-muted">
+            Déjà inscrit ? <Link to="/login" className="font-semibold text-primary hover:text-primary-hover">Se connecter</Link>
+          </p>}>
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
+          <InputFieldForm label="Email" name="email" htmlFor="email" id="email" register={register} errors={errors} type="text" />
           <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" />
-          <InputFieldForm label="Confirmer le mot de passe" name="confirmPassword" htmlFor="confirmPassword" id="confirmPassword" register={register} errors={errors} type="password"/>
-          <div className="flex items-center justify-between">
-            <button type="submit" className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 transition-colors duration-300">
-              S'inscrire
-            </button>
-          </div>
+          <InputFieldForm label="Confirmer le mot de passe" name="confirmPassword" htmlFor="confirmPassword" id="confirmPassword" register={register} errors={errors} type="password" />
+          <button type="submit" className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover">
+            S&apos;inscrire
+          </button>
         </form>
-      </div>
-    </div>
+      </AuthCard>
+    </AuthPageLayout>
   );
 }
 
