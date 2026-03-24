@@ -1,51 +1,58 @@
-# React + TypeScript + Vite
+# SavoryStream — front-end
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application **e-commerce vitrine** (React / Vite) : catalogue de sauces, fiche produit, inscription / connexion, panier géré côté navigateur (**localStorage**). Le catalogue et le détail s’appuient sur des **données statiques** (`src/data`) ; le backend n’est sollicité que pour l’**authentification**.
 
-Currently, two official plugins are available:
+## Documentation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+La **spec complète** (parcours utilisateur, stack détaillée, architecture des dossiers, stratégie de tests, déploiement, **CI & Dependabot**) est sur Notion :
 
-## Expanding the ESLint configuration
+**[Spec — SavoryStream (front-end)](https://www.notion.so/32bd2d722f2d81d58cfcedd40178e0e4)**
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Stack (résumé)
 
-- Configure the top-level `parserOptions` property like this:
+| Domaine   | Choix principaux                          |
+|-----------|-------------------------------------------|
+| Langage   | TypeScript                                |
+| UI        | React 19, Tailwind CSS 4, Flowbite        |
+| Build     | Vite 6                                    |
+| Routing   | React Router 7                            |
+| Formulaires | react-hook-form, Yup                    |
+| Tests     | Vitest, Testing Library                   |
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Structure du dépôt (aperçu)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+- `src/pages/` — écrans liés aux routes (ex. accueil, détail produit, login).
+- `src/components/` — UI par domaine (`home/`, `Sauce/`, `auth/`, `Header/`, `Footer/`).
+- `src/tests/` — tests en miroir de `src/` (même arborescence logique).
+- `.github/` — **CI** (`workflows/ci.yml`), **Dependabot** (`dependabot.yml`), **auto-merge** ciblé (`dependabot-auto-merge.yml`).
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Le détail des flux et conventions : **spec Notion, §3**.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
-# PROJET_PERSONNEL_P4_SAVORYSTREAM_FRONT_END
+## Prérequis & installation
+
+- **Node.js** **20** (LTS) ou supérieur · **npm**
+- À la racine : `npm install`
+
+## Variables d’environnement
+
+Créer un fichier **`.env`** (non versionné) à la racine :
+
+| Variable              | Rôle |
+|-----------------------|------|
+| `VITE_API_URL_AUTH`   | URL de base du service d’**authentification** (inscription / connexion). |
+
+Sans `VITE_API_URL_AUTH`, les appels auth peuvent échouer.
+
+## Scripts npm
+
+| Commande          | Usage |
+|-------------------|--------|
+| `npm run dev`     | Serveur de dev Vite (HMR) |
+| `npm run build`   | `tsc -b` + build production → `dist/` |
+| `npm run preview` | Prévisualiser le build localement |
+| `npm run test`    | Suite Vitest |
+| `npm run lint`    | ESLint |
+
+## Qualité & intégration continue
+
+Les **pull requests** et les **push** sur `main` déclenchent une **CI** (lint, tests, build), sauf si seuls des fichiers **`.md`** sont modifiés. Comportement exact et politique **Dependabot / auto-merge** : **spec Notion §8**.
