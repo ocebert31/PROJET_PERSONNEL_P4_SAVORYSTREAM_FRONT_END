@@ -1,5 +1,7 @@
 # Dependabot : ouvre des PR automatiques pour proposer des mises à jour (sécurité, correctifs).
-# Merge quand la CI est verte ; rien n’est appliqué sur main sans une validation.
+# L’auto-merge pour les mises à jour à faible risque est géré par
+# .github/workflows/dependabot-auto-merge.yml (patch ; minor limité à dev + github-actions).
+# Sinon : merger manuellement quand la CI est verte.
 version: 2
 updates:
   # Dépendances npm (package.json + package-lock.json à la racine du repo).
