@@ -1,0 +1,24 @@
+# Dependabot : ouvre des PR automatiques pour proposer des mises à jour (sécurité, correctifs).
+# Merge quand la CI est verte ; rien n’est appliqué sur main sans une validation.
+version: 2
+updates:
+  # Dépendances npm (package.json + package-lock.json à la racine du repo).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      # Fréquence des vérifications.
+      interval: weekly
+    # Limite le nombre de PR npm ouvertes en parallèle pour éviter la surcharge.
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+      - npm
+
+  # Versions des actions GitHub utilisées dans .github/workflows/*.yml (ex. actions/checkout@v4).
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - github-actions
