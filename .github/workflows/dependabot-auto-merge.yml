@@ -1,0 +1,79 @@
+# =============================================================================
+# Dependabot auto-merge — guide de lecture
+# =============================================================================
+#
+# À quoi ça sert ?
+#   Quand Dependabot ouvre une PR, ce workflow peut activer l’« auto-merge » GitHub :
+#   la branche sera fusionnée dans main automatiquement dès que les exigences du dépôt
+#   seront remplies (surtout : CI verte). Ce n’est pas un merge immédiat.
+#
+# Prérequis sur github.com (à faire une fois) :
+#   • Settings → General → Pull Requests → Allow auto-merge
+#   • Branche main protégée : exiger les checks de la CI (lint, tests, build)
+#
+# Rappel SemVer (version X.Y.Z) :
+#   patch = Z (correctifs) | minor = Y (nouveautés compatibles) | major = X (changements cassants)
+#
+# Quand l’auto-merge est-il activé par CE fichier ? (résumé)
+#
+#   | Mise à jour | Dépendance npm « prod » (dependencies) | devDependency | GitHub Actions |
+#   |-------------|----------------------------------------|---------------|----------------|
+#   | patch       | oui                                    | oui           | oui            |
+#   | minor       | non (merge manuel)                     | oui           | oui            |
+#   | major       | non                                    | non           | non            |
+#
+# Flux :  PR Dependabot → étape « metadata » (lit le type semver) → si règle OK → gh pr merge --auto
+#
+# =============================================================================
+
+name: Dependabot auto-merge
+
+# S’exécute à chaque création / réouverture / nouveau commit sur une PR.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+# Droits nécessaires pour enregistrer l’option « merge automatique » sur la PR.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    name: Enable auto-merge (low-risk updates)
+    runs-on: ubuntu-latest
+    # Seules les PR créées par Dependabot (pas les PR humaines).
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      # -----------------------------------------------------------------------
+      # Étape 1 : lire les métadonnées de la PR (type semver, prod vs dev, écosystème).
+      # -----------------------------------------------------------------------
+      - name: Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v2
+        with:
+          # Jeton fourni par GitHub pour cette exécution (accès API au dépôt courant).
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # -----------------------------------------------------------------------
+      # Étape 2 : si le tableau ci-dessus autorise l’auto-merge, l’activer via la CLI GitHub
+      # -----------------------------------------------------------------------
+      # Formule logique équivalente au tableau (|| = OU , && = ET) :
+      #   PATCH  → toujours oui
+      #   MINOR  → oui seulement si dev npm (direct:development) OU mises à jour github-actions
+      #   MAJOR  → toujours non (cette condition ne matche jamais « semver-major »)
+      #
+      # Si la condition est fausse : cette étape est « skipped », aucune commande ci-dessous.
+      - name: Enable auto-merge
+        if: ${{ steps.meta.outputs.update-type == 'version-update:semver-patch' || (steps.meta.outputs.update-type == 'version-update:semver-minor' && (steps.meta.outputs.dependency-type == 'direct:development' || steps.meta.outputs.package-ecosystem == 'github-actions')) }}
+        # `gh` = GitHub CLI (déjà installée sur l’image ubuntu-latest).
+        # `pr merge` = préparer la fusion de la pull request dont l’URL est PR_URL.
+        # `--auto` = ne pas fusionner tout de suite : enregistrer la PR en « merge auto » dès que
+        #            GitHub pourra le faire (CI verte, règles de branche respectées).
+        # `--merge` = utiliser un merge commit (et pas squash ni rebase) quand la fusion aura lieu.
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          # Authentifie la CLI `gh` auprès de l’API GitHub.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # URL de la PR déclenchante.
+          PR_URL: ${{ github.event.pull_request.html_url }}
