@@ -46,7 +46,7 @@ const validLoginData = {
     password: 'password123',
 };
 
-const validateData = async (data: any) => {
+const validateData = async (data: unknown) => {
     return AuthenticationSchema(false).validate(data);
 };
   
@@ -59,7 +59,7 @@ const validateError = (error: unknown, expectedError: string | null) => {
     }
 };
   
-const validateSchema = async (data: any, expectedError: string | null = null, isLoginPage: boolean = false) => {
+const validateSchema = async (data: unknown, expectedError: string | null = null, isLoginPage: boolean = false) => {
     try {
         if (expectedError) {
             await validateData(data);

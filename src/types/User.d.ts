@@ -1,16 +1,4 @@
-import { FieldError, UseFormRegister } from 'react-hook-form';
-import { string } from "yup";
-
-export type InputFieldProps = {
-    label: string;
-    name: string;
-    htmlFor: string;
-    id: string;
-    register: UseFormRegister<any>;
-    errors?: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
-    'data-testid'?: string;
-    type?: string;
-};
+import type { FieldErrors, UseFormRegister } from 'react-hook-form';
 
 export interface FormData {
     email: string;
@@ -20,3 +8,14 @@ export interface FormData {
 export interface RegisterFormData extends FormData {
     confirmPassword?: string;
 }
+
+export type InputFieldProps = {
+    label: string;
+    name: keyof RegisterFormData & string;
+    htmlFor: string;
+    id: string;
+    register: UseFormRegister<RegisterFormData>;
+    errors?: FieldErrors<RegisterFormData>;
+    'data-testid'?: string;
+    type?: string;
+};
