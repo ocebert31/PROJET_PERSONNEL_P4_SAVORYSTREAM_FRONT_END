@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import type { Sauce } from "../../../types/Sauce";
-import HomeCatalogue from "../../../components/Home/HomeCatalogue";
+import HomeCatalogue from "../../../components/home/HomeCatalogue";
 
 const sauces: Sauce[] = [
   {

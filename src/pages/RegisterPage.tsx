@@ -1,6 +1,6 @@
 import InputFieldForm from "../common/InputFieldForm";
-import AuthCard from "../components/Auth/AuthCard";
-import AuthPageLayout from "../components/Auth/AuthPageLayout";
+import AuthCard from "../components/auth/AuthCard";
+import AuthPageLayout from "../components/auth/AuthPageLayout";
 import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
 import { postRegister } from "../services/authenticationService";
 import { RegisterFormData } from "../types/User";
