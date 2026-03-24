@@ -11,7 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.0.9",
     "flowbite": "^3.1.2",
     "flowbite-react": "^0.12.10",
