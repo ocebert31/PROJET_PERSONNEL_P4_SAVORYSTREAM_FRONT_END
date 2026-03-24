@@ -22,13 +22,11 @@ describe('Navigation behavior', () => {
   routes.forEach(({ path, text }) => {
     it(`renders the correct page when navigating to ${path}`, () => {
       renderWithRouter(path);
-      screen.debug()
       expect(screen.getByText(text)).toBeInTheDocument();
     });
 
     it(`does not render the page when not on ${path}`, () => {
       renderWithRouter('/other-route');
-      screen.debug()
       expect(screen.queryByText(text)).not.toBeInTheDocument();
     });
   });

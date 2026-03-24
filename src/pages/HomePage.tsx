@@ -1,8 +1,8 @@
 import sauces from "../data/sauces.json";
 import type { Sauce } from "../types/Sauce";
-import HomeHero from "../components/Home/HomeHero";
-import HomeCatalogue from "../components/Home/HomeCatalogue";
-import HomeTrustStrip from "../components/Home/HomeTrustStrip";
+import HomeHero from "../components/home/HomeHero";
+import HomeCatalogue from "../components/home/HomeCatalogue";
+import HomeTrustStrip from "../components/home/HomeTrustStrip";
 
 const catalog = sauces as Sauce[];
 

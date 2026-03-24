@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import AuthPageLayout from "../../../components/Auth/AuthPageLayout";
+import AuthPageLayout from "../../../components/auth/AuthPageLayout";
 
 describe("AuthPageLayout", () => {
   it("renders children inside the layout", () => {

@@ -3,12 +3,13 @@ import type { AddToCartProps } from "@/types/Sauce";
 import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 
 function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
-  if (!sauce || !selected) return null;
-
   const handleAddToCart = useCallback(() => {
+    if (!sauce || !selected) return;
     AddSauceToCart(sauce, selected, quantity);
     alert(`${quantity} × ${sauce.name} ajouté${quantity > 1 ? "s" : ""} au panier !`);
   }, [sauce, selected, quantity]);
+
+  if (!sauce || !selected) return null;
 
   const buttonLabel = sauce.is_available ? "Ajouter au panier" : "Indisponible";
   const buttonClasses = sauce.is_available

@@ -17,7 +17,9 @@ function InputFieldForm({ label, name, register, errors, id, htmlFor, type = "te
         {label}
       </label>
       <Field {...inputProps} />
-      {errors[name] && <p className="text-xs text-rose-600">{errors[name]?.message}</p>}
+      {errors?.[name]?.message != null && (
+        <p className="text-xs text-rose-600">{errors[name]?.message}</p>
+      )}
     </div>
   );
 }

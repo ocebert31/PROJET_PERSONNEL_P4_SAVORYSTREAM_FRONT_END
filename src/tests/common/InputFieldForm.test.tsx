@@ -1,15 +1,17 @@
 import { render, screen } from '@testing-library/react';
+import type { FieldErrors, UseFormRegister } from 'react-hook-form';
 import InputField from '../../common/InputFieldForm';
+import type { InputFieldProps, RegisterFormData } from '../../types/User';
 import { vi, describe, expect, it, beforeEach } from 'vitest';
 
 describe('InputField Component', () => {
   const mockRegister = vi.fn();
 
-  const defaultProps = {
+  const defaultProps: InputFieldProps = {
     label: 'TestLabel',
     name: 'email',
-    register: mockRegister,
-    errors: '',
+    register: mockRegister as unknown as UseFormRegister<RegisterFormData>,
+    errors: undefined,
     id: 'email-input',
     htmlFor: 'email-input',
     type: 'text',
@@ -19,7 +21,8 @@ describe('InputField Component', () => {
     vi.clearAllMocks();
   });
 
-  const renderInputField = (props = {}) => render(<InputField {...defaultProps} {...props} />);
+  const renderInputField = (props: Partial<InputFieldProps> = {}) =>
+    render(<InputField {...defaultProps} {...props} />);
 
   it('renders the label and input with correct attributes', () => {
     renderInputField();
@@ -36,9 +39,12 @@ describe('InputField Component', () => {
   });
 
   it('shows an error message when provided', () => {
-    const errors = { email: { message: "L'email est requis" } };
+    const errorMessage = "L'email est requis";
+    const errors: FieldErrors<RegisterFormData> = {
+      email: { type: 'required', message: errorMessage },
+    };
     renderInputField({ name: 'email', errors });
-    expect(screen.getByText(errors.email.message)).toBeInTheDocument();
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
   });
 
   it('hides the error message when no error is provided', () => {

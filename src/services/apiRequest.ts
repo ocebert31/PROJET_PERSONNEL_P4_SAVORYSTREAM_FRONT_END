@@ -1,42 +1,76 @@
 const BASE_URL = import.meta.env.VITE_API_URL_AUTH;
 
+/** Valeurs acceptées après sanitisation (aligné sur l’usage historique + fetch). */
+type SanitizedBody = FormData | string | number | boolean | null | undefined;
+
 interface FetchRequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-    body?: any;
+    body?: unknown;
     token?: string | null;
     url?: string;
 }
 
-async function fetchRequest(endpoint: string, { method = 'GET', body = null, token = null, url = BASE_URL }: FetchRequestOptions): Promise<any> {
+async function fetchRequest(
+    endpoint: string,
+    { method = 'GET', body = null, token = null, url = BASE_URL }: FetchRequestOptions,
+): Promise<unknown> {
     try {
         verifyBodyIsEmpty(body);
         const sanitizedBody = sanitizeBody(body);
         const response = await triggerFetch(endpoint, method, token, sanitizedBody, url);
         await ensureResponseIsOk(response);
         return response.json();
-    } catch (error: any) {
-        console.error(error.message);
-        throw error; 
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(message);
+        throw error;
     }
 }
 
-function verifyBodyIsEmpty(body: any) {
-    if(body === "") {
-        throw new Error("Request body cannot be empty")
+function verifyBodyIsEmpty(body: unknown) {
+    if (body === "") {
+        throw new Error("Request body cannot be empty");
     }
 }
 
-function sanitizeBody (body: any) {
+function sanitizeBody(body: unknown): SanitizedBody {
     if (body instanceof FormData) {
-      return body;
+        return body;
     }
-    if (typeof body === "object" && body !== null) {
-      return JSON.stringify(body);
+    if (body === null || body === undefined) {
+        return body;
     }
-    return body; 
-};
+    if (typeof body === "object") {
+        return JSON.stringify(body);
+    }
+    if (typeof body === "string") {
+        return body;
+    }
+    return body as number | boolean;
+}
 
-async function triggerFetch(endpoint: string, method: string, token: string | null, body: any, url: string | null): Promise<Response> {
+/** Comme l’historique `body || undefined`, puis conversion en `BodyInit` (fetch n’accepte pas `number` brut). */
+function sanitizedToFetchBody(body: SanitizedBody): BodyInit | undefined {
+    const payload = body || undefined;
+    if (payload === undefined) {
+        return undefined;
+    }
+    if (payload instanceof FormData) {
+        return payload;
+    }
+    if (typeof payload === "string") {
+        return payload;
+    }
+    return String(payload);
+}
+
+async function triggerFetch(
+    endpoint: string,
+    method: string,
+    token: string | null,
+    body: SanitizedBody,
+    url: string | null,
+): Promise<Response> {
     const response = await fetch(`${url}${endpoint}`, {
         method,
         headers: {
@@ -44,7 +78,7 @@ async function triggerFetch(endpoint: string, method: string, token: string | nu
             ...(token && { 'Authorization': `Bearer ${token}` }),
             ...((body && !(body instanceof FormData)) && { 'Content-Type': 'application/json' }),
         },
-        body: body || undefined,
+        body: sanitizedToFetchBody(body),
     });
     if (!response.ok) {
         const errorData = await response.json();

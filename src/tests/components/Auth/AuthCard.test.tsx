@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import AuthCard from "../../../components/Auth/AuthCard";
+import AuthCard from "../../../components/auth/AuthCard";
 
 describe("AuthCard", () => {
   it("renders eyebrow, title and subtitle", () => {
