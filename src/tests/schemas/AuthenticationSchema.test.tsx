@@ -3,40 +3,47 @@ import { describe, it, expect } from 'vitest';
 import { ValidationError } from 'yup';
 
 const validData = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phoneNumber: '0612345678',
     email: 'test@example.com',
     password: 'password123',
     confirmPassword: 'password123',
 };
 
 const invalidEmailData = {
+    ...validData,
     email: 'invalid-email',
-    password: 'password123',
-    confirmPassword: 'password123',
 };
 
 const noEmailData = {
-    password: 'password123',
-    confirmPassword: 'password123',
+    ...validData,
+    email: undefined,
 };
 
 const shortPasswordData = {
-    email: 'test@example.com',
-    password: '123',
-    confirmPassword: '123',
+    ...validData,
+    password: 'short1',
+    confirmPassword: 'short1',
 };
 
 const noPasswordData = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phoneNumber: '0612345678',
     email: 'test@example.com',
     confirmPassword: 'password123',
 };
 
 const mismatchedPasswordData = {
-    email: 'test@example.com',
-    password: 'password123',
+    ...validData,
     confirmPassword: 'wrongpassword',
 };
 
 const noConfirmPasswordData = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    phoneNumber: '0612345678',
     email: 'test@example.com',
     password: 'password123',
 };
@@ -85,8 +92,8 @@ describe('registerSchema validation when it is Register Page', () => {
         await validateSchema(noEmailData, "L'email est requis");
     });
 
-    it('should invalidate password less than 6 characters', async () => {
-        await validateSchema(shortPasswordData, "Au moins 6 caractères");
+    it('should invalidate password less than 8 characters', async () => {
+        await validateSchema(shortPasswordData, "Au moins 8 caractères");
     });
 
     it('should require password', async () => {
@@ -99,6 +106,10 @@ describe('registerSchema validation when it is Register Page', () => {
 
     it('should require confirmPassword', async () => {
         await validateSchema(noConfirmPasswordData, "Confirmation requise");
+    });
+
+    it('should require phone number with 10 digits', async () => {
+        await validateSchema({ ...validData, phoneNumber: '123' }, "10 chiffres (ex. 0612345678)");
     });
 });
 

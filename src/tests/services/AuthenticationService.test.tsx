@@ -9,9 +9,12 @@ vi.mock("../../services/apiRequest", () => ({
 
 describe("postRegister", () => {
   const mockData = {
+    firstName: "Océane",
+    lastName: "Martin",
     email: "oceane@example.com",
+    phoneNumber: "0612345678",
     password: "supersecret",
-    confirmPassword: "supersecret"
+    confirmPassword: "supersecret",
   };
 
   beforeEach(() => {
@@ -19,15 +22,28 @@ describe("postRegister", () => {
   });
 
   it("should call fetchRequest with correct arguments and return the response", async () => {
-    const mockResponse = { success: true, userId: 123 };
+    const mockResponse = {
+      message: "Inscription réussie.",
+      user: {
+        id: "550e8400-e29b-41d4-a716-446655440000",
+        first_name: "Océane",
+        last_name: "Martin",
+        email: "oceane@example.com",
+        phone_number: "0612345678",
+        role: "customer",
+        created_at: "2026-01-01T00:00:00.000Z",
+        updated_at: "2026-01-01T00:00:00.000Z",
+      },
+    };
     (fetchRequest as Mock).mockResolvedValue(mockResponse);
 
     const result = await postRegister(mockData);
-    expect(fetchRequest).toHaveBeenCalledWith("/users", {
+    expect(fetchRequest).toHaveBeenCalledWith("users/registrations", {
       method: "POST",
       body: mockData,
     });
     expect(result).toEqual(mockResponse);
+    expect(result.message).toBe("Inscription réussie.");
   });
 
   it("should throw an error if fetchRequest fails", async () => {
@@ -52,7 +68,7 @@ describe("postLogin", () => {
     (fetchRequest as Mock).mockResolvedValue(mockResponse);
 
     const result = await postLogin(mockData);
-    expect(fetchRequest).toHaveBeenCalledWith("/sessions", {
+    expect(fetchRequest).toHaveBeenCalledWith("users/sessions", {
       method: "POST",
       body: mockData,
     });

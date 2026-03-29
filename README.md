@@ -39,9 +39,9 @@ Créer un fichier **`.env`** (non versionné) à la racine :
 
 | Variable              | Rôle |
 |-----------------------|------|
-| `VITE_API_URL_AUTH`   | URL de base du service d’**authentification** (inscription / connexion). |
+| `VITE_API_URL_AUTH`   | URL de base du namespace **users** côté API Rails, **sans slash final** (ex. `http://localhost:3000/api/v1/users`). L’inscription appelle `POST …/registrations`. |
 
-Sans `VITE_API_URL_AUTH`, les appels auth peuvent échouer.
+Copier `.env.example` vers `.env` et adapter l’URL si ton serveur Rails n’écoute pas sur le port 3000.
 
 ## Scripts npm
 

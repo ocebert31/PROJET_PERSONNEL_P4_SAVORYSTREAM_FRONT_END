@@ -1,25 +1,51 @@
 import * as yup from "yup";
 
-export const AuthenticationSchema = (isLoginPage: boolean) => yup.object({
-  email: yup
-    .string()
-    .email("L'email est invalide") 
-    .required("L'email est requis"), 
+const emailField = yup
+  .string()
+  .email("L'email est invalide")
+  .required("L'email est requis");
 
+const loginSchema = yup.object({
+  firstName: yup.string().optional(),
+  lastName: yup.string().optional(),
+  phoneNumber: yup.string().optional(),
+  email: emailField,
   password: yup
     .string()
     .required("Mot de passe requis")
     .min(6, "Au moins 6 caractères"),
+  confirmPassword: yup.string().optional(),
+});
 
+const registerSchema = yup.object({
+  firstName: yup
+    .string()
+    .required("Le prénom est requis")
+    .max(50, "50 caractères maximum"),
+  lastName: yup
+    .string()
+    .required("Le nom est requis")
+    .max(50, "50 caractères maximum"),
+  phoneNumber: yup
+    .string()
+    .required("Le numéro est requis")
+    .matches(/^\d{10}$/, "10 chiffres (ex. 0612345678)"),
+  email: emailField,
+  password: yup
+    .string()
+    .required("Mot de passe requis")
+    .min(8, "Au moins 8 caractères"),
   confirmPassword: yup
     .string()
     .when(["password"], ([password], schema) => {
-      if (password && password.length > 0 && !isLoginPage) {
+      if (password && String(password).length > 0) {
         return schema
           .oneOf([yup.ref("password")], "Les mots de passe doivent correspondre")
           .required("Confirmation requise");
-      } else {
-        return schema.notRequired();
       }
+      return schema.notRequired();
     }),
 });
+
+export const AuthenticationSchema = (isLoginPage: boolean) =>
+  isLoginPage ? loginSchema : registerSchema;
