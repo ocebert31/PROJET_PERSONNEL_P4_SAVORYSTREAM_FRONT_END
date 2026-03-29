@@ -1,12 +1,12 @@
 import { fetchRequest } from "./apiRequest";
-import { RegisterFormData, FormData } from "../types/User";
+import type { RegisterFormData, FormData, RegisterSuccessResponse } from "../types/User";
 
-async function postRegister(data: RegisterFormData) {
-    return fetchRequest(`/users`, { method: 'POST', body: data });
+async function postRegister(data: RegisterFormData): Promise<RegisterSuccessResponse> {
+    return fetchRequest<RegisterSuccessResponse>(`users/registrations`, { method: "POST", body: data });
 }
 
 async function postLogin(data: FormData) {
-    return fetchRequest(`/sessions`, { method: 'POST', body: data });
+    return fetchRequest(`users/sessions`, { method: "POST", body: data });
 }
 
 export { postRegister, postLogin }; 

@@ -101,6 +101,22 @@ describe("triggerFetch", () => {
         triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH)
       ).rejects.toThrow("Test error");
     });
+
+    it("should include Rails-style validation errors in the thrown message", async () => {
+      const body = JSON.stringify({ errors: { email: ["est déjà utilisé"] } });
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 422,
+          statusText: "Unprocessable Entity",
+          json: () => Promise.resolve(JSON.parse(body)),
+          text: () => Promise.resolve(body),
+        } as Response),
+      );
+      await expect(
+        triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH),
+      ).rejects.toThrow("email: est déjà utilisé");
+    });
   });
 
   describe("when the body is null or undefined", () => {

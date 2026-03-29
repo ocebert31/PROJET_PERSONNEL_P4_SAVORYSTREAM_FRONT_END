@@ -17,13 +17,14 @@ export const mockFetch = {
   },
 
   failure: (status = 500, statusText = "Server Error", message = "Test error") => {
+    const body = JSON.stringify({ message });
     global.fetch = vi.fn(() =>
       Promise.resolve({
         ok: false,
         status,
         statusText,
-        json: () => Promise.resolve({ message }),
-        text: () => Promise.resolve(""),
+        json: () => Promise.resolve(JSON.parse(body)),
+        text: () => Promise.resolve(body),
       } as Response)
     );
   },

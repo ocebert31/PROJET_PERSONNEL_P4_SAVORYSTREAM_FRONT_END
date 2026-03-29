@@ -1,17 +1,25 @@
 import InputFieldForm from "../common/InputFieldForm";
 import AuthCard from "../components/auth/AuthCard";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
+import { useToast } from "../hooks/useToast";
 import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
 import { postLogin } from "../services/authenticationService";
 import { FormData } from "../types/User";
+import { extractSuccessMessage } from "../utils/apiMessage";
 import { Link } from "react-router-dom";
 
 function LoginPage() {
   const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(true);
+  const { showSuccess, showError } = useToast();
 
   const onSubmit = async (data: FormData) => {
-    await postLogin(data);
-    reset();
+    try {
+      const result = await postLogin(data);
+      reset();
+      showSuccess(extractSuccessMessage(result, "Connexion réussie."));
+    } catch (e) {
+      showError(e instanceof Error ? e.message : "Une erreur est survenue.");
+    }
   };
 
   return (
