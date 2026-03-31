@@ -3,18 +3,34 @@ import * as yup from "yup";
 const emailField = yup
   .string()
   .email("L'email est invalide")
-  .required("L'email est requis");
+  .optional();
+
+const phoneField = yup
+  .string()
+  .optional()
+  .matches(/^\d{10}$/, { message: "10 chiffres (ex. 0612345678)", excludeEmptyString: true });
 
 const loginSchema = yup.object({
   firstName: yup.string().optional(),
   lastName: yup.string().optional(),
-  phoneNumber: yup.string().optional(),
+  phoneNumber: phoneField,
   email: emailField,
   password: yup
     .string()
     .required("Mot de passe requis")
     .min(6, "Au moins 6 caractères"),
   confirmPassword: yup.string().optional(),
+}).test("email-or-phone", "Email ou numéro de téléphone requis.", function (value) {
+  const email = value?.email?.trim() || "";
+  const phone = value?.phoneNumber?.trim() || "";
+
+  if (!email && !phone) {
+    return this.createError({ path: "email", message: "Email ou numéro de téléphone requis." });
+  }
+  if (email && phone) {
+    return this.createError({ path: "email", message: "Renseignez uniquement un email ou un numéro de téléphone, pas les deux." });
+  }
+  return true;
 });
 
 const registerSchema = yup.object({
@@ -30,7 +46,7 @@ const registerSchema = yup.object({
     .string()
     .required("Le numéro est requis")
     .matches(/^\d{10}$/, "10 chiffres (ex. 0612345678)"),
-  email: emailField,
+  email: emailField.required("L'email est requis"),
   password: yup
     .string()
     .required("Mot de passe requis")

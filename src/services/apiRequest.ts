@@ -5,6 +5,16 @@
 
 const BASE_URL = import.meta.env.VITE_API_URL_AUTH;
 
+class ApiError extends Error {
+    status: number;
+
+    constructor(message: string, status: number) {
+        super(message);
+        this.name = "ApiError";
+        this.status = status;
+    }
+}
+
 /**
  * Construit une phrase d’erreur à partir du JSON renvoyé par l’API en cas d’échec.
  * Prend en charge : message, error, et errors (hash champ → liste de chaînes, ex. ActiveRecord).
@@ -143,6 +153,7 @@ async function triggerFetch(
 ): Promise<Response> {
     const response = await fetch(`${url}${endpoint}`, {
         method,
+        credentials: "include",
         headers: {
             'Accept': 'application/json; charset=UTF-8',
             ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -151,7 +162,7 @@ async function triggerFetch(
         body: sanitizedToFetchBody(body),
     });
     if (!response.ok) {
-        throw new Error(await errorMessageFromResponse(response));
+        throw new ApiError(await errorMessageFromResponse(response), response.status);
     }
     return response;
 }
@@ -162,8 +173,8 @@ async function triggerFetch(
  */
 async function ensureResponseIsOk(response: Response): Promise<void> {
     if (!response.ok) {
-        throw new Error(await errorMessageFromResponse(response));
+        throw new ApiError(await errorMessageFromResponse(response), response.status);
     }
 }
 
-export { fetchRequest, sanitizeBody, triggerFetch, ensureResponseIsOk, verifyBodyIsEmpty, BASE_URL };
+export { fetchRequest, sanitizeBody, triggerFetch, ensureResponseIsOk, verifyBodyIsEmpty, BASE_URL, ApiError };

@@ -7,7 +7,7 @@ import { vi, describe, expect, it, beforeEach } from 'vitest';
 describe('InputField Component', () => {
   const mockRegister = vi.fn();
 
-  const defaultProps: InputFieldProps = {
+  const defaultProps: InputFieldProps<RegisterFormData> = {
     label: 'TestLabel',
     name: 'email',
     register: mockRegister as unknown as UseFormRegister<RegisterFormData>,
@@ -21,7 +21,7 @@ describe('InputField Component', () => {
     vi.clearAllMocks();
   });
 
-  const renderInputField = (props: Partial<InputFieldProps> = {}) =>
+  const renderInputField = (props: Partial<InputFieldProps<RegisterFormData>> = {}) =>
     render(<InputField {...defaultProps} {...props} />);
 
   it('renders the label and input with correct attributes', () => {

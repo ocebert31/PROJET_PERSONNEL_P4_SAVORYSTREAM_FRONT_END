@@ -32,7 +32,7 @@ function RegisterPage() {
           <InputFieldForm label="Prénom" name="firstName" htmlFor="firstName" id="firstName" register={register} errors={errors} type="text" />
           <InputFieldForm label="Nom" name="lastName" htmlFor="lastName" id="lastName" register={register} errors={errors} type="text" />
           <InputFieldForm label="Email" name="email" htmlFor="email" id="email" register={register} errors={errors} type="text" />
-          <InputFieldForm label="Téléphone (10 chiffres)" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="text" />
+          <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="text" />
           <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" />
           <InputFieldForm label="Confirmer le mot de passe" name="confirmPassword" htmlFor="confirmPassword" id="confirmPassword" register={register} errors={errors} type="password" />
           <button type="submit" className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover">
