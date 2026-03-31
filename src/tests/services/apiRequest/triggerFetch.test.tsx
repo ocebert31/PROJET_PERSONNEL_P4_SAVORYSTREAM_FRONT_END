@@ -19,6 +19,7 @@ describe("triggerFetch", () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Accept: "application/json; charset=UTF-8",
           Authorization: "Bearer fakeToken",
@@ -33,6 +34,7 @@ describe("triggerFetch", () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
         method: "GET",
+        credentials: "include",
         headers: {
           Accept: "application/json; charset=UTF-8",
           Authorization: "Bearer fakeToken",
@@ -45,6 +47,7 @@ describe("triggerFetch", () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
         method: "PUT",
+        credentials: "include",
         headers: {
           Accept: "application/json; charset=UTF-8",
           Authorization: "Bearer fakeToken",
@@ -59,6 +62,7 @@ describe("triggerFetch", () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
         method: "DELETE",
+        credentials: "include",
         headers: {
           Accept: "application/json; charset=UTF-8",
           Authorization: "Bearer fakeToken",

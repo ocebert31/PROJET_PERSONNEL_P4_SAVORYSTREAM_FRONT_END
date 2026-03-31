@@ -1,15 +1,17 @@
-import type { FieldErrors, UseFormRegister } from 'react-hook-form';
+import type { FieldErrors, FieldValues, Path, UseFormRegister } from 'react-hook-form';
 
 export interface FormData {
-    email: string;
     password: string;
+    email?: string;
+    phoneNumber?: string;
 }
+
+export interface LoginFormData extends FormData {}
 
 export interface RegisterFormData extends FormData {
     confirmPassword?: string;
     firstName?: string;
     lastName?: string;
-    phoneNumber?: string;
 }
 
 export interface UserPublic {
@@ -28,13 +30,13 @@ export interface RegisterSuccessResponse {
     user: UserPublic;
 }
 
-export type InputFieldProps = {
+export type InputFieldProps<TFieldValues extends FieldValues> = {
     label: string;
-    name: keyof RegisterFormData & string;
+    name: Path<TFieldValues>;
     htmlFor: string;
     id: string;
-    register: UseFormRegister<RegisterFormData>;
-    errors?: FieldErrors<RegisterFormData>;
+    register: UseFormRegister<TFieldValues>;
+    errors?: FieldErrors<TFieldValues>;
     'data-testid'?: string;
     type?: string;
 };

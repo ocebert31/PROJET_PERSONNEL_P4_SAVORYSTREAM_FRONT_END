@@ -3,20 +3,24 @@ import AuthCard from "../components/auth/AuthCard";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
 import { useToast } from "../hooks/useToast";
 import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
-import { postLogin } from "../services/authenticationService";
-import { FormData } from "../types/User";
-import { extractSuccessMessage } from "../utils/apiMessage";
+import { loginAndStore } from "../services/sessionService";
+import type { LoginFormData } from "../types/User";
 import { Link } from "react-router-dom";
 
 function LoginPage() {
   const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(true);
   const { showSuccess, showError } = useToast();
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await postLogin(data);
+      const payload: LoginFormData = {
+        password: data.password,
+        ...(data.email?.trim() ? { email: data.email.trim() } : {}),
+        ...(data.phoneNumber?.trim() ? { phoneNumber: data.phoneNumber.trim() } : {}),
+      };
+      const result = await loginAndStore(payload);
       reset();
-      showSuccess(extractSuccessMessage(result, "Connexion réussie."));
+      showSuccess(result.message?.trim() || "Connexion réussie.");
     } catch (e) {
       showError(e instanceof Error ? e.message : "Une erreur est survenue.");
     }
@@ -31,6 +35,7 @@ function LoginPage() {
           </p>}>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
           <InputFieldForm label="Email" name="email" htmlFor="email" id="email" register={register} errors={errors} type="text" />
+          <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="text" />
           <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" />
           <button type="submit" className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover">
             Se connecter

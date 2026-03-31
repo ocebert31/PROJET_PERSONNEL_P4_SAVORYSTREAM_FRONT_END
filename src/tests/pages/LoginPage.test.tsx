@@ -1,13 +1,13 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import LoginPage from '../../pages/LoginPage';
-import * as postLogin from '../../services/authenticationService';
+import * as sessionService from '../../services/sessionService';
 import { vi, describe, beforeEach, test, expect, type Mock } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('../../services/authenticationService', () => ({
-    postLogin: vi.fn(),
+vi.mock('../../services/sessionService', () => ({
+    loginAndStore: vi.fn(),
 }));
 
 const getEmailInput = () => screen.getByLabelText(/Email/i);
@@ -39,14 +39,28 @@ describe('LoginPage - Form behavior', () => {
         const email = `${uuidv4()}@example.com`;
         const password = 'ValidPassword123!';
 
-        (postLogin.postLogin as Mock).mockResolvedValue({
-            token: 'fake-token',
+        (sessionService.loginAndStore as Mock).mockResolvedValue({
+            message: 'Connexion réussie.',
+            access_token: 'access',
+            access_expires_in: 900,
+            refresh_expires_at: new Date().toISOString(),
+            remember_me: false,
+            user: {
+                id: uuidv4(),
+                first_name: 'Jane',
+                last_name: 'Doe',
+                email,
+                phone_number: null,
+                role: 'customer',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            },
         });
 
         await fillAndSubmitForm(email, password);
 
         await waitFor(() =>
-            expect(postLogin.postLogin).toHaveBeenCalledWith({ email, password })
+            expect(sessionService.loginAndStore).toHaveBeenCalledWith({ email, password })
         );
     });
 
@@ -55,7 +69,7 @@ describe('LoginPage - Form behavior', () => {
         const password = 'ValidPassword123!';
         await fillAndSubmitForm(email, password);
         await waitFor(() => {
-            expect(postLogin.postLogin).not.toHaveBeenCalled();
+            expect(sessionService.loginAndStore).not.toHaveBeenCalled();
             expect(screen.getByText(/L'email est invalide/i)).toBeInTheDocument();
         });
     });
@@ -65,8 +79,25 @@ describe('LoginPage - Form behavior', () => {
         const password = 'ValidPassword123!';
         const emailInput = getEmailInput() as HTMLInputElement;
         const passwordInput = getPasswordInput() as HTMLInputElement; 
+        (sessionService.loginAndStore as Mock).mockResolvedValue({
+            message: 'Connexion réussie.',
+            access_token: 'access',
+            access_expires_in: 900,
+            refresh_expires_at: new Date().toISOString(),
+            remember_me: false,
+            user: {
+                id: uuidv4(),
+                first_name: 'Jane',
+                last_name: 'Doe',
+                email,
+                phone_number: null,
+                role: 'customer',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            },
+        });
         await fillAndSubmitForm(email, password);
-        await waitFor(() => expect(postLogin.postLogin).toHaveBeenCalledWith({ email, password }));
+        await waitFor(() => expect(sessionService.loginAndStore).toHaveBeenCalledWith({ email, password }));
         await waitFor(() => {
             expect(emailInput.value).toBe('');
             expect(passwordInput.value).toBe('');

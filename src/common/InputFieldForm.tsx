@@ -1,6 +1,7 @@
+import type { FieldValues } from "react-hook-form";
 import { InputFieldProps } from "../types/User";
 
-function InputFieldForm({ label, name, register, errors, id, htmlFor, type = "text" }: InputFieldProps) {
+function InputFieldForm<TFieldValues extends FieldValues>({ label, name, register, errors, id, htmlFor, type = "text" }: InputFieldProps<TFieldValues>) {
   const Field = type === "textarea" ? "textarea" : "input";
 
   const inputProps = {
@@ -17,9 +18,11 @@ function InputFieldForm({ label, name, register, errors, id, htmlFor, type = "te
         {label}
       </label>
       <Field {...inputProps} />
-      {errors?.[name]?.message != null && (
-        <p className="text-xs text-rose-600">{errors[name]?.message}</p>
-      )}
+      {(() => {
+        const msg = errors?.[name]?.message;
+        if (typeof msg !== "string" || !msg) return null;
+        return <p className="text-xs text-rose-600">{msg}</p>;
+      })()}
     </div>
   );
 }
