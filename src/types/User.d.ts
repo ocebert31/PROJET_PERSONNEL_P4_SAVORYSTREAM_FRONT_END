@@ -6,7 +6,7 @@ export interface FormData {
     phoneNumber?: string;
 }
 
-export interface LoginFormData extends FormData {}
+export type LoginFormData = FormData;
 
 export interface RegisterFormData extends FormData {
     confirmPassword?: string;

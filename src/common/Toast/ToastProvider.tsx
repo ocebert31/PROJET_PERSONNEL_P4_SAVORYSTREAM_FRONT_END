@@ -12,11 +12,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const dismissTimersRef = useRef<Map<string, number>>(new Map());
 
     useEffect(() => {
+        const timers = dismissTimersRef.current;
         return () => {
-            for (const timer of dismissTimersRef.current.values()) {
+            for (const timer of timers.values()) {
                 clearTimeout(timer);
             }
-            dismissTimersRef.current.clear();
+            timers.clear();
         };
     }, []);
 
