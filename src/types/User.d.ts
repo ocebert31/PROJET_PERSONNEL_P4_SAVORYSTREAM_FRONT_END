@@ -1,5 +1,3 @@
-import type { FieldErrors, FieldValues, Path, UseFormRegister } from 'react-hook-form';
-
 export interface FormData {
     password: string;
     email?: string;
@@ -30,13 +28,22 @@ export interface RegisterSuccessResponse {
     user: UserPublic;
 }
 
-export type InputFieldProps<TFieldValues extends FieldValues> = {
-    label: string;
-    name: Path<TFieldValues>;
-    htmlFor: string;
-    id: string;
-    register: UseFormRegister<TFieldValues>;
-    errors?: FieldErrors<TFieldValues>;
-    'data-testid'?: string;
-    type?: string;
+export type SessionCreateResponse = {
+    message: string;
+    access_token: string;
+    access_expires_in: number;
+    refresh_expires_at: string;
+    remember_me: boolean;
+    user: UserPublic;
 };
+
+export type SessionRefreshResponse = {
+    access_token: string;
+    access_expires_in: number;
+    refresh_expires_at: string;
+};
+
+export type SessionMeResponse = {
+    user: UserPublic;
+};
+

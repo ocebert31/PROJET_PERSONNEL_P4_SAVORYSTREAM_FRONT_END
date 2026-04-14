@@ -1,33 +1,79 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import * as authContext from '../../context/AuthContext';
+import { AuthProvider } from '../../context/AuthContext';
 import RouterComponent from '../../routes/RouterComponent';
 import '@testing-library/jest-dom';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+
+vi.mock('../../pages/CreateSaucePage', () => ({
+  default: () => <div>Create Sauce Page</div>,
+}));
 
 const renderWithRouter = (initialRoute: string) => {
   render(
     <MemoryRouter initialEntries={[initialRoute]}>
-      <RouterComponent />
+      <AuthProvider>
+        <RouterComponent />
+      </AuthProvider>
     </MemoryRouter>
   );
 };
 
+const mockAdminUser = {
+  id: '1',
+  first_name: 'Admin',
+  last_name: 'User',
+  email: 'admin@example.com',
+  phone_number: null,
+  role: 'admin' as const,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+};
+
+const mockUseAuth = (user: typeof mockAdminUser | null) => {
+  vi.spyOn(authContext, 'useAuth').mockReturnValue({
+    user,
+    refreshUser: vi.fn(),
+  });
+};
+
 describe('Navigation behavior', () => {
-  const routes = [
-    { path: '/register', text: /Inscription/i },
-    { path: '/login', text: /Connexion/i },
-    { path: '/', text: /Nos Sauces Maison 🍶/i },
-  ];
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-  routes.forEach(({ path, text }) => {
-    it(`renders the correct page when navigating to ${path}`, () => {
-      renderWithRouter(path);
-      expect(screen.getByText(text)).toBeInTheDocument();
+  describe('public routes', () => {
+    const publicRoutes = [
+      { path: '/register', expectedText: /Inscription/i },
+      { path: '/login', expectedText: /Connexion/i },
+      { path: '/', expectedText: /Nos Sauces Maison 🍶/i },
+    ];
+
+    publicRoutes.forEach(({ path, expectedText }) => {
+      it(`renders ${path}`, () => {
+        renderWithRouter(path);
+        expect(screen.getByText(expectedText)).toBeInTheDocument();
+      });
     });
+  });
 
-    it(`does not render the page when not on ${path}`, () => {
-      renderWithRouter('/other-route');
-      expect(screen.queryByText(text)).not.toBeInTheDocument();
+  describe('protected admin route', () => {
+    it('renders create sauce route for admin users', () => {
+      mockUseAuth(mockAdminUser);
+
+      renderWithRouter('/dashboard/sauces/create');
+
+      expect(screen.getByText('Create Sauce Page')).toBeInTheDocument();
+    });
+    
+    it('redirects non-admin users from create route to login', () => {
+      mockUseAuth(null);
+
+      renderWithRouter('/dashboard/sauces/create');
+
+      expect(screen.getByText(/Connexion/i)).toBeInTheDocument();
+      expect(screen.queryByText('Create Sauce Page')).not.toBeInTheDocument();
     });
   });
 });

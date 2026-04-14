@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useAuthenticationSchema } from "../../hooks/useAuthenticationSchema";
+import { useAuthentication } from "../../hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 
 vi.mock("react-hook-form", async (importOriginal) => {
@@ -15,18 +15,17 @@ vi.mock("react-hook-form", async (importOriginal) => {
   };
 });
 
-describe("useFormSchema", () => {
-  const renderUseFormSchema = (isLoginPage: boolean) => renderHook(() => useAuthenticationSchema(isLoginPage));
+describe("useAuthentication", () => {
+  const renderUseAuthentication = (isLoginPage: boolean) => renderHook(() => useAuthentication(isLoginPage));
   const mockSchema = expect.objectContaining({ resolver: expect.any(Function) });
 
   it("should call useForm with the correct schema when not on the login page", () => {
-    renderUseFormSchema(false);
+    renderUseAuthentication(false);
     expect(useForm).toHaveBeenCalledWith(mockSchema);
   });
 
   it("should call useForm with the correct schema when on the login page", () => {
-    renderUseFormSchema(true);
+    renderUseAuthentication(true);
     expect(useForm).toHaveBeenCalledWith(mockSchema);
   });
 });
-
