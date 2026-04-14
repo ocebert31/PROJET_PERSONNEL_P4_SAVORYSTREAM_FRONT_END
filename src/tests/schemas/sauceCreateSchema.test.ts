@@ -159,8 +159,9 @@ describe("sauceCreateSchema", () => {
       });
 
       it("rejects when the key is absent", async () => {
-        const { is_available: _omit, ...data } = validPayload();
-        await expectRejectedWithMessage(data, "Disponibilité requise.");
+        const data = { ...validPayload() } as Record<string, unknown>;
+        delete data.is_available;
+        await expectRejectedWithMessage(data as SauceCreateFormValues, "Disponibilité requise.");
       });
     });
 
