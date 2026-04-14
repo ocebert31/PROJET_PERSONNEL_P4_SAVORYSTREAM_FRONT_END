@@ -1,0 +1,47 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen } from "@testing-library/react";
+import type { UseFormRegister } from "react-hook-form";
+import type { RegisterFormData } from "../../../types/User";
+import InputField from "../../../common/Fields/InputField";
+import type { InputFieldProps } from "../../../types/Field";
+
+describe("InputField", () => {
+  const mockRegister = vi.fn(() => ({}));
+
+  const defaultProps: InputFieldProps<RegisterFormData> = {
+    label: "Email",
+    name: "email",
+    htmlFor: "email",
+    id: "email",
+    register: mockRegister as unknown as UseFormRegister<RegisterFormData>,
+    type: "text",
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders a text input and registers by name in the nominal case", () => {
+    render(<InputField {...defaultProps} />);
+
+    expect(screen.getByRole("textbox")).toHaveAttribute("id", "email");
+    expect(screen.getByRole("textbox")).toHaveAttribute("type", "text");
+    expect(mockRegister).toHaveBeenCalledWith("email");
+  });
+
+  it("registers number fields with valueAsNumber option", () => {
+    render(<InputField {...defaultProps} name="phoneNumber" id="stock" type="number" valueAsNumber />);
+
+    expect(mockRegister).toHaveBeenCalledWith("phoneNumber", { valueAsNumber: true });
+  });
+
+  it("passes optional native attributes to the input", () => {
+    render(<InputField {...defaultProps} disabled min={0} step={1} accept="image/*" />);
+
+    const input = screen.getByRole("textbox");
+    expect(input).toBeDisabled();
+    expect(input).toHaveAttribute("min", "0");
+    expect(input).toHaveAttribute("step", "1");
+    expect(input).toHaveAttribute("accept", "image/*");
+  });
+});

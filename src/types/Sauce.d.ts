@@ -1,4 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
+import type { SauceCreateFormValues } from "../schemas/sauceCreateSchema";
+import type { FieldErrors, UseFormRegister } from "react-hook-form";  
 
 export interface Sauce {
   id: number;
@@ -66,4 +68,30 @@ export type SauceDetailPurchasePanelProps = {
   quantity: number;
   setSelectedCond: Dispatch<SetStateAction<number | null>>;
   setQuantity: Dispatch<SetStateAction<number>>;
+};
+
+export interface SauceApiSerialized {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string | null;
+  characteristic: string | null;
+  image_url: string | null;
+  is_available: boolean;
+  category: { id: string; name: string } | null;
+  stock: { id: string; quantity: number } | null;
+  conditionings: Array<{ id: string; volume: string; price: string }>;
+  ingredients: Array<{ id: string; name: string; quantity: string }>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SauceCreateResponse {
+  message: string;
+  sauce: SauceApiSerialized;
+}
+
+export type SauceIdentityFieldsProps = {
+  register: UseFormRegister<SauceCreateFormValues>;
+  errors: FieldErrors<SauceCreateFormValues>;
 };

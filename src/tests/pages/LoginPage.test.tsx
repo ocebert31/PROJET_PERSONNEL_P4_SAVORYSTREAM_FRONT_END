@@ -1,106 +1,148 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import LoginPage from '../../pages/LoginPage';
-import * as sessionService from '../../services/sessionService';
-import { vi, describe, beforeEach, test, expect, type Mock } from 'vitest';
+import { vi, describe, beforeEach, test, expect } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
+import LoginPage from '../../pages/LoginPage';
+import * as authService from '../../services/users/authentication';
+import * as authContext from '../../context/AuthContext';
+import * as toastHook from '../../hooks/useToast';
 
-vi.mock('../../services/sessionService', () => ({
-    loginAndStore: vi.fn(),
-}));
+vi.mock('../../services/users/authentication', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../services/users/authentication')>();
+  return {
+    ...actual,
+    postLogin: vi.fn(),
+  };
+});
+
+const refreshUserMock = vi.fn().mockResolvedValue(undefined);
+const showSuccessMock = vi.fn();
+const showErrorMock = vi.fn();
 
 const getEmailInput = () => screen.getByLabelText(/Email/i);
+const getPhoneInput = () => screen.getByLabelText(/Téléphone/i);
 const getPasswordInput = () => screen.getByLabelText('Mot de passe');
 const getSubmitButton = () => screen.getByRole('button', { name: /Se connecter/i });
 
-const fillAndSubmitForm = async (email: string, password: string) => {
-    await userEvent.type(getEmailInput(), email);
-    await userEvent.type(getPasswordInput(), password);
-    await userEvent.click(getSubmitButton());
+const fillAndSubmitWithEmail = async (email: string, password: string) => {
+  await userEvent.type(getEmailInput(), email);
+  await userEvent.type(getPasswordInput(), password);
+  await userEvent.click(getSubmitButton());
 };
 
-describe('LoginPage - Form behavior', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        render(
-            <MemoryRouter>
-                <LoginPage />
-            </MemoryRouter>
-        );
+const fillAndSubmitWithPhone = async (phone: string, password: string) => {
+  await userEvent.type(getPhoneInput(), phone);
+  await userEvent.type(getPasswordInput(), password);
+  await userEvent.click(getSubmitButton());
+};
+
+describe('LoginPage - unit behavior', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(authContext, 'useAuth').mockReturnValue({
+      user: null,
+      refreshUser: refreshUserMock,
+    });
+    vi.spyOn(toastHook, 'useToast').mockReturnValue({
+      showSuccess: showSuccessMock,
+      showError: showErrorMock,
     });
 
-    test('should initialize form fields correctly', () => {
-        expect(getEmailInput()).toBeInTheDocument();
-        expect(getPasswordInput()).toBeInTheDocument();
-    }); 
+    render(
+      <MemoryRouter>
+        <LoginPage />
+      </MemoryRouter>,
+    );
+  });
 
-    test('should call postLogin with valid data on form submission', async () => {
-        const email = `${uuidv4()}@example.com`;
-        const password = 'ValidPassword123!';
+  test('should render nominal form fields', () => {
+    expect(getEmailInput()).toBeInTheDocument();
+    expect(getPhoneInput()).toBeInTheDocument();
+    expect(getPasswordInput()).toBeInTheDocument();
+  });
 
-        (sessionService.loginAndStore as Mock).mockResolvedValue({
-            message: 'Connexion réussie.',
-            access_token: 'access',
-            access_expires_in: 900,
-            refresh_expires_at: new Date().toISOString(),
-            remember_me: false,
-            user: {
-                id: uuidv4(),
-                first_name: 'Jane',
-                last_name: 'Doe',
-                email,
-                phone_number: null,
-                role: 'customer',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            },
-        });
+  test('should submit with email payload in nominal case', async () => {
+    const email = `${uuidv4()}@example.com`;
+    const password = 'ValidPassword123!';
 
-        await fillAndSubmitForm(email, password);
-
-        await waitFor(() =>
-            expect(sessionService.loginAndStore).toHaveBeenCalledWith({ email, password })
-        );
+    vi.mocked(authService.postLogin).mockResolvedValue({
+      message: 'Connexion réussie.',
+      access_token: 'access',
+      access_expires_in: 900,
+      refresh_expires_at: new Date().toISOString(),
+      remember_me: false,
+      user: {
+        id: uuidv4(),
+        first_name: 'Jane',
+        last_name: 'Doe',
+        email: email.trim(),
+        phone_number: null,
+        role: 'customer',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
     });
 
-    test('should not submit form with invalid data', async () => {
-        const email = 'invalid-email';
-        const password = 'ValidPassword123!';
-        await fillAndSubmitForm(email, password);
-        await waitFor(() => {
-            expect(sessionService.loginAndStore).not.toHaveBeenCalled();
-            expect(screen.getByText(/L'email est invalide/i)).toBeInTheDocument();
-        });
+    await fillAndSubmitWithEmail(email, password);
+
+    await waitFor(() => {
+      expect(authService.postLogin).toHaveBeenCalledWith({
+        email,
+        password,
+      });
+      expect(refreshUserMock).toHaveBeenCalledTimes(1);
+      expect(showSuccessMock).toHaveBeenCalled();
+    });
+  });
+
+  test('should submit with phone payload when email is empty', async () => {
+    const phone = '0612345678';
+    const password = 'ValidPassword123!';
+    vi.mocked(authService.postLogin).mockResolvedValue({
+      message: 'Connexion réussie.',
+      access_token: 'access',
+      access_expires_in: 900,
+      refresh_expires_at: new Date().toISOString(),
+      remember_me: false,
+      user: {
+        id: uuidv4(),
+        first_name: 'Jane',
+        last_name: 'Doe',
+        email: 'jane@example.com',
+        phone_number: phone.trim(),
+        role: 'customer',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
     });
 
-    test('should reset form fields after successful submission', async () => {
-        const email = `${uuidv4()}@example.com`;
-        const password = 'ValidPassword123!';
-        const emailInput = getEmailInput() as HTMLInputElement;
-        const passwordInput = getPasswordInput() as HTMLInputElement; 
-        (sessionService.loginAndStore as Mock).mockResolvedValue({
-            message: 'Connexion réussie.',
-            access_token: 'access',
-            access_expires_in: 900,
-            refresh_expires_at: new Date().toISOString(),
-            remember_me: false,
-            user: {
-                id: uuidv4(),
-                first_name: 'Jane',
-                last_name: 'Doe',
-                email,
-                phone_number: null,
-                role: 'customer',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            },
-        });
-        await fillAndSubmitForm(email, password);
-        await waitFor(() => expect(sessionService.loginAndStore).toHaveBeenCalledWith({ email, password }));
-        await waitFor(() => {
-            expect(emailInput.value).toBe('');
-            expect(passwordInput.value).toBe('');
-        });
+    await fillAndSubmitWithPhone(phone, password);
+
+    await waitFor(() => {
+      expect(authService.postLogin).toHaveBeenCalledWith({
+        phoneNumber: phone,
+        password,
+      });
     });
+  });
+
+  test('should not submit when data is invalid', async () => {
+    await fillAndSubmitWithEmail('invalid-email', 'ValidPassword123!');
+
+    await waitFor(() => {
+      expect(authService.postLogin).not.toHaveBeenCalled();
+      expect(screen.getByText(/L'email est invalide/i)).toBeInTheDocument();
+    });
+  });
+
+  test('should show error toast when login fails', async () => {
+    vi.mocked(authService.postLogin).mockRejectedValue(new Error('Bad credentials'));
+
+    await fillAndSubmitWithEmail('john@example.com', 'ValidPassword123!');
+
+    await waitFor(() => {
+      expect(showErrorMock).toHaveBeenCalledWith('Bad credentials');
+    });
+  });
 });

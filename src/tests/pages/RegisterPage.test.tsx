@@ -1,14 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import RegisterPage from '../../pages/RegisterPage';
-import * as postRegister from '../../services/authenticationService';
+import * as postRegister from '../../services/users/authentication';
 import { vi, describe, beforeEach, test, expect } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
 
-vi.mock('../../services/authenticationService', () => ({
-    postRegister: vi.fn(),
-}));
+vi.mock('../../services/users/authentication', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('../../services/users/authentication')>();
+    return {
+        ...actual,
+        postRegister: vi.fn().mockResolvedValue({ message: 'Inscription réussie.' }),
+    };
+});
 
 const getFormElements = () => ({
     firstNameInput: screen.getByLabelText(/Prénom/i) as HTMLInputElement,

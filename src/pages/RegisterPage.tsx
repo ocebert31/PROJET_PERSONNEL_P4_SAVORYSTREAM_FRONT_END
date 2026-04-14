@@ -1,14 +1,14 @@
-import InputFieldForm from "../common/InputFieldForm";
+import InputFieldForm from "../common/Fields/InputFieldForm";
 import AuthCard from "../components/auth/AuthCard";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
 import { useToast } from "../hooks/useToast";
-import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
-import { postRegister } from "../services/authenticationService";
+import { useAuthentication } from "../hooks/useAuthentication";
+import { postRegister } from "../services/users/authentication";
 import { RegisterFormData } from "../types/User";
 import { Link } from "react-router-dom";
 
 function RegisterPage() {
-  const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(false);
+  const { register, handleSubmit, formState: { errors }, reset } = useAuthentication(false);
   const { showSuccess, showError } = useToast();
 
   const onSubmit = async (data: RegisterFormData) => {

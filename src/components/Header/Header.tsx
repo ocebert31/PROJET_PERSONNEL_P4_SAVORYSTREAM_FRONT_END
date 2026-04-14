@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function Header() {
+  const { user } = useAuth();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/85 backdrop-blur-md shadow-sm shadow-stone-900/5">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6 lg:h-[4.25rem]">
@@ -11,6 +14,11 @@ function Header() {
           <Link to="/" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
             Accueil
           </Link>
+          {user?.role === 'admin' ? (
+            <Link to="/dashboard/sauces/create" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
+              Créer une sauce
+            </Link>
+          ) : null}
           <Link to="/register" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
             Inscription
           </Link>

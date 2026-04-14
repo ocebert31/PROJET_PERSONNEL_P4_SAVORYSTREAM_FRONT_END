@@ -1,14 +1,16 @@
-import InputFieldForm from "../common/InputFieldForm";
+import InputFieldForm from "../common/Fields/InputFieldForm";
 import AuthCard from "../components/auth/AuthCard";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../hooks/useToast";
-import { useAuthenticationSchema } from "../hooks/useAuthenticationSchema";
-import { loginAndStore } from "../services/sessionService";
+import { useAuthentication } from "../hooks/useAuthentication";
+import { postLogin } from "../services/users/authentication";
 import type { LoginFormData } from "../types/User";
 import { Link } from "react-router-dom";
 
 function LoginPage() {
-  const { register, handleSubmit, formState: { errors }, reset } = useAuthenticationSchema(true);
+  const { refreshUser } = useAuth();
+  const { register, handleSubmit, formState: { errors }, reset } = useAuthentication(true);
   const { showSuccess, showError } = useToast();
 
   const onSubmit = async (data: LoginFormData) => {
@@ -18,7 +20,8 @@ function LoginPage() {
         ...(data.email?.trim() ? { email: data.email.trim() } : {}),
         ...(data.phoneNumber?.trim() ? { phoneNumber: data.phoneNumber.trim() } : {}),
       };
-      const result = await loginAndStore(payload);
+      const result = await postLogin(payload);
+      await refreshUser();
       reset();
       showSuccess(result.message?.trim() || "Connexion réussie.");
     } catch (e) {

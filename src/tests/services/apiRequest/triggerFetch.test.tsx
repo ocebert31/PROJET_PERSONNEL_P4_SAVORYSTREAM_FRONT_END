@@ -1,9 +1,24 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { triggerFetch } from "../../../services/apiRequest";
+import { triggerFetch } from "../../../services/apiRequest/triggerFetch";
+import { ApiError } from "../../../services/apiRequest/apiError";
 import { mockFetch } from "../../mocks/apiRequest";
 
 describe("triggerFetch", () => {
-  const VITE_API_URL_AUTH = "http://localhost_test:3000";
+  const baseUrl = "http://localhost_test:3000";
+  const endpoint = "/test";
+  const token = "fakeToken";
+  const jsonBody = JSON.stringify({ test: "data" });
+  const endpointUrl = `${baseUrl}${endpoint}`;
+
+  const callTriggerFetch = (
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    body: FormData | string | number | boolean | null | undefined,
+    authToken: string | null = token,
+  ) => triggerFetch(endpoint, method, authToken, body, baseUrl);
+
+  const expectFetchCalledWith = (expected: Record<string, unknown>) => {
+    expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining(expected));
+  };
 
   beforeEach(() => {
     mockFetch.success();
@@ -13,100 +28,79 @@ describe("triggerFetch", () => {
     vi.restoreAllMocks();
   });
 
-  describe("successCases", () => {
-    it("should call fetch with correct parameters for POST method", async () => {
-      await triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH);
+  describe("successful request flow", () => {
+    it("returns the original Response object on success", async () => {
+      const expectedResponse = {
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        text: () => Promise.resolve(""),
+        json: () => Promise.resolve({ success: true }),
+      } as Response;
+      global.fetch = vi.fn(() => Promise.resolve(expectedResponse));
 
-      expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
+      const result = await triggerFetch(endpoint, "GET", token, null, baseUrl);
+      expect(result).toBe(expectedResponse);
+    });
+
+    it("calls fetch with expected config in nominal POST case", async () => {
+      await callTriggerFetch("POST", jsonBody);
+
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, {
         method: "POST",
         credentials: "include",
         headers: {
           Accept: "application/json; charset=UTF-8",
-          Authorization: "Bearer fakeToken",
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ test: "data" }),
+        body: jsonBody,
       });
     });
 
-    it("should call fetch with correct parameters for GET method", async () => {
-      await triggerFetch("/test", "GET", "fakeToken", null, VITE_API_URL_AUTH);
+    it.each([
+      [ "GET", null, undefined ],
+      [ "POST", jsonBody, jsonBody ],
+      [ "PUT", jsonBody, jsonBody ],
+      [ "DELETE", null, undefined ],
+    ] as const)("handles %s method body mapping correctly", async (method, body, expectedBody) => {
+      await callTriggerFetch(method, body);
 
-      expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Accept: "application/json; charset=UTF-8",
-          Authorization: "Bearer fakeToken",
-        },
-      });
-    });
-
-    it("should call fetch with correct parameters for PUT method", async () => {
-      await triggerFetch("/test", "PUT", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH);
-
-      expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
-        method: "PUT",
-        credentials: "include",
-        headers: {
-          Accept: "application/json; charset=UTF-8",
-          Authorization: "Bearer fakeToken",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ test: "data" }),
-      });
-    });
-
-    it("should call fetch with correct parameters for DELETE method", async () => {
-      await triggerFetch("/test", "DELETE", "fakeToken", null, VITE_API_URL_AUTH);
-
-      expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, {
-        method: "DELETE",
-        credentials: "include",
-        headers: {
-          Accept: "application/json; charset=UTF-8",
-          Authorization: "Bearer fakeToken",
-        },
-      });
-    });
-
-    it("should build the URL correctly for fetch", async () => {
-      await triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(`${VITE_API_URL_AUTH}/test`, expect.any(Object));
-    });
-
-    it("should add the token in the Authorization header", async () => {
-      await triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      expectFetchCalledWith({
+        method,
+        body: expectedBody,
         headers: expect.objectContaining({
-          Authorization: "Bearer fakeToken",
+          Accept: "application/json; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
         }),
-      }));
+      });
     });
   });
 
-  describe("errorCases", () => {
-    it("should throw an error if fetch fails", async () => {
+  describe("error handling", () => {
+    it("rethrows fetch failures", async () => {
       mockFetch.error();
-      await expect(triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH))
-        .rejects.toThrow("Fetch failed");
+      await expect(callTriggerFetch("POST", jsonBody)).rejects.toThrow("Fetch failed");
     });
 
-    it("should throw an error for HTTP 400 response", async () => {
-      mockFetch.failure(400);
-      await expect(
-        triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH)
-      ).rejects.toThrow("Test error");
+    it.each([ 400, 401, 500 ])("throws ApiError on HTTP %s", async (status) => {
+      mockFetch.failure(status);
+      await expect(callTriggerFetch("POST", jsonBody)).rejects.toThrow("Test error");
     });
 
-    it("should throw an error for HTTP 500 response", async () => {
-      mockFetch.failure(500);
-      await expect(
-        triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH)
-      ).rejects.toThrow("Test error");
+    it("preserves HTTP status on thrown ApiError", async () => {
+      mockFetch.failure(422, "Unprocessable Entity", "Validation failed");
+
+      try {
+        await callTriggerFetch("POST", jsonBody);
+      } catch (error) {
+        expect(error).toBeInstanceOf(ApiError);
+        expect((error as ApiError).status).toBe(422);
+        expect((error as ApiError).message).toBe("Validation failed");
+      }
     });
 
-    it("should include Rails-style validation errors in the thrown message", async () => {
+    it("surfaces Rails validation messages", async () => {
       const body = JSON.stringify({ errors: { email: ["est déjà utilisé"] } });
       global.fetch = vi.fn(() =>
         Promise.resolve({
@@ -117,57 +111,47 @@ describe("triggerFetch", () => {
           text: () => Promise.resolve(body),
         } as Response),
       );
-      await expect(
-        triggerFetch("/test", "POST", "fakeToken", JSON.stringify({ test: "data" }), VITE_API_URL_AUTH),
-      ).rejects.toThrow("email: est déjà utilisé");
+      await expect(callTriggerFetch("POST", jsonBody)).rejects.toThrow("email: est déjà utilisé");
     });
   });
 
-  describe("when the body is null or undefined", () => {
-    it("should not add Content-Type if body is null", async () => {
-      await triggerFetch("/test", "POST", "fakeToken", null, VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+  describe("headers and body edge cases", () => {
+    it.each([null, undefined])("does not add Content-Type when body is %s", async (body) => {
+      await callTriggerFetch("POST", body);
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
         headers: expect.not.objectContaining({
           "Content-Type": expect.any(String),
         }),
       }));
     });
 
-    it("should not add Content-Type if body is undefined", async () => {
-      await triggerFetch("/test", "POST", "fakeToken", undefined, VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
-        headers: expect.not.objectContaining({
-          "Content-Type": expect.any(String),
-        }),
-      }));
-    });
-
-    it("should correctly handle a binary file in the body", async () => {
+    it("does not add Content-Type for FormData", async () => {
       const file = new File(["test content"], "test.txt", { type: "text/plain" });
       const formData = new FormData();
       formData.append("file", file);
 
-      await triggerFetch("/test", "POST", "fakeToken", formData, VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      await callTriggerFetch("POST", formData);
+
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
         headers: expect.not.objectContaining({
           "Content-Type": expect.any(String),
         }),
       }));
     });
-  });
 
-  describe("when the token expired or null", () => {
-    it("should throw an error if the token is expired", async () => {
-      const expiredToken = "expiredToken";
-      mockFetch.failure(401);
-      await expect(
-        triggerFetch("/test", "POST", expiredToken, JSON.stringify({ test: "data" }), VITE_API_URL_AUTH)
-      ).rejects.toThrow("Test error");
+    it.each([
+      [false, "false"],
+      [0, "0"],
+    ] as const)("preserves falsy scalar payload %p", async (input, expected) => {
+      await callTriggerFetch("POST", input);
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
+        body: expected,
+      }));
     });
 
-    it("should not add Authorization header if token is null", async () => {
-      await triggerFetch("/test", "POST", null, JSON.stringify({ test: "data" }), VITE_API_URL_AUTH);
-      expect(global.fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+    it("does not add Authorization header when token is null", async () => {
+      await callTriggerFetch("POST", jsonBody, null);
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
         headers: expect.not.objectContaining({
           Authorization: expect.any(String),
         }),
