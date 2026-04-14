@@ -1,6 +1,6 @@
 # SavoryStream — front-end
 
-Application **e-commerce vitrine** (React / Vite) : catalogue de sauces, fiche produit, inscription / connexion, panier géré côté navigateur (**localStorage**). Le catalogue et le détail s’appuient sur des **données statiques** (`src/data`) ; le backend n’est sollicité que pour l’**authentification**.
+Application **e-commerce vitrine** (React / Vite) : catalogue de sauces, fiche produit, inscription / connexion, panier géré côté navigateur (**localStorage**). Le catalogue et le détail s’appuient sur des **données statiques** (`src/data`). L’**API Rails** sert l’**authentification par cookies** (sessions, profil) et les **parcours admin** protégés (ex. création de sauce, catégories), via `fetchSessionRequest` / `fetchRequest` sur la base configurée dans **`VITE_API_URL_AUTH`**.
 
 ## Documentation
 
@@ -21,8 +21,12 @@ La **spec complète** (parcours utilisateur, stack détaillée, architecture des
 
 ## Structure du dépôt (aperçu)
 
-- `src/pages/` — écrans liés aux routes (ex. accueil, détail produit, login).
-- `src/components/` — UI par domaine (`home/`, `Sauce/`, `auth/`, `Header/`, `Footer/`).
+- `src/pages/` — écrans liés aux routes (accueil, détail produit, login, création admin sauce, etc.).
+- `src/components/` — UI par domaine (`home/`, `Sauce/`, `Dashboard/`, `auth/`, `Header/`, `Footer/`).
+- `src/context/`, `src/hooks/`, `src/schemas/`, `src/mappers/` — état global (auth), hooks métier, validation Yup, transformation des payloads.
+- `src/routes/` — routeur et gardes (ex. accès admin).
+- `src/init/` — initialisation côté client (ex. session).
+- `src/services/` — appels HTTP vers l’API (auth, sauces, catégories).
 - `src/tests/` — tests en miroir de `src/` (même arborescence logique).
 - `.github/` — **CI** (`workflows/ci.yml`), **Dependabot** (`dependabot.yml`), **auto-merge** ciblé (`dependabot-auto-merge.yml`).
 
@@ -39,7 +43,7 @@ Créer un fichier **`.env`** (non versionné) à la racine :
 
 | Variable              | Rôle |
 |-----------------------|------|
-| `VITE_API_URL_AUTH`   | URL de base du namespace **users** côté API Rails, **sans slash final** (ex. `http://localhost:3000/api/v1/users`). L’inscription appelle `POST …/registrations`. |
+| `VITE_API_URL_AUTH`   | URL de base de l’API Rails, **avec slash final**, jusqu’au préfixe version (ex. `http://localhost:3000/api/v1/`). Les chemins d’endpoint sont concaténés tels quels (`users/sessions`, `sauces`, `sauces/categories`, etc.). Voir `.env.example`. |
 
 Copier `.env.example` vers `.env` et adapter l’URL si ton serveur Rails n’écoute pas sur le port 3000.
 
@@ -50,7 +54,7 @@ Copier `.env.example` vers `.env` et adapter l’URL si ton serveur Rails n’é
 | `npm run dev`     | Serveur de dev Vite (HMR) |
 | `npm run build`   | `tsc -b` + build production → `dist/` |
 | `npm run preview` | Prévisualiser le build localement |
-| `npm run test`    | Suite Vitest |
+| `npm run test`    | Suite Vitest (mode watch ; `npm run test -- --run` pour une exécution unique, ex. CI locale) |
 | `npm run lint`    | ESLint |
 
 ## Qualité & intégration continue
