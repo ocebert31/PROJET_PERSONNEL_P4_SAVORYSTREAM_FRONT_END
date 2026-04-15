@@ -46,4 +46,10 @@ describe("App", () => {
     expect(screen.getByTestId("router-component")).toBeInTheDocument();
     expect(screen.getByTestId("footer")).toBeInTheDocument();
   });
+
+  it("renders an accessible skip link to main content", () => {
+    render(<App />);
+    const skipLink = screen.getByRole("link", { name: /Aller au contenu principal/i });
+    expect(skipLink).toHaveAttribute("href", "#main-content");
+  });
 });

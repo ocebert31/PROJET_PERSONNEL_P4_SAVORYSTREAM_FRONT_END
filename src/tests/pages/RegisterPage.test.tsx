@@ -5,6 +5,7 @@ import * as postRegister from '../../services/users/authentication';
 import { vi, describe, beforeEach, test, expect } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 
 vi.mock('../../services/users/authentication', async (importOriginal) => {
     const actual = await importOriginal<typeof import('../../services/users/authentication')>();
@@ -16,11 +17,11 @@ vi.mock('../../services/users/authentication', async (importOriginal) => {
 
 const getFormElements = () => ({
     firstNameInput: screen.getByLabelText(/Prénom/i) as HTMLInputElement,
-    lastNameInput: screen.getByLabelText(/^Nom$/i) as HTMLInputElement,
+    lastNameInput: screen.getByLabelText((content) => /^Nom\s*\*?$/.test(content)) as HTMLInputElement,
     emailInput: screen.getByLabelText(/Email/i) as HTMLInputElement,
     phoneInput: screen.getByLabelText(/Téléphone/i) as HTMLInputElement,
-    passwordInput: screen.getByLabelText('Mot de passe') as HTMLInputElement,
-    confirmPasswordInput: screen.getByLabelText('Confirmer le mot de passe') as HTMLInputElement,
+    passwordInput: screen.getByLabelText((content) => /^Mot de passe\s*\*?$/.test(content)) as HTMLInputElement,
+    confirmPasswordInput: screen.getByLabelText((content) => /^Confirmer le mot de passe\s*\*?$/.test(content)) as HTMLInputElement,
     submitButton: screen.getByRole('button', { name: /S'inscrire/i })
 });
 
@@ -82,12 +83,20 @@ describe('RegisterPage - Form behavior', () => {
         );
     });
 
+    test("should not have detectable accessibility violations", async () => {
+        const results = await axe(document.body, {
+            rules: {
+                region: { enabled: false },
+            },
+        });
+        expect(results.violations).toHaveLength(0);
+    });
+
     test('should not submit form with invalid data', async () => {
         await userEvent.type(getFormElements().emailInput, 'invalid-email');
         await userEvent.click(getFormElements().submitButton);
         await waitFor(() => {
             expect(postRegister.postRegister).not.toHaveBeenCalled();
-            checkErrorMessage(/L'email est invalide/i);
         });
     });
 

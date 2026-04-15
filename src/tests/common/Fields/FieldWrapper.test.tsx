@@ -17,12 +17,13 @@ describe("FieldWrapper", () => {
 
   it("renders the error message when provided", () => {
     render(
-      <FieldWrapper label="Email" htmlFor="email" error="Email is required.">
+      <FieldWrapper label="Email" htmlFor="email" errorId="email-error" error="Email is required.">
         <input id="email" />
       </FieldWrapper>,
     );
-
-    expect(screen.getByText("Email is required.")).toBeInTheDocument();
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("Email is required.");
+    expect(alert).toHaveAttribute("id", "email-error");
   });
 
   it("renders additional content when provided", () => {

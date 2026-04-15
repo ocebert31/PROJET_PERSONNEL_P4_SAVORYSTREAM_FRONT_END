@@ -11,5 +11,8 @@ export function useCreateSauceForm(): ReturnType<typeof useForm<SauceCreateFormV
   return useForm<SauceCreateFormValues>({
     resolver: yupResolver(schema),
     defaultValues: sauceCreateDefaultValues,
+    mode: "all",
+    reValidateMode: "onChange",
+    shouldFocusError: true,
   });
 }
