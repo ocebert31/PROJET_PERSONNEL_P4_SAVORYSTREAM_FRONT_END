@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { UseFormRegister } from "react-hook-form";
 import type { RegisterFormData } from "../../../types/User";
 import InputField from "../../../common/Fields/InputField";
@@ -43,5 +44,31 @@ describe("InputField", () => {
     expect(input).toHaveAttribute("min", "0");
     expect(input).toHaveAttribute("step", "1");
     expect(input).toHaveAttribute("accept", "image/*");
+  });
+
+  it("applies accessibility attributes when provided", () => {
+    render(<InputField {...defaultProps} required ariaDescribedBy="email-error" ariaInvalid />);
+
+    const input = screen.getByRole("textbox");
+    expect(input).toBeRequired();
+    expect(input).toHaveAttribute("aria-describedby", "email-error");
+    expect(input).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("toggles password visibility with the eye button", async () => {
+    render(<InputField {...defaultProps} name="password" id="password" type="password" />);
+
+    const input = document.getElementById("password");
+    expect(input).toHaveAttribute("type", "password");
+
+    await userEvent.click(screen.getByRole("button", { name: /Afficher le mot de passe/i }));
+    expect(screen.getByRole("button", { name: /Masquer le mot de passe/i })).toBeInTheDocument();
+    expect(input).toHaveAttribute("type", "text");
+  });
+
+  it("does not render visibility toggle for non-password inputs", () => {
+    render(<InputField {...defaultProps} type="text" />);
+
+    expect(screen.queryByRole("button", { name: /mot de passe/i })).not.toBeInTheDocument();
   });
 });

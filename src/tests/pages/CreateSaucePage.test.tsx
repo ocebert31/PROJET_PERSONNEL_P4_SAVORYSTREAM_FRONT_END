@@ -4,6 +4,7 @@ import type { BaseSyntheticEvent } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import { axe } from "vitest-axe";
 import CreateSaucePage from "../../pages/CreateSaucePage";
 import type { SauceCreateFormValues } from "../../schemas/sauceCreateSchema";
 import { sauceCreateDefaultValues } from "../../schemas/sauceCreateSchema";
@@ -126,7 +127,7 @@ describe("CreateSaucePage", () => {
     hoisted.useCreateSauceForm.mockReturnValue({
       register: vi.fn(() => ({})),
       handleSubmit: makeHandleSubmit(validValues),
-      formState: { errors: {}, isSubmitting: false },
+      formState: { errors: {}, touchedFields: {}, isSubmitting: false, isValid: false },
     });
     vi.mocked(buildSauceCreatePayload).mockReturnValue(new FormData());
     vi.mocked(sauceService.createSauce).mockResolvedValue(minimalSauceResponse());
@@ -151,6 +152,17 @@ describe("CreateSaucePage", () => {
         expect(hoisted.showSuccess).toHaveBeenCalledWith("Créée");
         expect(hoisted.navigate).toHaveBeenCalledWith("/sauce/new-sauce-id", { replace: true });
       });
+    });
+
+    it("should not have detectable accessibility violations", async () => {
+      renderPage();
+
+      const results = await axe(document.body, {
+        rules: {
+          region: { enabled: false },
+        },
+      });
+      expect(results.violations).toHaveLength(0);
     });
   });
 
@@ -236,7 +248,7 @@ describe("CreateSaucePage", () => {
       hoisted.useCreateSauceForm.mockReturnValue({
         register: vi.fn(() => ({})),
         handleSubmit: makeHandleSubmit(validValues),
-        formState: { errors: {}, isSubmitting: true },
+        formState: { errors: {}, touchedFields: {}, isSubmitting: true, isValid: false },
       });
 
       renderPage();

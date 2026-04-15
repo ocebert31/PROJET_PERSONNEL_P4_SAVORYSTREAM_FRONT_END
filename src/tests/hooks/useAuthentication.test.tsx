@@ -17,7 +17,12 @@ vi.mock("react-hook-form", async (importOriginal) => {
 
 describe("useAuthentication", () => {
   const renderUseAuthentication = (isLoginPage: boolean) => renderHook(() => useAuthentication(isLoginPage));
-  const mockSchema = expect.objectContaining({ resolver: expect.any(Function) });
+  const mockSchema = expect.objectContaining({
+    resolver: expect.any(Function),
+    mode: "all",
+    reValidateMode: "onChange",
+    shouldFocusError: true,
+  });
 
   it("should call useForm with the correct schema when not on the login page", () => {
     renderUseAuthentication(false);

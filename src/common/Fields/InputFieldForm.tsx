@@ -11,32 +11,38 @@ function getErrorMessage<TFieldValues extends FieldValues>( errors: InputFieldPr
   return typeof msg === "string" && msg ? msg : null;
 }
 
-function InputFieldForm<TFieldValues extends FieldValues>(
-  props: InputFieldProps<TFieldValues>,
-) {
-  const { type = "text", label, htmlFor, additionalContent, errors, name } = props;
+function InputFieldForm<TFieldValues extends FieldValues>( props: InputFieldProps<TFieldValues> ) {
+  const { type = "text", label, htmlFor, id, additionalContent, errors, name, required } = props;
 
   const error = getErrorMessage(errors, name);
+  const errorId = error ? `${id}-error` : undefined;
+  const fieldProps = {
+    ...props,
+    required,
+    ariaInvalid: Boolean(error),
+    ariaDescribedBy: errorId,
+  };
 
   const renderField = () => {
     switch (type) {
       case "textarea":
-        return <TextareaField {...props} />;
+        return <TextareaField {...fieldProps} />;
 
       case "select":
-        return <SelectField {...props} />;
+        return <SelectField {...fieldProps} />;
 
       case "checkbox":
-        return <CheckboxField {...props} />;
+        return <CheckboxField {...fieldProps} />;
 
       default:
-        return <InputField {...props} type={type} />;
+        return <InputField {...fieldProps} type={type} />;
     }
   };
 
   return (
-    <FieldWrapper label={type !== "checkbox" ? label : undefined} htmlFor={htmlFor} error={error} additionalContent={additionalContent}>
-      {renderField()}
+    <FieldWrapper
+      label={type !== "checkbox" ? label : undefined} htmlFor={htmlFor} required={required} errorId={errorId}
+      error={error} additionalContent={additionalContent}> {renderField()}
     </FieldWrapper>
   );
 }

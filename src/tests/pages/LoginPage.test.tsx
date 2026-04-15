@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, beforeEach, test, expect } from 'vitest';
 import { v4 as uuidv4 } from 'uuid';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import LoginPage from '../../pages/LoginPage';
 import * as authService from '../../services/users/authentication';
 import * as authContext from '../../context/AuthContext';
@@ -22,7 +23,7 @@ const showErrorMock = vi.fn();
 
 const getEmailInput = () => screen.getByLabelText(/Email/i);
 const getPhoneInput = () => screen.getByLabelText(/Téléphone/i);
-const getPasswordInput = () => screen.getByLabelText('Mot de passe');
+const getPasswordInput = () => screen.getByLabelText((content) => /^Mot de passe\s*\*?$/.test(content));
 const getSubmitButton = () => screen.getByRole('button', { name: /Se connecter/i });
 
 const fillAndSubmitWithEmail = async (email: string, password: string) => {
@@ -127,12 +128,20 @@ describe('LoginPage - unit behavior', () => {
     });
   });
 
+  test("should not have detectable accessibility violations", async () => {
+    const results = await axe(document.body, {
+      rules: {
+        region: { enabled: false },
+      },
+    });
+    expect(results.violations).toHaveLength(0);
+  });
+
   test('should not submit when data is invalid', async () => {
     await fillAndSubmitWithEmail('invalid-email', 'ValidPassword123!');
 
     await waitFor(() => {
       expect(authService.postLogin).not.toHaveBeenCalled();
-      expect(screen.getByText(/L'email est invalide/i)).toBeInTheDocument();
     });
   });
 

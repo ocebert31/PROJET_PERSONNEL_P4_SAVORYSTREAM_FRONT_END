@@ -19,23 +19,31 @@ vi.mock("@/components/Sauce/Detail/Purchase/AddSauceToCart", () => ({
   default: vi.fn(),
 }));
 
+const showSuccessMock = vi.fn();
+vi.mock("@/hooks/useToast", () => ({
+  useToast: () => ({
+    showSuccess: showSuccessMock,
+    showError: vi.fn(),
+  }),
+}));
+
 import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 
 describe("AddToCartButton", () => {
   beforeEach(() => {
     vi.mocked(AddSauceToCart).mockClear();
-    vi.spyOn(window, "alert").mockImplementation(() => {});
+    showSuccessMock.mockClear();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("calls AddSauceToCart and alert on click when available", async () => {
+  it("calls AddSauceToCart and success toast on click when available", async () => {
     render(<AddToCartButton sauce={sauce} selected={selected} quantity={2} />);
-    await userEvent.click(screen.getByRole("button", { name: /Ajouter au panier/i }));
+    await userEvent.click(screen.getByRole("button", { name: /Ajouter cette sauce au panier/i }));
     expect(AddSauceToCart).toHaveBeenCalledWith(sauce, selected, 2);
-    expect(window.alert).toHaveBeenCalled();
+    expect(showSuccessMock).toHaveBeenCalledWith("2 × Sauce X ajoutés au panier.");
   });
 
   it("renders nothing when selected is null", () => {
@@ -45,6 +53,6 @@ describe("AddToCartButton", () => {
 
   it("is disabled when sauce unavailable", () => {
     render(<AddToCartButton sauce={{ ...sauce, is_available: false }} selected={selected} quantity={1} />);
-    expect(screen.getByRole("button", { name: /Indisponible/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Produit indisponible/i })).toBeDisabled();
   });
 });

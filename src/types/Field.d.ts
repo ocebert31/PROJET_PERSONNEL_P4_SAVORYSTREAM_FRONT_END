@@ -6,6 +6,8 @@ export type SelectOption = { value: string; label: string };
 export type FieldWrapperProps = {
   label?: string;
   htmlFor?: string;
+  required?: boolean;
+  errorId?: string;
   error: string | null;
   children: ReactNode;
   additionalContent?: ReactNode;
@@ -25,6 +27,11 @@ export type InputFieldProps<TFieldValues extends FieldValues> = {
   step?: number | string;
   accept?: string;
   valueAsNumber?: boolean;
+  required?: boolean;
+  autoComplete?: string;
+  inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
   options?: SelectOption[];
   placeholderOption?: SelectOption;
   additionalContent?: ReactNode;

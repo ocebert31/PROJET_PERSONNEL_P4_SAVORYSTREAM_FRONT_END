@@ -51,6 +51,9 @@ describe("useCreateSauceForm", () => {
       expect(vi.mocked(useForm)).toHaveBeenCalledWith({
         resolver,
         defaultValues: sauceCreateDefaultValues,
+        mode: "all",
+        reValidateMode: "onChange",
+        shouldFocusError: true,
       });
     });
 

@@ -7,5 +7,8 @@ export function useAuthentication(isLoginPage: boolean): ReturnType<typeof useFo
   const schema = AuthenticationSchema(isLoginPage);
   return useForm<LoginFormData | RegisterFormData>({
     resolver: yupResolver(schema),
+    mode: "all",
+    reValidateMode: "onChange",
+    shouldFocusError: true,
   });
 }

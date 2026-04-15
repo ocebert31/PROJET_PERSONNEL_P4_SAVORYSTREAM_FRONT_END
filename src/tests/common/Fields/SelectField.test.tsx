@@ -37,7 +37,10 @@ describe("SelectField", () => {
   it("renders the placeholder option when provided", () => {
     render(<SelectField {...defaultProps} placeholderOption={{ value: "", label: "Choose one" }} />);
 
-    expect(screen.getByRole("option", { name: "Choose one" })).toBeInTheDocument();
+    const placeholder = screen.getByText("Choose one");
+    expect(placeholder).toBeInTheDocument();
+    expect(placeholder).toHaveAttribute("hidden");
+    expect(placeholder).toHaveAttribute("disabled");
   });
 
   it("applies disabled attribute when provided", () => {

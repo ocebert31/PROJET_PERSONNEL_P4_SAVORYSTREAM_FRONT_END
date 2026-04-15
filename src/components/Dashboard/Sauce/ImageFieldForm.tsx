@@ -31,11 +31,14 @@ function ImageFieldForm({ register, errors }: ImageFieldFormProps) {
         },
     });
 
+    const imageErrorId = imageError ? "sauce-image-file-error" : undefined;
+
     return (
-        <FieldWrapper label="Image (fichier)" htmlFor="sauce-image-file" error={imageError}>
-            <input id="sauce-image-file" type="file" accept="image/*" className="hidden" {...imageRegistration} />
+        <FieldWrapper label="Image (fichier)" htmlFor="sauce-image-file" required errorId={imageErrorId} error={imageError}>
+            <input id="sauce-image-file" type="file" accept="image/*" required aria-describedby={imageErrorId}
+                aria-invalid={Boolean(imageError) || undefined} className="hidden" {...imageRegistration}/>
             <div className="space-y-3">
-                <label htmlFor="sauce-image-file" className="inline-flex cursor-pointer items-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background">
+                <label htmlFor="sauce-image-file" className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
                     Parcourir
                 </label>
                 <p className="text-xs text-muted">{selectedImageName || "Aucun fichier sélectionné"}</p>

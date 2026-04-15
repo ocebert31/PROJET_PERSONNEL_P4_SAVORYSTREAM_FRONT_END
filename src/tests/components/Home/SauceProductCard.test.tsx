@@ -24,7 +24,7 @@ describe("SauceProductCard", () => {
     expect(screen.getByRole("heading", { name: "Sauce Test" })).toBeInTheDocument();
     expect(screen.getByText("Une accroche")).toBeInTheDocument();
     expect(screen.getByText("4.50 €")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Découvrir/i })).toHaveAttribute("href", "/sauce/42");
+    expect(screen.getByRole("link", { name: /Découvrir la sauce Sauce Test/i })).toHaveAttribute("href", "/sauce/42");
   });
 
   it("shows rupture badge when unavailable", () => {

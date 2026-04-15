@@ -1,30 +1,36 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 function Header() {
   const { user } = useAuth();
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `rounded-full px-3 py-2 text-sm font-medium transition sm:px-4 ${
+      isActive
+        ? "bg-background text-primary"
+        : "text-foreground/90 hover:bg-background hover:text-primary"
+    } focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40`;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/85 backdrop-blur-md shadow-sm shadow-stone-900/5">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-6 lg:h-[4.25rem]">
-        <Link to="/" className="font-display text-xl font-semibold tracking-tight text-primary transition hover:text-primary-hover sm:text-2xl">
+        <NavLink to="/" className="font-display text-xl font-semibold tracking-tight text-primary transition hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:text-2xl">
           SavoryStream
-        </Link>
+        </NavLink>
         <nav className="flex items-center gap-1 sm:gap-2" aria-label="Navigation principale">
-          <Link to="/" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
+          <NavLink to="/" className={navLinkClass}>
             Accueil
-          </Link>
+          </NavLink>
           {user?.role === 'admin' ? (
-            <Link to="/dashboard/sauces/create" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
+            <NavLink to="/dashboard/sauces/create" className={navLinkClass}>
               Créer une sauce
-            </Link>
+            </NavLink>
           ) : null}
-          <Link to="/register" className="rounded-full px-3 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background hover:text-primary sm:px-4">
+          <NavLink to="/register" className={navLinkClass}>
             Inscription
-          </Link>
-          <Link to="/login" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/25 transition hover:bg-primary-hover sm:px-5">
+          </NavLink>
+          <NavLink to="/login" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-5">
             Connexion
-          </Link>
+          </NavLink>
         </nav>
       </div>
     </header>

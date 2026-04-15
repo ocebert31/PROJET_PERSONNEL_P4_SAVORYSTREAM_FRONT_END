@@ -1,4 +1,6 @@
 import InputFieldForm from "../common/Fields/InputFieldForm";
+import FormLiveFeedback from "../common/Fields/FormLiveFeedback";
+import RequiredFieldsHint from "../common/Fields/RequiredFieldsHint";
 import AuthCard from "../components/auth/AuthCard";
 import AuthPageLayout from "../components/auth/AuthPageLayout";
 import { useAuth } from "../context/AuthContext";
@@ -10,8 +12,11 @@ import { Link } from "react-router-dom";
 
 function LoginPage() {
   const { refreshUser } = useAuth();
-  const { register, handleSubmit, formState: { errors }, reset } = useAuthentication(true);
+  const { register, handleSubmit, formState: { errors, touchedFields, isValid }, reset } = useAuthentication(true);
   const { showSuccess, showError } = useToast();
+  const touchedKeys = Object.keys(touchedFields);
+  const touchedCount = touchedKeys.length;
+  const touchedErrorCount = touchedKeys.filter((key) => Boolean(errors[key as keyof typeof errors])).length;
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -37,10 +42,13 @@ function LoginPage() {
             Pas encore de compte ? <Link to="/register" className="font-semibold text-primary hover:text-primary-hover">Créer un compte</Link>
           </p>}>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
-          <InputFieldForm label="Email" name="email" htmlFor="email" id="email" register={register} errors={errors} type="text" />
-          <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="text" />
-          <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" />
-          <button type="submit" className="w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover">
+          <RequiredFieldsHint />
+          <FormLiveFeedback touchedCount={touchedCount} touchedErrorCount={touchedErrorCount} isValid={isValid} />
+          <InputFieldForm label="Email" name="email" htmlFor="email" id="email" register={register} errors={errors} type="email" 
+            autoComplete="email" inputMode="email" additionalContent={<p className="text-xs text-muted">Renseignez un email ou un téléphone.</p>}/>
+          <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="tel" autoComplete="tel" inputMode="tel" />
+          <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" required autoComplete="current-password" />
+          <button type="submit" className="min-h-11 w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
             Se connecter
           </button>
         </form>
