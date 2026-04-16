@@ -34,10 +34,8 @@ function nominalFormValues(): SauceCreateFormValues {
     is_available: true,
     category_id: "cat-99",
     stock_quantity: 42,
-    conditioning_volume: "  250 ml  ",
-    conditioning_price: "  6.90  ",
-    ingredient_name: "  Piment  ",
-    ingredient_quantity: "  5 g  ",
+    conditionings: [ { volume: "  250 ml  ", price: "  6.90  " }, { volume: "  100 ml  ", price: "  3.40  " } ],
+    ingredients: [ { name: "  Piment  ", quantity: "  5 g  " }, { name: "  Ail  ", quantity: "  2 g  " } ],
   };
 }
 
@@ -55,10 +53,10 @@ describe("buildSauceCreatePayload", () => {
       expect(data.get("category_id")).toBe("cat-99");
       expect(data.get("stock[quantity]")).toBe("42");
 
-      expect(data.get("conditionings[][volume]")).toBe("250 ml");
-      expect(data.get("conditionings[][price]")).toBe("6.90");
-      expect(data.get("ingredients[][name]")).toBe("Piment");
-      expect(data.get("ingredients[][quantity]")).toBe("5 g");
+      expect(data.getAll("conditionings[][volume]")).toEqual([ "250 ml", "100 ml" ]);
+      expect(data.getAll("conditionings[][price]")).toEqual([ "6.90", "3.40" ]);
+      expect(data.getAll("ingredients[][name]")).toEqual([ "Piment", "Ail" ]);
+      expect(data.getAll("ingredients[][quantity]")).toEqual([ "5 g", "2 g" ]);
 
       const image = data.get("image");
       expect(image).toBeInstanceOf(File);
@@ -83,6 +81,22 @@ describe("buildSauceCreatePayload", () => {
       const values = { ...nominalFormValues(), image: emptyFileList() };
       const data = buildSauceCreatePayload(values);
       expect(data.get("image")).toBeNull();
+    });
+
+    it("does not append conditioning entries when conditionings is empty", () => {
+      const values = { ...nominalFormValues(), conditionings: [] };
+      const data = buildSauceCreatePayload(values);
+
+      expect(data.getAll("conditionings[][volume]")).toEqual([]);
+      expect(data.getAll("conditionings[][price]")).toEqual([]);
+    });
+
+    it("does not append ingredient entries when ingredients is empty", () => {
+      const values = { ...nominalFormValues(), ingredients: [] };
+      const data = buildSauceCreatePayload(values);
+
+      expect(data.getAll("ingredients[][name]")).toEqual([]);
+      expect(data.getAll("ingredients[][quantity]")).toEqual([]);
     });
   });
 });

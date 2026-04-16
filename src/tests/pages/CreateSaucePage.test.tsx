@@ -19,6 +19,10 @@ const hoisted = vi.hoisted(() => ({
   showError: vi.fn(),
   useCreateSauceForm: vi.fn(),
   useGetSauceCategories: vi.fn(),
+  appendConditioning: vi.fn(),
+  removeConditioning: vi.fn(),
+  appendIngredient: vi.fn(),
+  removeIngredient: vi.fn(),
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -52,6 +56,18 @@ vi.mock("../../mappers/buildSauceCreatePayload", () => ({
   buildSauceCreatePayload: vi.fn(),
 }));
 
+vi.mock("react-hook-form", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-hook-form")>();
+  return {
+    ...actual,
+    useFieldArray: vi.fn(({ name }: { name: string }) => ({
+      fields: [ { id: `${name}-0` } ],
+      append: name === "conditionings" ? hoisted.appendConditioning : hoisted.appendIngredient,
+      remove: name === "conditionings" ? hoisted.removeConditioning : hoisted.removeIngredient,
+    })),
+  };
+});
+
 vi.mock("../../components/Dashboard/Sauce/SauceIdentityFields", () => ({
   SauceIdentityFields: () => <div data-testid="sauce-identity" />,
 }));
@@ -59,6 +75,24 @@ vi.mock("../../components/Dashboard/Sauce/SauceIdentityFields", () => ({
 vi.mock("../../components/Dashboard/Sauce/FormSection", () => ({
   FormSection: ({ title, children }: { title: string; children?: ReactNode }) => (
     <div data-testid={`section-${title}`}>{children}</div>
+  ),
+}));
+
+vi.mock("../../components/Dashboard/Sauce/ConditioningFieldsSection", () => ({
+  ConditioningFieldsSection: ({ onAppend, onRemove }: { onAppend: () => void; onRemove: (index: number) => void }) => (
+    <div data-testid="conditioning-section">
+      <button type="button" onClick={onAppend}>Ajouter un conditionnement</button>
+      <button type="button" onClick={() => onRemove(0)}>Supprimer ce conditionnement</button>
+    </div>
+  ),
+}));
+
+vi.mock("../../components/Dashboard/Sauce/IngredientFieldsSection", () => ({
+  IngredientFieldsSection: ({ onAppend, onRemove }: { onAppend: () => void; onRemove: (index: number) => void }) => (
+    <div data-testid="ingredient-section">
+      <button type="button" onClick={onAppend}>Ajouter un ingrédient</button>
+      <button type="button" onClick={() => onRemove(0)}>Supprimer cet ingrédient</button>
+    </div>
   ),
 }));
 
@@ -125,6 +159,7 @@ describe("CreateSaucePage", () => {
       categoriesBlocked: false,
     });
     hoisted.useCreateSauceForm.mockReturnValue({
+      control: {},
       register: vi.fn(() => ({})),
       handleSubmit: makeHandleSubmit(validValues),
       formState: { errors: {}, touchedFields: {}, isSubmitting: false, isValid: false },
@@ -244,8 +279,72 @@ describe("CreateSaucePage", () => {
       expect(screen.getByRole("button", { name: /Créer la sauce/i })).toBeDisabled();
     });
 
+    it("appends a conditioning row when user clicks add conditioning", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Ajouter un conditionnement/i }));
+
+      expect(hoisted.appendConditioning).toHaveBeenCalledWith({ volume: "", price: "" });
+    });
+
+    it("removes a conditioning row when user clicks remove conditioning", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Supprimer ce conditionnement/i }));
+
+      expect(hoisted.removeConditioning).toHaveBeenCalledWith(0);
+    });
+
+    it("appends an ingredient row when user clicks add ingredient", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Ajouter un ingrédient/i }));
+
+      expect(hoisted.appendIngredient).toHaveBeenCalledWith({ name: "", quantity: "" });
+    });
+
+    it("removes an ingredient row when user clicks remove ingredient", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Supprimer cet ingrédient/i }));
+
+      expect(hoisted.removeIngredient).toHaveBeenCalledWith(0);
+    });
+
+    it("removes a conditioning row when user clicks remove conditioning", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Supprimer ce conditionnement/i }));
+
+      expect(hoisted.removeConditioning).toHaveBeenCalledWith(0);
+    });
+
+    it("appends an ingredient row when user clicks add ingredient", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Ajouter un ingrédient/i }));
+
+      expect(hoisted.appendIngredient).toHaveBeenCalledWith({ name: "", quantity: "" });
+    });
+
+    it("removes an ingredient row when user clicks remove ingredient", async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      await user.click(screen.getByRole("button", { name: /Supprimer cet ingrédient/i }));
+
+      expect(hoisted.removeIngredient).toHaveBeenCalledWith(0);
+    });
+
     it("shows saving label and disables submit while isSubmitting", () => {
       hoisted.useCreateSauceForm.mockReturnValue({
+        control: {},
         register: vi.fn(() => ({})),
         handleSubmit: makeHandleSubmit(validValues),
         formState: { errors: {}, touchedFields: {}, isSubmitting: true, isValid: false },
