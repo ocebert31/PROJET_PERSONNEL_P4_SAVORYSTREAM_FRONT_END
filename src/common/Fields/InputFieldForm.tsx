@@ -6,8 +6,17 @@ import TextareaField from "./TextareaField";
 import SelectField from "./SelectField";
 import CheckboxField from "./CheckboxField";
 
-function getErrorMessage<TFieldValues extends FieldValues>( errors: InputFieldProps<TFieldValues>["errors"], name: Path<TFieldValues> ): string | null {
-  const msg = errors?.[name]?.message;
+export function getNestedValue(source: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>((acc, segment) => {
+    if (acc && typeof acc === "object" && segment in (acc as Record<string, unknown>)) {
+      return (acc as Record<string, unknown>)[segment];
+    }
+    return undefined;
+  }, source);
+}
+
+export function getErrorMessage<TFieldValues extends FieldValues>( errors: InputFieldProps<TFieldValues>["errors"], name: Path<TFieldValues> ): string | null {
+  const msg = (getNestedValue(errors, String(name)) as { message?: unknown } | undefined)?.message;
   return typeof msg === "string" && msg ? msg : null;
 }
 

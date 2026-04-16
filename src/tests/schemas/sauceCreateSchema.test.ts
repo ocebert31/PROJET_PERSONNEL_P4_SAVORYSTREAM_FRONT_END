@@ -37,10 +37,8 @@ function validPayload(overrides: Partial<SauceCreateFormValues> = {}): SauceCrea
     is_available: true,
     category_id: "cat-1",
     stock_quantity: 24,
-    conditioning_volume: "250 ml",
-    conditioning_price: "6.90",
-    ingredient_name: "Piment chipotle",
-    ingredient_quantity: "5 %",
+    conditionings: [ { volume: "250 ml", price: "6.90" } ],
+    ingredients: [ { name: "Piment chipotle", quantity: "5 %" } ],
     ...overrides,
   };
 }
@@ -71,7 +69,7 @@ describe("sauceCreateSchema", () => {
           tagline: values.tagline,
           category_id: "cat-1",
           stock_quantity: 24,
-          conditioning_price: "6.90",
+          conditionings: [ { volume: "250 ml", price: "6.90" } ],
         }),
       );
     });
@@ -85,10 +83,8 @@ describe("sauceCreateSchema", () => {
         characteristic: "Car",
         image: fileListFromFile(new File(["b"], "x.png", { type: "image/png" })),
         category_id: "c1",
-        conditioning_volume: "200ml",
-        conditioning_price: "4",
-        ingredient_name: "Sel",
-        ingredient_quantity: "1g",
+        conditionings: [ { volume: "200ml", price: "4" } ],
+        ingredients: [ { name: "Sel", quantity: "1g" } ],
       };
       await expect(schema.validate(data)).resolves.toBeDefined();
     });
@@ -108,8 +104,8 @@ describe("sauceCreateSchema", () => {
       ["0.5", "0.5"],
       ["0", "0"],
     ] as const)("accepts conditioning_price %s as valid", async (input, expected) => {
-      const result = await schema.validate(validPayload({ conditioning_price: input }));
-      expect(result.conditioning_price).toBe(expected);
+      const result = await schema.validate(validPayload({ conditionings: [ { volume: "250 ml", price: input } ] }));
+      expect(result.conditionings[0]?.price).toBe(expected);
     });
   });
 
@@ -121,12 +117,20 @@ describe("sauceCreateSchema", () => {
         ["description", { ...validPayload(), description: "" }, "La description est requise."],
         ["characteristic", { ...validPayload(), characteristic: "" }, "La caractéristique est requise."],
         ["category_id", { ...validPayload(), category_id: "" }, "Choisissez une catégorie."],
-        ["conditioning_volume", { ...validPayload(), conditioning_volume: "" }, "Le volume est requis."],
-        ["conditioning_price", { ...validPayload(), conditioning_price: "" }, "Le prix est requis."],
-        ["ingredient_name", { ...validPayload(), ingredient_name: "" }, "Le nom de l’ingrédient est requis."],
-        ["ingredient_quantity", { ...validPayload(), ingredient_quantity: "" }, "La quantité de l’ingrédient est requise."],
+        ["conditionings[0].volume", { ...validPayload(), conditionings: [ { volume: "", price: "6.90" } ] }, "Le volume est requis."],
+        ["conditionings[0].price", { ...validPayload(), conditionings: [ { volume: "250 ml", price: "" } ] }, "Le prix est requis."],
+        ["ingredients[0].name", { ...validPayload(), ingredients: [ { name: "", quantity: "5 %" } ] }, "Le nom de l’ingrédient est requis."],
+        ["ingredients[0].quantity", { ...validPayload(), ingredients: [ { name: "Piment", quantity: "" } ] }, "La quantité de l’ingrédient est requise."],
       ] as const)("rejects empty %s", async (_field, data, message) => {
         await expectRejectedWithMessage(data, message);
+      });
+
+      it("rejects empty conditionings array", async () => {
+        await expectRejectedWithMessage({ ...validPayload(), conditionings: [] }, "Ajoutez au moins un conditionnement.");
+      });
+
+      it("rejects empty ingredients array", async () => {
+        await expectRejectedWithMessage({ ...validPayload(), ingredients: [] }, "Ajoutez au moins un ingrédient.");
       });
     });
 
@@ -196,9 +200,9 @@ describe("sauceCreateSchema", () => {
         ["tagline", { ...validPayload(), tagline: "b".repeat(121) }, "120 caractères maximum."],
         ["description", { ...validPayload(), description: "c".repeat(5001) }, "Texte trop long."],
         ["characteristic", { ...validPayload(), characteristic: "d".repeat(256) }, "255 caractères maximum."],
-        ["conditioning_volume", { ...validPayload(), conditioning_volume: "e".repeat(21) }, "20 caractères max."],
-        ["ingredient_name", { ...validPayload(), ingredient_name: "f".repeat(101) }, "100 caractères maximum."],
-        ["ingredient_quantity", { ...validPayload(), ingredient_quantity: "g".repeat(101) }, "100 caractères maximum."],
+        ["conditionings[0].volume", { ...validPayload(), conditionings: [ { volume: "e".repeat(21), price: "6.90" } ] }, "20 caractères max."],
+        ["ingredients[0].name", { ...validPayload(), ingredients: [ { name: "f".repeat(101), quantity: "5 %" } ] }, "100 caractères maximum."],
+        ["ingredients[0].quantity", { ...validPayload(), ingredients: [ { name: "Piment", quantity: "g".repeat(101) } ] }, "100 caractères maximum."],
       ] as const)("rejects %s over max length", async (_field, data, message) => {
         await expectRejectedWithMessage(data, message);
       });
@@ -206,11 +210,17 @@ describe("sauceCreateSchema", () => {
 
     describe("conditioning_price format", () => {
       it("rejects too many decimal places", async () => {
-        await expectRejectedWithMessage({ ...validPayload(), conditioning_price: "12.999" }, "Prix invalide (ex. 6.90).");
+        await expectRejectedWithMessage(
+          { ...validPayload(), conditionings: [ { volume: "250 ml", price: "12.999" } ] },
+          "Prix invalide (ex. 6.90).",
+        );
       });
 
       it("rejects non-numeric string", async () => {
-        await expectRejectedWithMessage({ ...validPayload(), conditioning_price: "abc" }, "Prix invalide (ex. 6.90).");
+        await expectRejectedWithMessage(
+          { ...validPayload(), conditionings: [ { volume: "250 ml", price: "abc" } ] },
+          "Prix invalide (ex. 6.90).",
+        );
       });
     });
   });

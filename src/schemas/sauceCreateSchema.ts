@@ -1,5 +1,30 @@
 import * as yup from "yup";
 
+const conditioningSchema = yup.object({
+  volume: yup.string().trim().required("Le volume est requis.").max(20, "20 caractères max."),
+  price: yup
+    .string()
+    .trim()
+    .required("Le prix est requis.")
+    .test("decimal", "Prix invalide (ex. 6.90).", (v) => {
+      if (!v) return false;
+      return /^\d+(\.\d{1,2})?$/.test(v);
+    }),
+});
+
+const ingredientSchema = yup.object({
+  name: yup
+    .string()
+    .trim()
+    .required("Le nom de l’ingrédient est requis.")
+    .max(100, "100 caractères maximum."),
+  quantity: yup
+    .string()
+    .trim()
+    .required("La quantité de l’ingrédient est requise.")
+    .max(100, "100 caractères maximum."),
+});
+
 const sauceCreateSchema = yup.object({
   name: yup.string().trim().required("Le nom est requis.").max(50, "50 caractères maximum."),
   tagline: yup.string().trim().required("L’accroche est requise.").max(120, "120 caractères maximum."),
@@ -24,28 +49,16 @@ const sauceCreateSchema = yup.object({
     .integer("Entier uniquement.")
     .min(0, "Minimum 0.")
     .required("Stock requis."),
-  conditioning_volume: yup.string().trim().required("Le volume est requis.").max(20, "20 caractères max.").default(""),
-  conditioning_price: yup
-    .string()
-    .trim()
-    .required("Le prix est requis.")
-    .test("decimal", "Prix invalide (ex. 6.90).", (v) => {
-      if (!v) return false;
-      return /^\d+(\.\d{1,2})?$/.test(v);
-    })
-    .default(""),
-  ingredient_name: yup
-    .string()
-    .trim()
-    .required("Le nom de l’ingrédient est requis.")
-    .max(100, "100 caractères maximum.")
-    .default(""),
-  ingredient_quantity: yup
-    .string()
-    .trim()
-    .required("La quantité de l’ingrédient est requise.")
-    .max(100, "100 caractères maximum.")
-    .default(""),
+  conditionings: yup
+    .array()
+    .of(conditioningSchema)
+    .min(1, "Ajoutez au moins un conditionnement.")
+    .required("Ajoutez au moins un conditionnement."),
+  ingredients: yup
+    .array()
+    .of(ingredientSchema)
+    .min(1, "Ajoutez au moins un ingrédient.")
+    .required("Ajoutez au moins un ingrédient."),
 });
 
 export const SauceCreateSchema = () => sauceCreateSchema;
@@ -61,8 +74,6 @@ export const sauceCreateDefaultValues: SauceCreateFormValues = {
   is_available: true,
   category_id: "",
   stock_quantity: 0,
-  conditioning_volume: "",
-  conditioning_price: "",
-  ingredient_name: "",
-  ingredient_quantity: "",
+  conditionings: [ { volume: "", price: "" } ],
+  ingredients: [ { name: "", quantity: "" } ],
 };

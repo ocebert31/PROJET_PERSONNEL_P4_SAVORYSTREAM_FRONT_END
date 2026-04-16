@@ -19,11 +19,15 @@ export function buildSauceCreatePayload(values: SauceCreateFormValues): FormData
   if (image) data.append("image", image);
 
   // Use [] notation so Rails parses nested arrays from multipart payloads.
-  data.append("conditionings[][volume]", values.conditioning_volume.trim());
-  data.append("conditionings[][price]", values.conditioning_price.trim());
+  values.conditionings.forEach((conditioning) => {
+    data.append("conditionings[][volume]", conditioning.volume.trim());
+    data.append("conditionings[][price]", conditioning.price.trim());
+  });
 
-  data.append("ingredients[][name]", values.ingredient_name.trim());
-  data.append("ingredients[][quantity]", values.ingredient_quantity.trim());
+  values.ingredients.forEach((ingredient) => {
+    data.append("ingredients[][name]", ingredient.name.trim());
+    data.append("ingredients[][quantity]", ingredient.quantity.trim());
+  });
 
   return data;
 }

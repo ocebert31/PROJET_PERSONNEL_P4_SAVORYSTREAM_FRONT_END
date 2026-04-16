@@ -1,9 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { useFieldArray } from "react-hook-form";
 import InputFieldForm from "../common/Fields/InputFieldForm";
 import FormLiveFeedback from "../common/Fields/FormLiveFeedback";
 import RequiredFieldsHint from "../common/Fields/RequiredFieldsHint";
 import { FormSection } from "../components/Dashboard/Sauce/FormSection";
 import { SauceIdentityFields } from "../components/Dashboard/Sauce/SauceIdentityFields";
+import { ConditioningFieldsSection } from "../components/Dashboard/Sauce/ConditioningFieldsSection";
+import { IngredientFieldsSection } from "../components/Dashboard/Sauce/IngredientFieldsSection";
 import { useCreateSauceForm } from "../hooks/useCreateSauceForm";
 import { useToast } from "../hooks/useToast";
 import { useGetSauceCategories } from "../hooks/useGetSauceCategories";
@@ -14,8 +17,10 @@ import { buildSauceCreatePayload } from "../mappers/buildSauceCreatePayload";
 function CreateSaucePage() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const { register, handleSubmit, formState: { errors, touchedFields, isSubmitting, isValid } } = useCreateSauceForm();
+  const { control, register, handleSubmit, formState: { errors, touchedFields, isSubmitting, isValid } } = useCreateSauceForm();
   const { error: categoriesError, selectOptions, categoriesBlocked } = useGetSauceCategories();
+  const { fields: conditioningFields,append: appendConditioning, remove: removeConditioning } = useFieldArray({ control, name: "conditionings" });
+  const { fields: ingredientFields, append: appendIngredient, remove: removeIngredient } = useFieldArray({ control, name: "ingredients" });
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -63,17 +68,23 @@ function CreateSaucePage() {
             <InputFieldForm label="Quantité en stock" name="stock_quantity" htmlFor="stock-qty" id="stock-qty" register={register} errors={errors} type="number" required min={0} step={1} inputMode="numeric" valueAsNumber/>
           </div>
         </FormSection>
-        <FormSection title="Conditionnement" description="Le volume et le prix du format principal sont requis.">
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <InputFieldForm label="Volume (ex. 250ml)" name="conditioning_volume" htmlFor="cond-vol" id="cond-vol" register={register} errors={errors} required autoComplete="off" />
-            <InputFieldForm label="Prix (ex. 6.90)" name="conditioning_price" htmlFor="cond-price" id="cond-price" register={register} errors={errors} type="number" required min={0} step="0.01" inputMode="decimal" />
-          </div>
+        <FormSection title="Conditionnements" description="Ajoutez un ou plusieurs formats (volume + prix).">
+          <ConditioningFieldsSection
+            register={register}
+            errors={errors}
+            fields={conditioningFields}
+            onAppend={() => appendConditioning({ volume: "", price: "" })}
+            onRemove={removeConditioning}
+          />
         </FormSection>
-        <FormSection title="Ingrédient" description="Ajoutez au moins un ingrédient et sa quantité.">
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <InputFieldForm label="Nom" name="ingredient_name" htmlFor="ing-name" id="ing-name" register={register} errors={errors} required autoComplete="off" />
-            <InputFieldForm label="Quantité (ex. 30%)" name="ingredient_quantity" htmlFor="ing-qty" id="ing-qty" register={register} errors={errors} required autoComplete="off" />
-          </div>
+        <FormSection title="Ingrédients" description="Ajoutez un ou plusieurs ingrédients avec leur quantité.">
+          <IngredientFieldsSection
+            register={register}
+            errors={errors}
+            fields={ingredientFields}
+            onAppend={() => appendIngredient({ name: "", quantity: "" })}
+            onRemove={removeIngredient}
+          />
         </FormSection>
         <div className="flex flex-wrap items-center gap-4 pt-2">
           <button type="submit" disabled={submitDisabled} className="min-h-11 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60">
