@@ -16,6 +16,12 @@ vi.mock("../context/AuthContext", () => ({
   ),
 }));
 
+vi.mock("../context/ConsentContext", () => ({
+  ConsentProvider: ({ children }: { children: ReactNode }) => (
+    <div data-testid="consent-provider">{children}</div>
+  ),
+}));
+
 vi.mock("../init/SessionInitializer", () => ({
   default: () => <div data-testid="session-initializer" />,
 }));
@@ -32,10 +38,15 @@ vi.mock("../components/Footer/Footer", () => ({
   default: () => <footer data-testid="footer" />,
 }));
 
+vi.mock("../components/Consent/CookieConsentBanner", () => ({
+  default: () => <div data-testid="cookie-consent-banner" />,
+}));
+
 describe("App", () => {
   it("wires providers and session initializer", () => {
     render(<App />);
     expect(screen.getByTestId("toast-provider")).toBeInTheDocument();
+    expect(screen.getByTestId("consent-provider")).toBeInTheDocument();
     expect(screen.getByTestId("auth-provider")).toBeInTheDocument();
     expect(screen.getByTestId("session-initializer")).toBeInTheDocument();
   });
@@ -45,6 +56,7 @@ describe("App", () => {
     expect(screen.getByTestId("header")).toBeInTheDocument();
     expect(screen.getByTestId("router-component")).toBeInTheDocument();
     expect(screen.getByTestId("footer")).toBeInTheDocument();
+    expect(screen.getByTestId("cookie-consent-banner")).toBeInTheDocument();
   });
 
   it("renders an accessible skip link to main content", () => {
