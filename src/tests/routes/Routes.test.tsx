@@ -48,6 +48,10 @@ describe('Navigation behavior', () => {
       { path: '/register', expectedText: /Inscription/i },
       { path: '/login', expectedText: /Connexion/i },
       { path: '/', expectedText: /Nos Sauces Maison 🍶/i },
+      { path: '/mentions-legales', expectedText: /Mentions légales/i },
+      { path: '/cgv', expectedText: /Conditions Générales de Vente/i },
+      { path: '/confidentialite', expectedText: /Politique de confidentialité/i },
+      { path: '/cookies', expectedText: /Politique cookies/i },
     ];
 
     publicRoutes.forEach(({ path, expectedText }) => {
