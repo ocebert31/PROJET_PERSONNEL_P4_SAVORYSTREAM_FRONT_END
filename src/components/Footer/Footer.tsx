@@ -1,4 +1,5 @@
 import FooterColumn from "./FooterColumn";
+import FooterLegalLinks from "./FooterLegalLinks";
 
 function Footer() {
   const reassurance = ["Paiement sécurisé", "Expédition soignée", "Service client réactif"];
@@ -37,7 +38,7 @@ function Footer() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 text-center text-xs text-muted sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} SavoryStream. Tous droits réservés.</p>
-          <p>Mentions légales · Confidentialité · CGV</p>
+          <FooterLegalLinks />
         </div>
       </div>
     </footer>
