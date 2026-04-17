@@ -1,5 +1,5 @@
 import type { FieldArrayWithId, FieldErrors, UseFormRegister } from "react-hook-form";
-import InputFieldForm from "../../../common/Fields/InputFieldForm";
+import InputFieldForm from "../../../common/fields/inputFieldForm";
 import type { SauceCreateFormValues } from "../../../schemas/sauceCreateSchema";
 
 type IngredientFieldsSectionProps = {

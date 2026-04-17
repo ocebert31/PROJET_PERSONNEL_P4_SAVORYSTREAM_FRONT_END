@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import type { Conditioning, Sauce } from "../../../../../types/Sauce";
+import type { Conditioning, Sauce } from "../../../../../types/sauce";
 import AddSauceToCart from "../../../../../components/Sauce/Detail/Purchase/AddSauceToCart";
 
 const sauce: Sauce = {

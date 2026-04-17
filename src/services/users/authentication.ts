@@ -6,8 +6,8 @@ import type {
   RegisterSuccessResponse,
   SessionCreateResponse,
   SessionRefreshResponse,
-} from "../../types/User";
-import type { UserPublic, SessionMeResponse } from "../../types/User";
+} from "../../types/user";
+import type { UserPublic, SessionMeResponse } from "../../types/user";
 
 export async function postRegister(data: RegisterFormData): Promise<RegisterSuccessResponse> {
   return fetchRequest<RegisterSuccessResponse>("users/registrations", { method: "POST", body: data });

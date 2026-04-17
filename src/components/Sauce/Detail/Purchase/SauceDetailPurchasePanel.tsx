@@ -1,4 +1,4 @@
-import type { SauceDetailPurchasePanelProps } from "@/types/Sauce";
+import type { SauceDetailPurchasePanelProps } from "@/types/sauce";
 import ProductVariants from "@/components/Sauce/Detail/Purchase/ProductVariants";
 import SauceBuySection from "@/components/Sauce/Detail/Purchase/SauceBuySection";
 

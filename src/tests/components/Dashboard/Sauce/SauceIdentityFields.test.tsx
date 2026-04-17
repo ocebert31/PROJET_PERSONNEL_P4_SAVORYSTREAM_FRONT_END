@@ -6,7 +6,7 @@ import { sauceCreateDefaultValues, type SauceCreateFormValues } from "../../../.
 
 const inputFieldCalls: { name: string; type?: string }[] = [];
 
-vi.mock("../../../../common/Fields/InputFieldForm", () => ({
+vi.mock("../../../../common/fields/inputFieldForm", () => ({
   default: (props: { name: string; type?: string }) => {
     inputFieldCalls.push({ name: props.name, type: props.type });
     return <div data-testid={`input-field-form-${props.name}`} />;

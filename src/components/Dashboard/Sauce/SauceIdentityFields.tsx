@@ -1,6 +1,6 @@
-import InputFieldForm from "../../../common/Fields/InputFieldForm";
+import InputFieldForm from "../../../common/fields/inputFieldForm";
 import ImageFieldForm from "./ImageFieldForm";
-import type { SauceIdentityFieldsProps } from "../../../types/Sauce";
+import type { SauceIdentityFieldsProps } from "../../../types/sauce";
 
 export function SauceIdentityFields({ register, errors }: SauceIdentityFieldsProps) {
   return (

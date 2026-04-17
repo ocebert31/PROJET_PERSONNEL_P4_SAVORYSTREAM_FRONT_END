@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import type { Sauce } from "../../../types/Sauce";
-import HomeCatalogue from "../../../components/home/HomeCatalogue";
+import type { Sauce } from "../../../types/sauce";
+import HomeCatalogue from "../../../components/Home/HomeCatalogue";
 
 const sauces: Sauce[] = [
   {

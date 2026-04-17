@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import type { AddToCartProps } from "@/types/Sauce";
+import type { AddToCartProps } from "@/types/sauce";
 import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 import { useToast } from "@/hooks/useToast";
 

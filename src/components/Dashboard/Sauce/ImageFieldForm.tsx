@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import FieldWrapper from "../../../common/Fields/FieldWrapper";
-import type { SauceIdentityFieldsProps } from "../../../types/Sauce";
+import FieldWrapper from "../../../common/fields/fieldWrapper";
+import type { SauceIdentityFieldsProps } from "../../../types/sauce";
 
 type ImageFieldFormProps = Pick<SauceIdentityFieldsProps, "register" | "errors">;
 

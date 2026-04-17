@@ -3,8 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, it, expect, beforeEach } from "vitest";
 import CookieConsentBanner from "../../../components/Consent/CookieConsentBanner";
-import { ConsentProvider } from "../../../context/ConsentContext";
-import { CONSENT_STORAGE_KEY } from "../../../common/Consent/consentStorage";
+import { ConsentProvider } from "../../../context/consentContext";
+import { CONSENT_STORAGE_KEY } from "../../../common/consent/consentStorage";
 
 function renderBanner() {
   return render(

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as authentication from "../../../services/users/authentication";
 import { createSauce } from "../../../services/sauces/sauceService";
-import type { SauceCreateResponse } from "../../../types/Sauce";
+import type { SauceCreateResponse } from "../../../types/sauce";
 
 vi.mock("../../../services/users/authentication", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../../services/users/authentication")>();

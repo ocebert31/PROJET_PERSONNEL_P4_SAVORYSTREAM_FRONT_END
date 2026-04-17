@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import HomeTrustStrip from "@/components/home/HomeTrustStrip";
+import HomeTrustStrip from "@/components/Home/HomeTrustStrip";
 
 describe("HomeTrustStrip", () => {
   it("renders all trust items with title and body", () => {

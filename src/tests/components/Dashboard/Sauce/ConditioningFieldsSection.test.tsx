@@ -15,7 +15,7 @@ type InputFieldCall = {
 
 const inputFieldCalls: InputFieldCall[] = [];
 
-vi.mock("../../../../common/Fields/InputFieldForm", () => ({
+vi.mock("../../../../common/fields/inputFieldForm", () => ({
   default: (props: InputFieldCall) => {
     inputFieldCalls.push(props);
     return <div data-testid={`input-field-form-${props.name}`} />;

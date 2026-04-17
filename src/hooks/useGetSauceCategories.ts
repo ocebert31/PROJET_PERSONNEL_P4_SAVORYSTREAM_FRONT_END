@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchAdminCategories } from "../services/sauces/category/categoryService";
-import type { Sauce_category } from "../types/Sauce_category";
+import type { SauceCategory } from "../types/sauceCategory";
 import { useToast } from "./useToast";
 
 type UseGetSauceCategoriesResult = {
@@ -12,7 +12,7 @@ type UseGetSauceCategoriesResult = {
 
 export function useGetSauceCategories(): UseGetSauceCategoriesResult {
   const { showError } = useToast();
-  const [categories, setCategories] = useState<Sauce_category[]>([]);
+  const [categories, setCategories] = useState<SauceCategory[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 

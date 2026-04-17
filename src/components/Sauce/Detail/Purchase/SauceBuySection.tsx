@@ -1,4 +1,4 @@
-import type { SauceBuySectionProps } from "@/types/Sauce";
+import type { SauceBuySectionProps } from "@/types/sauce";
 import AddToCartButton from "@/components/Sauce/Detail/Purchase/AddToCartButton";
 
 export default function SauceBuySection({ sauce, selected, quantity, setQuantity }: SauceBuySectionProps) {

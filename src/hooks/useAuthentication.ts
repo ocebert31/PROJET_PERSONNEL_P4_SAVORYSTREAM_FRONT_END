@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { AuthenticationSchema } from "../schemas/AuthenticationSchema";
-import type { LoginFormData, RegisterFormData } from "../types/User";
+import { AuthenticationSchema } from "../schemas/authenticationSchema";
+import type { LoginFormData, RegisterFormData } from "../types/user";
 
 export function useAuthentication(isLoginPage: boolean): ReturnType<typeof useForm<LoginFormData | RegisterFormData>> {
   const schema = AuthenticationSchema(isLoginPage);

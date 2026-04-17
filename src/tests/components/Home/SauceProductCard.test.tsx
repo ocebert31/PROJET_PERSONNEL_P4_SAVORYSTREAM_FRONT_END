@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import type { Sauce } from "../../../types/Sauce";
-import SauceProductCard from "../../../components/home/SauceProductCard";
+import type { Sauce } from "../../../types/sauce";
+import SauceProductCard from "../../../components/Home/SauceProductCard";
 
 const mockSauce: Sauce = {
   id: 42,

@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import { ToastContext } from "../context/ToastContext";
-import type { ToastContextValue } from "../types/Toast";
+import { ToastContext } from "../context/toastContext";
+import type { ToastContextValue } from "../types/toast";
 
 const noop: ToastContextValue = {
     showSuccess: () => {},

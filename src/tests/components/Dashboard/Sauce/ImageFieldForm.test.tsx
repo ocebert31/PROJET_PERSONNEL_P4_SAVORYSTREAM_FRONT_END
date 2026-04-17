@@ -8,7 +8,7 @@ import { sauceCreateDefaultValues, type SauceCreateFormValues } from "../../../.
 
 const fieldWrapperProps: { label?: string; htmlFor?: string; error: string | null }[] = [];
 
-vi.mock("../../../../common/Fields/FieldWrapper", () => ({
+vi.mock("../../../../common/fields/fieldWrapper", () => ({
   default: (props: { label?: string; htmlFor?: string; error: string | null; children: ReactNode }) => {
     fieldWrapperProps.push({ label: props.label, htmlFor: props.htmlFor, error: props.error });
     return (
