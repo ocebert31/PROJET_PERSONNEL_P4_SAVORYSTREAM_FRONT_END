@@ -3,7 +3,7 @@ import RegisterPage from "../pages/registerPage";
 import LoginPage from "../pages/loginPage";
 import HomePage from "../pages/homePage";
 import SauceDetail from "../pages/sauceDetailPage";
-import ProtectedAdminRoute from "./guards/ProtectedAdminRoute";
+import ProtectedAdminRoute from "./guards/protectedAdminRoute";
 import CreateSaucePage from "../pages/createSaucePage";
 import MentionsLegalesPage from "../pages/mentionsLegalesPage";
 import TermsOfSalePage from "../pages/termsOfSalePage";

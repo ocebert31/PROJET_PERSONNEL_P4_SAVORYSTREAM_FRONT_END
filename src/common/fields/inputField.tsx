@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FieldValues } from "react-hook-form";
 import type { InputFieldProps } from "../../types/field";
-import PasswordVisibilityToggle from "./PasswordVisibilityToggle";
+import PasswordVisibilityToggle from "../../common/fields/passwordVisibilityToggle";
 
 function InputField<TFieldValues extends FieldValues>({ id, type, register, name, disabled, min, step, accept, valueAsNumber,
   required, autoComplete, inputMode, ariaDescribedBy, ariaInvalid }: InputFieldProps<TFieldValues>) {
