@@ -1,0 +1,183 @@
+---
+description: "Standards front-end projet Savorystream (naming, tests, accessibilite, architecture)"
+alwaysApply: true
+---
+
+# Frontend Project Standards (Savorystream)
+
+## Scope
+- Apply these rules for work in `PROJET_PERSONNEL_P4_SAVORYSTREAM_FRONT_END`.
+
+## React naming conventions
+
+### Components
+- Use PascalCase for all React components
+  Example: UserCard.jsx, LoginForm.jsx
+
+### Hooks
+- Use camelCase starting with "use"
+  Example: useAuth.js, useFetchArticles.js
+
+### Functions
+- Use camelCase
+  Example: getUserData, formatDate
+
+### Variables
+- Use camelCase
+  Example: userName, articleList
+
+### Constants
+- Use UPPER_SNAKE_CASE
+  Example: API_URL, MAX_RETRY_COUNT
+
+### Files and folders
+- Components folders: PascalCase
+- Components files: PascalCase
+- Other folders: camelCase
+- Other files: camelCase
+
+### General rules
+- Keep naming descriptive and explicit
+- Avoid abbreviations unless commonly understood
+- Maintain consistency across the entire codebase
+- For case-only renames, use two-step git moves:
+  - `git mv path/Foo path/Foo_tmp && git mv path/Foo_tmp path/foo`
+- Test MUST follow the same naming conventions as the source code they test
+
+## Architecture and Reuse
+- Prefer reusable shared components over duplication (especially forms and legal/footer blocks).
+- Keep page components focused on orchestration; move repeated UI blocks into dedicated components.
+- Keep pure logic in utils/hooks/services; keep rendering concerns in components.
+
+## CORE CODE PRINCIPLES (MUST BE RESPECTED)
+
+The following 5 principles MUST always be followed:
+
+- Readability: code must be easy to read and understand at first glance
+- Clear naming: all variables, functions, and components must have explicit and meaningful names
+- Short functions: functions must remain small, focused, and do one thing only
+- No duplication: avoid repeating logic; reuse existing functions or abstractions
+- Single responsibility: each function, component, or module must have one clear responsibility
+
+## ACCESSIBILITY (A11Y) — MANDATORY RULES
+
+### General principle
+- Accessibility is a first-class requirement, not an option
+- Every UI feature must be usable without a mouse
+- Prefer accessible native HTML before custom solutions
+
+---
+
+### Keyboard navigation
+- All interactive elements must be reachable via keyboard (Tab / Shift+Tab)
+- All actions must be usable via Enter and/or Space
+- Focus order must follow visual order
+- Visible focus indicator must always be present
+
+---
+
+### Semantic HTML
+- Use semantic HTML elements first:
+  - <button> for actions
+  - <a> for navigation
+  - <form>, <label>, <input> properly linked
+- Do not use clickable <div> or <span> for interactive behavior
+- Maintain correct heading hierarchy (h1 → h2 → h3)
+
+---
+
+### Forms
+- Every input MUST have an associated <label>
+- Errors must be shown as text, not only color
+- Inputs and errors must be linked using aria-describedby when needed
+
+---
+
+### Visual accessibility
+- Do not rely on color alone to communicate information (error, success, status)
+- Maintain sufficient color contrast (WCAG AA minimum)
+- Ensure layouts remain usable at 200% zoom
+
+---
+
+### ARIA usage
+- Use ARIA only when semantic HTML is insufficient
+- Avoid unnecessary or redundant ARIA attributes
+- Every aria-label must be meaningful and descriptive
+- Never replace proper HTML elements with ARIA roles
+
+---
+
+### Images & media
+- All images must have meaningful alt text
+- Decorative images must use alt=""
+- Provide captions when applicable for video/audio content
+
+---
+
+### Focus management
+- Focus must be managed after navigation or modal opening
+- Modals must trap focus inside them
+- Closing a modal must restore previous focus
+
+---
+
+### Rule enforcement
+- Every UI change must be evaluated for accessibility impact
+- If uncertain, choose the most accessible implementation by default
+
+## TESTING RULES
+
+### File structure
+- Every created source file MUST have a corresponding test file
+- Test files MUST be placed in a parallel structure to source files (mirror architecture)
+- Test file naming must strictly match source file name with `.test` suffix
+
+Example:
+UserCard.jsx → UserCard.test.jsx
+useAuth.js → useAuth.test.js
+userService.js → userService.test.js
+
+---
+
+### Synchronization rule
+- Any change in behavior MUST be reflected in the corresponding test file(s)
+- Tests located in `src/tests` MUST always stay aligned with implementation
+
+---
+
+### Component testing strategy
+- Component tests MUST focus on user-visible behavior only
+- Always test:
+  - Rendering (what the user sees)
+  - User interactions (clicks, typing, navigation)
+  - Observable side effects (UI updates, API-driven UI changes)
+- NEVER test internal implementation details (state internals, private functions, hooks internals)
+
+---
+
+### Test structure (per file)
+- Each test file MUST be organized in blocks per function or feature
+- Start with the nominal case first
+- Then describe edge cases and error cases progressively (one by one)
+
+Example structure:
+1. Nominal case (happy path)
+2. Edge cases
+3. Error handling cases
+
+---
+
+### Naming conventions
+- All test names MUST be written in English
+- Test names MUST describe user behavior clearly and explicitly
+- Use descriptive sentences instead of technical wording
+
+Example:
+✔ should display user name when data is loaded
+✘ test1 or renders correctly
+
+## Change Safety
+- After edits, run targeted tests for modified areas.
+- Keep lints clean on touched files.
+- Do not introduce root-level npm artifacts for this repo; npm dependencies belong to the frontend package.
