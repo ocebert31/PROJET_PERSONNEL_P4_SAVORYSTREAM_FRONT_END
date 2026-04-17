@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as authentication from "../../../../services/users/authentication";
 import { fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
-import type { Sauce_category } from "../../../../types/Sauce_category";
+import type { SauceCategory } from "../../../../types/sauceCategory";
 
 vi.mock("../../../../services/users/authentication", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../../../services/users/authentication")>();
@@ -11,7 +11,7 @@ vi.mock("../../../../services/users/authentication", async (importOriginal) => {
   };
 });
 
-function category(overrides: Partial<Sauce_category> = {}): Sauce_category {
+function category(overrides: Partial<SauceCategory> = {}): SauceCategory {
   const iso = "2026-01-01T00:00:00.000Z";
   return {
     id: "cat-1",

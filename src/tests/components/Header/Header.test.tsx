@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Header from '../../../components/Header/Header';
-import * as authContext from '../../../context/AuthContext';
+import * as authContext from '../../../context/authContext';
 
 const renderHeader = () => {
   render(

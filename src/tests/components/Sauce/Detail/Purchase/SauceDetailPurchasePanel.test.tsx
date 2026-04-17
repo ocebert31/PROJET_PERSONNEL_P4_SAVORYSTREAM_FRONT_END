@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import type { Sauce } from "../../../../../types/Sauce";
+import type { Sauce } from "../../../../../types/sauce";
 import SauceDetailPurchasePanel from "../../../../../components/Sauce/Detail/Purchase/SauceDetailPurchasePanel";
 
 vi.mock("@/components/Sauce/Detail/Purchase/AddToCartButton", () => ({

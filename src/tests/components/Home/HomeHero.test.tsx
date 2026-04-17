@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import HomeHero from "../../../components/home/HomeHero";
+import HomeHero from "../../../components/Home/HomeHero";
 
 function renderHero(props: { backgroundImageUrl: string; featuredSauceId: number | undefined }) {
   return render(

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { renderHook, render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useToast } from "../../hooks/useToast";
-import { ToastProvider } from "../../common/Toast/ToastProvider";
+import { ToastProvider } from "../../common/toast/toastProvider";
 
 function wrapper({ children }: { children: ReactNode }) {
     return <ToastProvider>{children}</ToastProvider>;

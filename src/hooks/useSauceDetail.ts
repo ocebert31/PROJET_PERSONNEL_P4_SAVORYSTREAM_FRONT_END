@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import saucesData from "../data/sauces.json";
-import { Conditioning, Sauce } from "../types/Sauce";
+import { Conditioning, Sauce } from "../types/sauce";
 
 export function useSauceDetail(id: string | undefined) {
     const numericId = id ? parseInt(id, 10) : NaN;

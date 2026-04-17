@@ -1,4 +1,4 @@
-import type { ProductVariantsProps } from "@/types/Sauce";
+import type { ProductVariantsProps } from "@/types/sauce";
 
 const ProductVariants = ({ variants, selectedId, onSelect, isAvailable = true }: ProductVariantsProps) => {
   return (
