@@ -13,6 +13,7 @@ import { useGetSauceCategories } from "../hooks/useGetSauceCategories";
 import { createSauce } from "../services/sauces/sauceService";
 import { ApiError } from "../services/apiRequest/apiError";
 import { buildSauceCreatePayload } from "../mappers/buildSauceCreatePayload";
+import Button from "../common/button/button";
 
 function CreateSaucePage() {
   const navigate = useNavigate();
@@ -43,11 +44,11 @@ function CreateSaucePage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-      <p className="text-xs font-semibold uppercase tracking-wider text-primary">Administration</p>
-      <h1 className="mt-2 font-display text-3xl font-semibold text-foreground">Nouvelle sauce</h1>
-      <p className="mt-3 text-sm text-muted">Renseignez les informations produit.</p>
-      <RequiredFieldsHint className="mt-1 text-xs text-muted" />
-      <p className="mt-1 text-xs text-muted">
+      <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
+      <h1 className="text-heading-1 mt-2 text-foreground">Nouvelle sauce</h1>
+      <p className="text-body-sm mt-3 text-muted">Renseignez les informations produit.</p>
+      <RequiredFieldsHint className="text-caption mt-1 text-muted" />
+      <p className="text-caption mt-1 text-muted">
         Après validation, vous serez redirigé vers la fiche produit créée.
       </p>
       <form onSubmit={onSubmit} className="mt-10 space-y-6" noValidate>
@@ -60,7 +61,7 @@ function CreateSaucePage() {
         <InputFieldForm label="Catégorie" name="category_id" htmlFor="sauce-category" id="sauce-category" register={register} errors={errors} type="select" required disabled={categoriesBlocked} placeholderOption={{ value: "", label: "— Choisir —" }} options={selectOptions}
           additionalContent={
             categoriesError ? (
-              <p className="text-xs font-medium text-rose-700" role="alert">Rechargez la page après connexion admin.</p>
+              <p className="text-caption font-medium text-destructive" role="alert">Rechargez la page après connexion admin.</p>
             ) : null
           }/>
         <FormSection title="Stock" description="Indiquez la quantité actuellement disponible.">
@@ -87,12 +88,12 @@ function CreateSaucePage() {
           />
         </FormSection>
         <div className="flex flex-wrap items-center gap-4 pt-2">
-          <button type="submit" disabled={submitDisabled} className="min-h-11 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60">
+          <Button type="submit" variant="primary" size="lg" disabled={submitDisabled}>
             {isSubmitting ? "Enregistrement…" : "Créer la sauce"}
-          </button>
-          <button type="button" onClick={() => navigate(-1)} className="min-h-11 rounded-full border border-border px-6 py-3 text-sm font-medium text-foreground/90 transition hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          </Button>
+          <Button type="button" variant="secondary" onClick={() => navigate(-1)}>
             Annuler
-          </button>
+          </Button>
         </div>
       </form>
     </div>

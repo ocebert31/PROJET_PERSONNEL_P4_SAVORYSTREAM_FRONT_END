@@ -9,6 +9,7 @@ import { useAuthentication } from "../hooks/useAuthentication";
 import { postLogin } from "../services/users/authentication";
 import type { LoginFormData } from "../types/user";
 import { Link } from "react-router-dom";
+import Button from "../common/button/button";
 
 function LoginPage() {
   const { refreshUser } = useAuth();
@@ -48,9 +49,9 @@ function LoginPage() {
             autoComplete="email" inputMode="email" additionalContent={<p className="text-xs text-muted">Renseignez un email ou un téléphone.</p>}/>
           <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="tel" autoComplete="tel" inputMode="tel" />
           <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" required autoComplete="current-password" />
-          <button type="submit" className="min-h-11 w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          <Button type="submit" variant="primary" fullWidth>
             Se connecter
-          </button>
+          </Button>
         </form>
       </AuthCard>
     </AuthPageLayout>

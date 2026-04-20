@@ -5,7 +5,7 @@ type RequiredFieldsHintProps = {
 function RequiredFieldsHint({ className = "text-xs text-muted" }: RequiredFieldsHintProps) {
   return (
     <p className={className}>
-      Les champs marques <span className="font-semibold text-rose-700">*</span> sont obligatoires.
+      Les champs marques <span className="font-semibold text-destructive">*</span> sont obligatoires.
     </p>
   );
 }

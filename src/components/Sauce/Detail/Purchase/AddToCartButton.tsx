@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { AddToCartProps } from "@/types/sauce";
 import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 import { useToast } from "@/hooks/useToast";
+import Button from "@/common/button/button";
 
 function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
   const { showSuccess } = useToast();
@@ -15,14 +16,11 @@ function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
   if (!sauce || !selected) return null;
 
   const buttonLabel = sauce.is_available ? "Ajouter cette sauce au panier" : "Produit indisponible";
-  const buttonClasses = sauce.is_available
-    ? "min-h-11 w-full rounded-full bg-primary px-4 py-4 text-base font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover hover:shadow-xl active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-    : "min-h-11 w-full cursor-not-allowed rounded-full bg-border px-4 py-4 text-base font-semibold text-muted";
 
   return (
-    <button type="button" onClick={handleAddToCart} disabled={!sauce.is_available} className={buttonClasses}>
+    <Button type="button" onClick={handleAddToCart} disabled={!sauce.is_available} variant={sauce.is_available ? "primary" : "secondary"} size="lg" fullWidth className="active:scale-[0.99]">
       {buttonLabel}
-    </button>
+    </Button>
   );
 }
 

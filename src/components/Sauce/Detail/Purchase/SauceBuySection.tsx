@@ -1,5 +1,6 @@
 import type { SauceBuySectionProps } from "@/types/sauce";
 import AddToCartButton from "@/components/Sauce/Detail/Purchase/AddToCartButton";
+import StepperButton from "@/common/button/stepperButton";
 
 export default function SauceBuySection({ sauce, selected, quantity, setQuantity }: SauceBuySectionProps) {
   const increment = () => setQuantity((q) => Math.min(selected.stock ?? 100, q + 1));
@@ -16,15 +17,15 @@ export default function SauceBuySection({ sauce, selected, quantity, setQuantity
           </span>
         </p>
         <div className="inline-flex items-center overflow-hidden rounded-full border border-border bg-background">
-          <button type="button" onClick={decrement} className="px-4 py-2.5 text-lg font-medium text-foreground transition hover:bg-primary hover:text-white" aria-label="Diminuer la quantité">
+          <StepperButton onClick={decrement} aria-label="Diminuer la quantité">
             −
-          </button>
+          </StepperButton>
           <span className="min-w-[3rem] px-2 py-2.5 text-center text-sm font-semibold tabular-nums">
             {quantity}
           </span>
-          <button type="button" onClick={increment} className="px-4 py-2.5 text-lg font-medium text-foreground transition hover:bg-primary hover:text-white" aria-label="Augmenter la quantité">
+          <StepperButton onClick={increment} aria-label="Augmenter la quantité">
             +
-          </button>
+          </StepperButton>
         </div>
       </div>
       <p className="font-display mt-6 text-2xl font-semibold tabular-nums text-foreground">

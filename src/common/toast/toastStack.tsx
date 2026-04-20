@@ -1,4 +1,4 @@
-import { ToastItemView } from "../../common/toast/toastItemView";
+import { ToastItemView } from "./toastItemView";
 import type { ToastStackProps } from "../../types/toast";
 
 export function ToastStack({ toasts, onDismiss }: ToastStackProps) {

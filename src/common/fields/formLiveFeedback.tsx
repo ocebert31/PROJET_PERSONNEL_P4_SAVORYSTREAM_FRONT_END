@@ -7,7 +7,7 @@ type FormLiveFeedbackProps = {
 function FormLiveFeedback({ touchedCount, touchedErrorCount, isValid }: FormLiveFeedbackProps) {
   const hasLiveErrors = touchedErrorCount > 0;
   const liveFeedbackRole = hasLiveErrors ? "alert" : "status";
-  const liveFeedbackClassName = `text-xs ${hasLiveErrors ? "font-medium text-rose-700" : "text-muted"}`;
+  const liveFeedbackClassName = `text-caption ${hasLiveErrors ? "font-medium text-destructive" : "text-muted"}`;
   const liveFeedbackMessage = hasLiveErrors
     ? `${touchedErrorCount} champ${touchedErrorCount > 1 ? "s" : ""} à corriger.`
     : touchedCount > 0 && isValid

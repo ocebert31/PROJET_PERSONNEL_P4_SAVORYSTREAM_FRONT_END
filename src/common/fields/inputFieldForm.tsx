@@ -1,10 +1,10 @@
 import type { FieldValues, Path } from "react-hook-form";
 import type { InputFieldProps } from "../../types/field";
-import InputField from "../../common/fields/inputField";
-import FieldWrapper from "../../common/fields/fieldWrapper";
-import TextareaField from "../../common/fields/textareaField";
-import SelectField from "../../common/fields/selectField";
-import CheckboxField from "../../common/fields/checkboxField";
+import InputField from "./inputField";
+import FieldWrapper from "./fieldWrapper";
+import TextareaField from "./textareaField";
+import SelectField from "./selectField";
+import CheckboxField from "./checkboxField";
 
 export function getNestedValue(source: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((acc, segment) => {
