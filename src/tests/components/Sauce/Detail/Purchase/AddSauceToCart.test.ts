@@ -2,8 +2,12 @@ import { describe, it, expect, beforeEach } from "vitest";
 import type { Conditioning, Sauce } from "../../../../../types/sauce";
 import AddSauceToCart from "../../../../../components/Sauce/Detail/Purchase/AddSauceToCart";
 
+const SAUCE_UUID = "10101010-1010-1010-1010-101010101010";
+const COND_A_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const COND_B_UUID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+
 const sauce: Sauce = {
-  id: 10,
+  id: SAUCE_UUID,
   name: "Sauce Test",
   description: "d",
   image_url: "/i.jpg",
@@ -11,8 +15,8 @@ const sauce: Sauce = {
   conditionnements: [],
 };
 
-const condA: Conditioning = { id: 1, volume: "250ml", prix: 4 };
-const condB: Conditioning = { id: 2, volume: "500ml", prix: 7 };
+const condA: Conditioning = { id: COND_A_UUID, volume: "250ml", prix: 4 };
+const condB: Conditioning = { id: COND_B_UUID, volume: "500ml", prix: 7 };
 
 describe("AddSauceToCart", () => {
   beforeEach(() => {
@@ -24,8 +28,8 @@ describe("AddSauceToCart", () => {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     expect(cart).toEqual([
       {
-        sauceId: 10,
-        condId: 1,
+        sauceId: SAUCE_UUID,
+        condId: COND_A_UUID,
         name: "Sauce Test",
         volume: 250,
         prix: 4,
@@ -38,7 +42,7 @@ describe("AddSauceToCart", () => {
     localStorage.setItem(
       "cart",
       JSON.stringify([
-        { sauceId: 10, condId: 1, name: "Sauce Test", volume: 250, prix: 4, quantity: 1 },
+        { sauceId: SAUCE_UUID, condId: COND_A_UUID, name: "Sauce Test", volume: 250, prix: 4, quantity: 1 },
       ])
     );
     AddSauceToCart(sauce, condA, 3);
@@ -52,7 +56,7 @@ describe("AddSauceToCart", () => {
     AddSauceToCart(sauce, condB, 2);
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
     expect(cart).toHaveLength(2);
-    expect(cart[1].condId).toBe(2);
+    expect(cart[1].condId).toBe(COND_B_UUID);
     expect(cart[1].quantity).toBe(2);
   });
 });

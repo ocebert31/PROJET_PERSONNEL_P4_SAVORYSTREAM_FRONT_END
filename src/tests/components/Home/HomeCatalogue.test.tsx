@@ -6,22 +6,22 @@ import HomeCatalogue from "../../../components/Home/HomeCatalogue";
 
 const sauces: Sauce[] = [
   {
-    id: 1,
+    id: "1",
     name: "Alpha Sauce",
     description: "d1",
     image_url: "/a.jpg",
     is_available: true,
     accroche: "First tagline",
-    conditionnements: [{ id: 1, volume: "250ml", prix: 2 }],
+    conditionnements: [{ id: "1", volume: "250ml", prix: 2 }],
   },
   {
-    id: 2,
+    id: "2",
     name: "Beta Sauce",
     description: "d2",
     image_url: "/b.jpg",
     is_available: true,
     accroche: "Second tagline",
-    conditionnements: [{ id: 2, volume: "500ml", prix: 5 }],
+    conditionnements: [{ id: "2", volume: "500ml", prix: 5 }],
   },
 ];
 

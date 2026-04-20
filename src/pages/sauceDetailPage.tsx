@@ -8,7 +8,29 @@ import { useSauceDetail } from "../hooks/useSauceDetail";
 
 function SauceDetail() {
   const { id } = useParams<{ id: string }>();
-  const { sauce, selected, selectedCond, setSelectedCond, quantity, setQuantity } = useSauceDetail(id);
+  const { sauce, selected, selectedCond, setSelectedCond, quantity, setQuantity, isLoading, error, retry } =
+    useSauceDetail(id);
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-6xl px-6 py-20 text-center">
+        <p className="text-sm text-muted" role="status">
+          Chargement de la sauce…
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-6xl px-6 py-20 text-center">
+        <p className="text-sm text-destructive">{error}</p>
+        <button type="button" onClick={retry} className="mt-4 inline-flex items-center justify-center rounded-full border border-border bg-surface px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          Réessayer
+        </button>
+      </div>
+    );
+  }
 
   if (!sauce) return <SauceDetailNotFound />;
 

@@ -5,7 +5,7 @@ import type { Conditioning, Sauce } from "../../../../../types/sauce";
 import AddToCartButton from "../../../../../components/Sauce/Detail/Purchase/AddToCartButton";
 
 const sauce: Sauce = {
-  id: 1,
+  id: "1",
   name: "Sauce X",
   description: "d",
   image_url: "/x.jpg",
@@ -13,7 +13,7 @@ const sauce: Sauce = {
   conditionnements: [],
 };
 
-const selected: Conditioning = { id: 1, volume: "250ml", prix: 4 };
+const selected: Conditioning = { id: "1", volume: "250ml", prix: 4 };
 
 vi.mock("@/components/Sauce/Detail/Purchase/AddSauceToCart", () => ({
   default: vi.fn(),

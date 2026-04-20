@@ -5,13 +5,13 @@ import type { Sauce } from "../../../types/sauce";
 import SauceProductCard from "../../../components/Home/SauceProductCard";
 
 const mockSauce: Sauce = {
-  id: 42,
+  id: "42",
   name: "Sauce Test",
   description: "Desc",
   image_url: "/img.jpg",
   is_available: true,
   accroche: "Une accroche",
-  conditionnements: [{ id: 1, volume: "250ml", prix: 4.5 }],
+  conditionnements: [{ id: "1", volume: "250ml", prix: 4.5 }],
 };
 
 describe("SauceProductCard", () => {
