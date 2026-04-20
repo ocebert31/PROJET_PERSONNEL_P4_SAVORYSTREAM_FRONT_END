@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-type HomeHeroProps = { backgroundImageUrl: string; featuredSauceId: number | undefined };
+type HomeHeroProps = { backgroundImageUrl: string; featuredSauceId: string | undefined };
 
 function HomeHero({ backgroundImageUrl, featuredSauceId }: HomeHeroProps) {
   return (

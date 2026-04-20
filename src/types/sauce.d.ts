@@ -3,7 +3,7 @@ import type { SauceCreateFormValues } from "../schemas/sauceCreateSchema";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";  
 
 export interface Sauce {
-  id: number;
+  id: string;
   name: string;
   description: string;
   caracteristique?: string;
@@ -15,21 +15,21 @@ export interface Sauce {
 }
 
 export interface Conditioning {
-  id: number;
+  id: string;
   volume: string;
   prix: number;
   stock?: number;
 }
 
 export interface Ingredient {
-  id: number;
+  id: string;
   name: string;
   quantité: string;
 }
 
 export interface SauceItem {
-  sauceId: number;
-  condId: number;
+  sauceId: string;
+  condId: string;
   name: string;
   volume: number;
   prix: number;
@@ -38,8 +38,8 @@ export interface SauceItem {
 
 export interface ProductVariantsProps {
   variants: Conditioning[];
-  selectedId: number | null;
-  onSelect: (id: number) => void;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
   isAvailable?: boolean;
 }
 
@@ -64,9 +64,9 @@ export interface SauceBuySectionProps {
 export type SauceDetailPurchasePanelProps = {
   sauce: Sauce;
   selected: Conditioning | undefined;
-  selectedCond: number | null;
+  selectedCond: string | null;
   quantity: number;
-  setSelectedCond: Dispatch<SetStateAction<number | null>>;
+  setSelectedCond: Dispatch<SetStateAction<string | null>>;
   setQuantity: Dispatch<SetStateAction<number>>;
 };
 

@@ -4,11 +4,38 @@ import * as authContext from '../../context/authContext';
 import { AuthProvider } from '../../context/authContext';
 import RouterComponent from '../../routes/routerComponent';
 import '@testing-library/jest-dom';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import type { SauceApiSerialized } from '../../types/sauce';
 
 vi.mock('../../pages/createSaucePage', () => ({
   default: () => <div>Create Sauce Page</div>,
 }));
+
+vi.mock('../../services/sauces/sauceService', () => ({
+  fetchSauces: vi.fn(),
+  fetchSauce: vi.fn(),
+  createSauce: vi.fn(),
+}));
+
+import { fetchSauces } from '../../services/sauces/sauceService';
+
+const mockedFetchSauces = vi.mocked(fetchSauces);
+
+const stubCatalogueSauce: SauceApiSerialized = {
+  id: '11111111-1111-1111-1111-111111111111',
+  name: 'Stub sauce',
+  tagline: 'stub',
+  description: null,
+  characteristic: null,
+  image_url: null,
+  is_available: true,
+  category: null,
+  stock: null,
+  conditionings: [{ id: 'c1', volume: '250ml', price: '3.99' }],
+  ingredients: [],
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z',
+};
 
 const renderWithRouter = (initialRoute: string) => {
   render(
@@ -44,6 +71,10 @@ describe('Navigation behavior', () => {
   });
 
   describe('public routes', () => {
+    beforeEach(() => {
+      mockedFetchSauces.mockResolvedValue({ sauces: [stubCatalogueSauce] });
+    });
+
     const publicRoutes = [
       { path: '/register', expectedText: /Inscription/i },
       { path: '/login', expectedText: /Connexion/i },
@@ -55,9 +86,9 @@ describe('Navigation behavior', () => {
     ];
 
     publicRoutes.forEach(({ path, expectedText }) => {
-      it(`renders ${path}`, () => {
+      it(`renders ${path}`, async () => {
         renderWithRouter(path);
-        expect(screen.getByText(expectedText)).toBeInTheDocument();
+        expect(await screen.findByText(expectedText)).toBeInTheDocument();
       });
     });
   });

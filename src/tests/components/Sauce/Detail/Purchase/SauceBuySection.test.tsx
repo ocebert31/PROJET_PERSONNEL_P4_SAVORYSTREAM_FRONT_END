@@ -9,7 +9,7 @@ vi.mock("@/components/Sauce/Detail/Purchase/AddToCartButton", () => ({
 }));
 
 const sauce: Sauce = {
-  id: 1,
+  id: "1",
   name: "S",
   description: "d",
   image_url: "/i.jpg",
@@ -17,7 +17,7 @@ const sauce: Sauce = {
   conditionnements: [],
 };
 
-const selected = { id: 1, volume: "250ml", prix: 10, stock: 5 };
+const selected = { id: "1", volume: "250ml", prix: 10, stock: 5 };
 
 describe("SauceBuySection", () => {
   it("increments and decrements quantity within bounds", async () => {

@@ -8,15 +8,19 @@ vi.mock("@/components/Sauce/Detail/Purchase/AddToCartButton", () => ({
   default: () => <button type="button">Ajouter au panier</button>,
 }));
 
+const SAUCE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const COND_SMALL_UUID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+const COND_LARGE_UUID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+
 const baseSauce: Sauce = {
-  id: 1,
+  id: SAUCE_UUID,
   name: "Sauce BBQ",
   description: "Une sauce fumée pour vos grillades.",
   image_url: "/bbq.jpg",
   is_available: true,
   conditionnements: [
-    { id: 1, volume: "250ml", prix: 3.99 },
-    { id: 2, volume: "500ml", prix: 6.49 },
+    { id: COND_SMALL_UUID, volume: "250ml", prix: 3.99 },
+    { id: COND_LARGE_UUID, volume: "500ml", prix: 6.49 },
   ],
 };
 
@@ -28,7 +32,7 @@ describe("SauceDetailPurchasePanel", () => {
       <SauceDetailPurchasePanel
         sauce={baseSauce}
         selected={baseSauce.conditionnements[0]}
-        selectedCond={1}
+        selectedCond={COND_SMALL_UUID}
         quantity={1}
         setSelectedCond={setSelectedCond}
         setQuantity={setQuantity}
@@ -46,7 +50,7 @@ describe("SauceDetailPurchasePanel", () => {
       <SauceDetailPurchasePanel
         sauce={{ ...baseSauce, is_available: false }}
         selected={baseSauce.conditionnements[0]}
-        selectedCond={1}
+        selectedCond={COND_SMALL_UUID}
         quantity={1}
         setSelectedCond={vi.fn()}
         setQuantity={vi.fn()}
@@ -76,7 +80,7 @@ describe("SauceDetailPurchasePanel", () => {
       <SauceDetailPurchasePanel
         sauce={baseSauce}
         selected={baseSauce.conditionnements[0]}
-        selectedCond={1}
+        selectedCond={COND_SMALL_UUID}
         quantity={2}
         setSelectedCond={vi.fn()}
         setQuantity={vi.fn()}
@@ -92,14 +96,14 @@ describe("SauceDetailPurchasePanel", () => {
       <SauceDetailPurchasePanel
         sauce={baseSauce}
         selected={baseSauce.conditionnements[0]}
-        selectedCond={1}
+        selectedCond={COND_SMALL_UUID}
         quantity={1}
         setSelectedCond={setSelectedCond}
         setQuantity={setQuantity}
       />
     );
     await userEvent.click(screen.getByRole("button", { name: /500ml/i }));
-    expect(setSelectedCond).toHaveBeenCalledWith(2);
+    expect(setSelectedCond).toHaveBeenCalledWith(COND_LARGE_UUID);
     expect(setQuantity).toHaveBeenCalledWith(1);
   });
 });
