@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useConsent } from "../../context/consentContext";
+import Button from "../../common/button/Button";
 
 function CookieConsentBanner() {
   const { status, accept, reject } = useConsent();
@@ -19,12 +20,12 @@ function CookieConsentBanner() {
         .
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
-        <button type="button" onClick={accept} className="min-h-11 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover">
+        <Button type="button" variant="primary" size="sm" onClick={accept}>
           Tout accepter
-        </button>
-        <button type="button" onClick={reject} className="min-h-11 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground">
+        </Button>
+        <Button type="button" variant="secondary" size="sm" onClick={reject}>
           Tout refuser
-        </button>
+        </Button>
       </div>
     </aside>
   );

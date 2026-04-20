@@ -57,6 +57,18 @@ Copier `.env.example` vers `.env` et adapter l’URL si ton serveur Rails n’é
 | `npm run test`    | Suite Vitest (mode watch ; `npm run test -- --run` pour une exécution unique, ex. CI locale) |
 | `npm run lint`    | ESLint |
 
+## Design tokens et usage
+
+Le design system repose sur les tokens de `src/index.css`.
+
+- Couleurs d’état : utiliser `success`, `warning`, `info`, `destructive` (et leurs variantes `-foreground`, `-background`, `-border`) au lieu de couleurs hardcodées.
+- Typographie : privilégier les classes `text-heading-*`, `text-body*`, `text-caption`, `text-label` pour garder une hiérarchie homogène.
+- Fondations visuelles : utiliser les utilitaires DS (`ds-card`, `ds-panel`, `ds-input-radius`, `ds-chip-radius`, `ds-toast-shadow`) plutôt que des combinaisons ad hoc.
+- Règles de cohérence :
+  - ne pas introduire de couleurs de statut en dur (`rose-*`, `emerald-*`, etc.) dans les composants métier ;
+  - ne pas multiplier les ombres personnalisées hors échelle ;
+  - ne pas créer de nouvelles tailles typographiques sans variant nommé.
+
 ## Qualité & intégration continue
 
 Les **pull requests** et les **push** sur `main` déclenchent une **CI** (lint, tests, build), sauf si seuls des fichiers **`.md`** sont modifiés. Comportement exact et politique **Dependabot / auto-merge** : **spec Notion §8**.

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, type ReactNode } from "react";
 import { ToastContext } from "../../context/toastContext";
-import { ToastStack } from "../../common/toast/toastStack";
-import { toastReducer } from "../../common/toast/toastReducer";
+import { ToastStack } from "./toastStack";
+import { toastReducer } from "./toastReducer";
 import type { ToastContextValue, ToastItem, ToastVariant } from "../../types/toast";
 
 const AUTO_DISMISS_MS = 5000;

@@ -1,6 +1,7 @@
 import type { FieldArrayWithId, FieldErrors, UseFormRegister } from "react-hook-form";
 import InputFieldForm from "../../../common/fields/inputFieldForm";
 import type { SauceCreateFormValues } from "../../../schemas/sauceCreateSchema";
+import Button from "../../../common/button/Button";
 
 type ConditioningFieldsSectionProps = { 
   register: UseFormRegister<SauceCreateFormValues>; 
@@ -22,15 +23,15 @@ export function ConditioningFieldsSection({ register, errors, fields, onAppend, 
             htmlFor={`cond-price-${index}`} id={`cond-price-${index}`}register={register}
             errors={errors} type="number" required min={0} step="0.01" inputMode="decimal"/>
           {fields.length > 1 ? (
-            <button type="button" onClick={() => onRemove(index)} className="min-h-11 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground/90 transition hover:bg-background">
+            <Button type="button" variant="secondary" size="sm" onClick={() => onRemove(index)}>
               Supprimer ce conditionnement
-            </button>
+            </Button>
           ) : null}
         </div>
       ))}
-      <button type="button" onClick={onAppend} className="min-h-11 rounded-full border border-border px-5 py-2 text-sm font-semibold text-foreground transition hover:bg-background">
+      <Button type="button" variant="secondary" size="md" onClick={onAppend}>
         Ajouter un conditionnement
-      </button>
+      </Button>
     </div>
   );
 }

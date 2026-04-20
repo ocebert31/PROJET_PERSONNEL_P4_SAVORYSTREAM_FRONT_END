@@ -6,6 +6,7 @@ import { ApiError } from "../services/apiRequest/apiError";
 import HomeHero from "../components/Home/HomeHero";
 import HomeCatalogue from "../components/Home/HomeCatalogue";
 import HomeTrustStrip from "../components/Home/HomeTrustStrip";
+import Button from "../common/button/Button";
 
 type LoadStatus = "idle" | "loading" | "error" | "success";
 
@@ -56,14 +57,10 @@ function HomePage() {
       )}
       {showError && (
         <div className="mx-auto max-w-7xl px-6 pt-10 text-center">
-          <p className="text-sm text-destructive">{errorMessage}</p>
-          <button
-            type="button"
-            onClick={() => void loadSauces()}
-            className="mt-4 inline-flex items-center justify-center rounded-full border border-border bg-surface px-6 py-2.5 text-sm font-semibold text-foreground shadow-sm transition hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
+          <p className="text-body-sm text-destructive">{errorMessage}</p>
+          <Button variant="secondary" onClick={() => void loadSauces()} className="mt-4">
             Réessayer
-          </button>
+          </Button>
         </div>
       )}
       {showCatalogue && <HomeCatalogue sauces={sauces} />}

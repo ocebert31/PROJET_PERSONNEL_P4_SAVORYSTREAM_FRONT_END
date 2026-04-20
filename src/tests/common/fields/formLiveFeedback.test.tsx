@@ -8,7 +8,7 @@ describe("FormLiveFeedback", () => {
 
     const message = screen.getByRole("alert");
     expect(message).toHaveTextContent("2 champs à corriger.");
-    expect(message).toHaveClass("text-xs", "font-medium", "text-rose-700");
+    expect(message).toHaveClass("text-caption", "font-medium", "text-destructive");
   });
 
   it("renders valid message with status role when touched fields are valid", () => {
@@ -16,7 +16,7 @@ describe("FormLiveFeedback", () => {
 
     const message = screen.getByRole("status");
     expect(message).toHaveTextContent("Formulaire valide pour l'instant.");
-    expect(message).toHaveClass("text-xs", "text-muted");
+    expect(message).toHaveClass("text-caption", "text-muted");
   });
 
   it("renders neutral message with status role before interaction", () => {
@@ -24,6 +24,6 @@ describe("FormLiveFeedback", () => {
 
     const message = screen.getByRole("status");
     expect(message).toHaveTextContent("Le formulaire est valide au fur et à mesure de votre saisie.");
-    expect(message).toHaveClass("text-xs", "text-muted");
+    expect(message).toHaveClass("text-caption", "text-muted");
   });
 });

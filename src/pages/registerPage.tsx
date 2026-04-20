@@ -8,6 +8,7 @@ import { useAuthentication } from "../hooks/useAuthentication";
 import { postRegister } from "../services/users/authentication";
 import { RegisterFormData } from "../types/user";
 import { Link } from "react-router-dom";
+import Button from "../common/button/Button";
 
 function RegisterPage() {
   const { register, handleSubmit, formState: { errors, touchedFields, isValid }, reset } = useAuthentication(false);
@@ -42,9 +43,9 @@ function RegisterPage() {
           <InputFieldForm label="Téléphone" name="phoneNumber" htmlFor="phoneNumber" id="phoneNumber" register={register} errors={errors} type="tel" required autoComplete="tel" inputMode="tel" />
           <InputFieldForm label="Mot de passe" name="password" htmlFor="password" id="password" register={register} errors={errors} type="password" required autoComplete="new-password" />
           <InputFieldForm label="Confirmer le mot de passe" name="confirmPassword" htmlFor="confirmPassword" id="confirmPassword" register={register} errors={errors} type="password" required autoComplete="new-password" />
-          <button type="submit" className="min-h-11 w-full rounded-full bg-primary px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+          <Button type="submit" variant="primary" fullWidth>
             S&apos;inscrire
-          </button>
+          </Button>
         </form>
       </AuthCard>
     </AuthPageLayout>

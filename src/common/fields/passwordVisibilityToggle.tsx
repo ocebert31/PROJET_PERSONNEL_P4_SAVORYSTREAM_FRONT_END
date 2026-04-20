@@ -1,3 +1,5 @@
+import IconButton from "../button/IconButton";
+
 type PasswordVisibilityToggleProps = {
   isVisible: boolean;
   onToggle: () => void;
@@ -5,12 +7,7 @@ type PasswordVisibilityToggleProps = {
 
 function PasswordVisibilityToggle({ isVisible, onToggle }: PasswordVisibilityToggleProps) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className="absolute inset-y-0 right-3 inline-flex items-center text-muted transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-      aria-label={isVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
-    >
+    <IconButton type="button" variant="ghost" size="sm" onClick={onToggle} className="absolute inset-y-0 right-3" aria-label={isVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}>
       {isVisible ? (
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 3l18 18" />
@@ -31,7 +28,7 @@ function PasswordVisibilityToggle({ isVisible, onToggle }: PasswordVisibilityTog
           <circle cx="12" cy="12" r="3" />
         </svg>
       )}
-    </button>
+    </IconButton>
   );
 }
 
