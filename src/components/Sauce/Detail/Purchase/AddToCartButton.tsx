@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import type { AddToCartProps } from "@/types/sauce";
 import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 import { useToast } from "@/hooks/useToast";
-import Button from "@/common/button/Button";
+import Button from "@/common/button/button";
 
 function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
   const { showSuccess } = useToast();

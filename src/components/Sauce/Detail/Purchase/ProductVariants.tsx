@@ -1,5 +1,5 @@
 import type { ProductVariantsProps } from "@/types/sauce";
-import ChipButton from "@/common/button/ChipButton";
+import ChipButton from "@/common/button/chipButton";
 
 const ProductVariants = ({ variants, selectedId, onSelect, isAvailable = true }: ProductVariantsProps) => {
   return (

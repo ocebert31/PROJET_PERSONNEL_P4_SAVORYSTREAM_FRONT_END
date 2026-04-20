@@ -6,7 +6,7 @@ import { ApiError } from "../services/apiRequest/apiError";
 import HomeHero from "../components/Home/HomeHero";
 import HomeCatalogue from "../components/Home/HomeCatalogue";
 import HomeTrustStrip from "../components/Home/HomeTrustStrip";
-import Button from "../common/button/Button";
+import Button from "../common/button/button";
 
 type LoadStatus = "idle" | "loading" | "error" | "success";
 

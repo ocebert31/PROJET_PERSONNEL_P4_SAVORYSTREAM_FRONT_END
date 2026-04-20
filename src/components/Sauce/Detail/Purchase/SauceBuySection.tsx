@@ -1,6 +1,6 @@
 import type { SauceBuySectionProps } from "@/types/sauce";
 import AddToCartButton from "@/components/Sauce/Detail/Purchase/AddToCartButton";
-import StepperButton from "@/common/button/StepperButton";
+import StepperButton from "@/common/button/stepperButton";
 
 export default function SauceBuySection({ sauce, selected, quantity, setQuantity }: SauceBuySectionProps) {
   const increment = () => setQuantity((q) => Math.min(selected.stock ?? 100, q + 1));

@@ -1,4 +1,4 @@
-import IconButton from "../button/IconButton";
+import IconButton from "../button/iconButton";
 
 type PasswordVisibilityToggleProps = {
   isVisible: boolean;

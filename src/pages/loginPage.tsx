@@ -9,7 +9,7 @@ import { useAuthentication } from "../hooks/useAuthentication";
 import { postLogin } from "../services/users/authentication";
 import type { LoginFormData } from "../types/user";
 import { Link } from "react-router-dom";
-import Button from "../common/button/Button";
+import Button from "../common/button/button";
 
 function LoginPage() {
   const { refreshUser } = useAuth();

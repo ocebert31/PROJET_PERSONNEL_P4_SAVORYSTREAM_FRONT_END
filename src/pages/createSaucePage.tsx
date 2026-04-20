@@ -13,7 +13,7 @@ import { useGetSauceCategories } from "../hooks/useGetSauceCategories";
 import { createSauce } from "../services/sauces/sauceService";
 import { ApiError } from "../services/apiRequest/apiError";
 import { buildSauceCreatePayload } from "../mappers/buildSauceCreatePayload";
-import Button from "../common/button/Button";
+import Button from "../common/button/button";
 
 function CreateSaucePage() {
   const navigate = useNavigate();

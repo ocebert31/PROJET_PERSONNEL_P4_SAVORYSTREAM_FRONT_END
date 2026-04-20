@@ -1,5 +1,5 @@
 import type { ToastItem, ToastVariant } from "../../types/toast";
-import IconButton from "../button/IconButton";
+import IconButton from "../button/iconButton";
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
     success: "status-alert-success",

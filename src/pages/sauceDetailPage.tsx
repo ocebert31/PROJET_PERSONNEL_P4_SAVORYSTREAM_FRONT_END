@@ -5,7 +5,7 @@ import SauceDetailNotFound from "../components/Sauce/Detail/Layout/SauceDetailNo
 import SauceDetailPurchasePanel from "../components/Sauce/Detail/Purchase/SauceDetailPurchasePanel";
 import SauceTabs from "../components/Sauce/Detail/Tabs/SauceTabs";
 import { useSauceDetail } from "../hooks/useSauceDetail";
-import Button from "../common/button/Button";
+import Button from "../common/button/button";
 
 function SauceDetail() {
   const { id } = useParams<{ id: string }>();

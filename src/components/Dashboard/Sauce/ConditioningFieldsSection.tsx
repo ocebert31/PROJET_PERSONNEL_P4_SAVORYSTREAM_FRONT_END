@@ -1,7 +1,7 @@
 import type { FieldArrayWithId, FieldErrors, UseFormRegister } from "react-hook-form";
 import InputFieldForm from "../../../common/fields/inputFieldForm";
 import type { SauceCreateFormValues } from "../../../schemas/sauceCreateSchema";
-import Button from "../../../common/button/Button";
+import Button from "../../../common/button/button";
 
 type ConditioningFieldsSectionProps = { 
   register: UseFormRegister<SauceCreateFormValues>; 

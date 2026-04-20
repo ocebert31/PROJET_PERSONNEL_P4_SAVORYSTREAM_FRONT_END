@@ -8,7 +8,7 @@ import { useAuthentication } from "../hooks/useAuthentication";
 import { postRegister } from "../services/users/authentication";
 import { RegisterFormData } from "../types/user";
 import { Link } from "react-router-dom";
-import Button from "../common/button/Button";
+import Button from "@/common/button/button";
 
 function RegisterPage() {
   const { register, handleSubmit, formState: { errors, touchedFields, isValid }, reset } = useAuthentication(false);

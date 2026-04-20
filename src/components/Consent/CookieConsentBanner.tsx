@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useConsent } from "../../context/consentContext";
-import Button from "../../common/button/Button";
+import Button from "../../common/button/button";
 
 function CookieConsentBanner() {
   const { status, accept, reject } = useConsent();
