@@ -13,7 +13,7 @@ La **spec complète** (parcours utilisateur, stack détaillée, architecture des
 | Domaine   | Choix principaux                          |
 |-----------|-------------------------------------------|
 | Langage   | TypeScript                                |
-| UI        | React 19, Tailwind CSS 4, Flowbite        |
+| UI        | React 19, Tailwind CSS 4                  |
 | Build     | Vite 6                                    |
 | Routing   | React Router 7                            |
 | Formulaires | react-hook-form, Yup                    |
