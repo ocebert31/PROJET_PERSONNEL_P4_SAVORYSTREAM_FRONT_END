@@ -15,6 +15,10 @@ vi.mock('../../pages/dashboard/sauce/editSaucePage', () => ({
   default: () => <div>Edit Sauce Page</div>,
 }));
 
+vi.mock('../../pages/dashboard/category/dashboardCategoriesPage', () => ({
+  default: () => <div>Dashboard Categories Page</div>,
+}));
+
 vi.mock('../../services/sauces/sauceService', () => ({
   fetchSauces: vi.fn(),
   fetchSauce: vi.fn(),
@@ -110,16 +114,12 @@ describe("Navigation behavior", () => {
         label: "categories route for admin",
         user: mockAdminUser,
         path: "/dashboard/categories",
-        allowedText: "Catégories",
+        allowedText: "Dashboard Categories Page",
       },
     ])("renders $label", ({ user, path, allowedText }) => {
       mockUseAuth(user);
       renderWithRouter(path);
-      if (allowedText === "Catégories") {
-        expect(screen.getByRole("heading", { name: "Catégories" })).toBeInTheDocument();
-      } else {
-        expect(screen.getByText(allowedText)).toBeInTheDocument();
-      }
+      expect(screen.getByText(allowedText)).toBeInTheDocument();
     });
 
     it("redirects /dashboard to sauces list for admin", async () => {
@@ -142,7 +142,7 @@ describe("Navigation behavior", () => {
       {
         label: "categories route for non-admin",
         path: "/dashboard/categories",
-        blockedText: "Catégories",
+        blockedText: "Dashboard Categories Page",
       },
     ])("redirects $label to login", ({ path, blockedText }) => {
       mockUseAuth(null);

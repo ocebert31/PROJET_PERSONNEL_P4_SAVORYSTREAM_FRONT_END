@@ -10,9 +10,9 @@ import MentionsLegalesPage from "../pages/mentionsLegalesPage";
 import TermsOfSalePage from "../pages/termsOfSalePage";
 import PrivacyPolicyPage from "../pages/privacyPolicyPage";
 import CookiesPolicyPage from "../pages/cookiesPolicyPage";
-import AdminPlaceholderPage from "../pages/dashboard/adminPlaceholderPage";
 import DashboardSaucesPage from "../pages/dashboard/sauce/dashboardSaucesPage";
 import DashboardPage from "../pages/dashboard/dashboardPage";
+import DashboardCategoriesPage from "../pages/dashboard/category/dashboardCategoriesPage";
 
 function RouterComponent () {
   return (
@@ -31,7 +31,7 @@ function RouterComponent () {
           <Route path="sauces" element={<DashboardSaucesPage />} />
           <Route path="sauces/create" element={<CreateSaucePage />} />
           <Route path="sauces/:id/edit" element={<EditSaucePage />} />
-          <Route path="categories" element={<AdminPlaceholderPage sectionName="Catégories" />} />
+          <Route path="categories" element={<DashboardCategoriesPage />} />
         </Route>
       </Route>
     </Routes>

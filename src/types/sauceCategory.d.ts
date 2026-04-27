@@ -4,3 +4,11 @@ export interface SauceCategory {
   created_at: string;
   updated_at: string;
 }
+
+export type CreateCategoryPageProps = {
+  onCreated?: () => Promise<void> | void;
+};
+
+export type CreateCategoryFormValues = {
+  name: string;
+};

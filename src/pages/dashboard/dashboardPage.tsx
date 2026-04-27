@@ -8,7 +8,6 @@ type AdminNavItem = {
 
 const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { label: "Sauces", to: "/dashboard/sauces", end: true },
-  { label: "Créer une sauce", to: "/dashboard/sauces/create", end: true },
   { label: "Catégories", to: "/dashboard/categories" },
 ];
 

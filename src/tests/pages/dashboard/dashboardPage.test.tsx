@@ -24,7 +24,6 @@ describe("dashboardPage", () => {
 
       expect(screen.getAllByText("Dashboard admin").length).toBeGreaterThan(0);
       expect(screen.getAllByRole("link", { name: "Sauces" }).length).toBeGreaterThan(0);
-      expect(screen.getAllByRole("link", { name: "Créer une sauce" }).length).toBeGreaterThan(0);
       expect(screen.getAllByRole("link", { name: "Catégories" }).length).toBeGreaterThan(0);
       expect(screen.getByText("Create view")).toBeInTheDocument();
     });
@@ -43,20 +42,6 @@ describe("dashboardPage", () => {
       expect(mobileLinks.map((link) => link.getAttribute("href"))).toEqual(
         desktopLinks.map((link) => link.getAttribute("href")),
       );
-    });
-
-    it("marks only create links as current on create route (end match respected)", () => {
-      renderDashboard("/dashboard/sauces/create");
-
-      const currentPageLinks = screen.getAllByRole("link", { current: "page" });
-      expect(currentPageLinks).toHaveLength(2);
-      currentPageLinks.forEach((link) => {
-        expect(link).toHaveTextContent("Créer une sauce");
-      });
-
-      screen.getAllByRole("link", { name: "Sauces" }).forEach((link) => {
-        expect(link).not.toHaveAttribute("aria-current", "page");
-      });
     });
 
     it("keeps outlet rendering correct on categories route", () => {
