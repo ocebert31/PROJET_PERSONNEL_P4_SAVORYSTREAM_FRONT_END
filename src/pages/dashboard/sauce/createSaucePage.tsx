@@ -1,21 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import type { FieldArrayWithId, FieldErrors, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
-import InputFieldForm from "../common/fields/inputFieldForm";
-import FormLiveFeedback from "../common/fields/formLiveFeedback";
-import RequiredFieldsHint from "../common/fields/requiredFieldsHint";
-import { FormSection } from "../components/Dashboard/Sauce/FormSection";
-import { SauceIdentityFields } from "../components/Dashboard/Sauce/SauceIdentityFields";
-import { ConditioningFieldsSection } from "../components/Dashboard/Sauce/ConditioningFieldsSection";
-import { IngredientFieldsSection } from "../components/Dashboard/Sauce/IngredientFieldsSection";
-import type { SauceConditioningListFormSlice, SauceIngredientListFormSlice } from "../schemas/sauceCreateSchema";
-import { useCreateSauceForm } from "../hooks/useCreateSauceForm";
-import { useToast } from "../hooks/useToast";
-import { useGetSauceCategories } from "../hooks/useGetSauceCategories";
-import { createSauce } from "../services/sauces/sauceService";
-import { ApiError } from "../services/apiRequest/apiError";
-import { buildSauceCreateFormData } from "../mappers/buildSauceCreateFormData";
-import Button from "../common/button/button";
+import InputFieldForm from "../../../common/fields/inputFieldForm";
+import FormLiveFeedback from "../../../common/fields/formLiveFeedback";
+import RequiredFieldsHint from "../../../common/fields/requiredFieldsHint";
+import { FormSection } from "../../../components/Dashboard/Sauce/FormSection";
+import { SauceIdentityFields } from "../../../components/Dashboard/Sauce/SauceIdentityFields";
+import { ConditioningFieldsSection } from "../../../components/Dashboard/Sauce/ConditioningFieldsSection";
+import { IngredientFieldsSection } from "../../../components/Dashboard/Sauce/IngredientFieldsSection";
+import type { SauceConditioningListFormSlice, SauceIngredientListFormSlice } from "../../../schemas/sauceCreateSchema";
+import { useCreateSauceForm } from "../../../hooks/useCreateSauceForm";
+import { useToast } from "../../../hooks/useToast";
+import { useGetSauceCategories } from "../../../hooks/useGetSauceCategories";
+import { createSauce } from "../../../services/sauces/sauceService";
+import { ApiError } from "../../../services/apiRequest/apiError";
+import { buildSauceCreateFormData } from "../../../mappers/buildSauceCreateFormData";
+import Button from "../../../common/button/button";
 
 function CreateSaucePage() {
   const navigate = useNavigate();

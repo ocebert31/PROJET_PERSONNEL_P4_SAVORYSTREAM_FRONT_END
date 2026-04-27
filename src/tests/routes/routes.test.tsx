@@ -7,11 +7,11 @@ import '@testing-library/jest-dom';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import type { SauceApiSerialized } from '../../types/sauce';
 
-vi.mock('../../pages/createSaucePage', () => ({
+vi.mock('../../pages/dashboard/sauce/createSaucePage', () => ({
   default: () => <div>Create Sauce Page</div>,
 }));
 
-vi.mock('../../pages/editSaucePage', () => ({
+vi.mock('../../pages/dashboard/sauce/editSaucePage', () => ({
   default: () => <div>Edit Sauce Page</div>,
 }));
 
@@ -106,10 +106,26 @@ describe("Navigation behavior", () => {
         path: "/dashboard/sauces/11111111-1111-1111-1111-111111111111/edit",
         allowedText: "Edit Sauce Page",
       },
+      {
+        label: "categories route for admin",
+        user: mockAdminUser,
+        path: "/dashboard/categories",
+        allowedText: "Catégories",
+      },
     ])("renders $label", ({ user, path, allowedText }) => {
       mockUseAuth(user);
       renderWithRouter(path);
-      expect(screen.getByText(allowedText)).toBeInTheDocument();
+      if (allowedText === "Catégories") {
+        expect(screen.getByRole("heading", { name: "Catégories" })).toBeInTheDocument();
+      } else {
+        expect(screen.getByText(allowedText)).toBeInTheDocument();
+      }
+    });
+
+    it("redirects /dashboard to sauces list for admin", async () => {
+      mockUseAuth(mockAdminUser);
+      renderWithRouter("/dashboard");
+      expect(await screen.findByRole("heading", { name: "Sauces" })).toBeInTheDocument();
     });
 
     it.each([
@@ -122,6 +138,11 @@ describe("Navigation behavior", () => {
         label: "edit route for non-admin",
         path: "/dashboard/sauces/11111111-1111-1111-1111-111111111111/edit",
         blockedText: "Edit Sauce Page",
+      },
+      {
+        label: "categories route for non-admin",
+        path: "/dashboard/categories",
+        blockedText: "Catégories",
       },
     ])("redirects $label to login", ({ path, blockedText }) => {
       mockUseAuth(null);
