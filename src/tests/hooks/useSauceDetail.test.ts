@@ -155,6 +155,8 @@ describe("useSauceDetailQuery", () => {
     await waitFor(() => expect(result.current.sauce?.id).toBe(SAUCE_IDS.TWO_FORMATS));
 
     expect(result.current.sauce?.name).toBe("Sauce One");
+    expect(result.current.apiSauce?.id).toBe(SAUCE_IDS.TWO_FORMATS);
+    expect(result.current.apiSauce?.conditionings).toHaveLength(2);
     expect(result.current.error).toBeUndefined();
     expect(result.current.isLoading).toBe(false);
   });
@@ -167,6 +169,7 @@ describe("useSauceDetailQuery", () => {
     const { result } = renderHook(() => useSauceDetailQuery(id));
 
     expect(result.current.sauce).toBeUndefined();
+    expect(result.current.apiSauce).toBeUndefined();
     expect(result.current.error).toBeUndefined();
     expect(result.current.isLoading).toBe(false);
     expect(FETCH_SAUCE_MOCK).not.toHaveBeenCalled();
@@ -185,6 +188,7 @@ describe("useSauceDetailQuery", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.sauce).toBeUndefined();
+    expect(result.current.apiSauce).toBeUndefined();
     expect(result.current.error).toBeUndefined();
   });
 
@@ -212,6 +216,7 @@ describe("useSauceDetailQuery", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.sauce).toBeUndefined();
+    expect(result.current.apiSauce).toBeUndefined();
     expect(result.current.error).toBe(expectedMessage);
   });
 

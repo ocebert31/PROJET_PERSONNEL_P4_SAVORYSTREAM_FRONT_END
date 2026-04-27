@@ -6,6 +6,7 @@ import SauceDetail from "../../pages/sauceDetailPage";
 import { ApiError } from "../../services/apiRequest/apiError";
 import type { SauceApiSerialized } from "../../types/sauce";
 import { fetchSauce } from "../../services/sauces/sauceService";
+import { useAuth } from "../../context/authContext";
 
 vi.mock("../../services/sauces/sauceService", () => ({
   fetchSauce: vi.fn(),
@@ -13,7 +14,12 @@ vi.mock("../../services/sauces/sauceService", () => ({
   createSauce: vi.fn(),
 }));
 
+vi.mock("../../context/authContext", () => ({
+  useAuth: vi.fn(),
+}));
+
 const fetchSauceMock = vi.mocked(fetchSauce);
+const useAuthMock = vi.mocked(useAuth);
 
 const DETAIL_UUID = "aaaaaaaa-bbbb-cccc-dddd-111111111111";
 
@@ -54,6 +60,10 @@ function renderSauceDetail(initialPath: string) {
 describe("SauceDetailPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    useAuthMock.mockReturnValue({
+      user: null,
+      refreshUser: vi.fn(),
+    });
     fetchSauceMock.mockImplementation(async (id: string) => {
       if (id === DETAIL_UUID) {
         return { sauce: detailApiSauce() };
@@ -78,6 +88,27 @@ describe("SauceDetailPage", () => {
     expect(img).toHaveAttribute("src", "/assets/test-bbq.jpg");
     expect(screen.getByRole("button", { name: /250ml/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /500ml/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Modifier cette sauce/i })).not.toBeInTheDocument();
+  });
+
+  it("shows edit link for admin users", async () => {
+    useAuthMock.mockReturnValue({
+      user: {
+        id: "admin-id",
+        first_name: "Admin",
+        last_name: "User",
+        email: "admin@test.com",
+        phone_number: null,
+        role: "admin",
+        created_at: "",
+        updated_at: "",
+      },
+      refreshUser: vi.fn(),
+    });
+    renderSauceDetail(`/sauce/${DETAIL_UUID}`);
+
+    const editLink = await screen.findByRole("link", { name: /Modifier cette sauce/i });
+    expect(editLink).toHaveAttribute("href", `/dashboard/sauces/${DETAIL_UUID}/edit`);
   });
 
   it("renders characteristic and ingredients tabs", async () => {
@@ -137,5 +168,25 @@ describe("SauceDetailPage", () => {
       await screen.findByRole("heading", { level: 1, name: "Sauce Barbecue Test" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Service unavailable")).not.toBeInTheDocument();
+  });
+
+  it("does not show edit link for non-admin users", async () => {
+    useAuthMock.mockReturnValue({
+      user: {
+        id: "customer-id",
+        first_name: "Client",
+        last_name: "User",
+        email: "client@test.com",
+        phone_number: null,
+        role: "customer",
+        created_at: "",
+        updated_at: "",
+      },
+      refreshUser: vi.fn(),
+    });
+    renderSauceDetail(`/sauce/${DETAIL_UUID}`);
+
+    await screen.findByRole("heading", { level: 1, name: "Sauce Barbecue Test" });
+    expect(screen.queryByRole("link", { name: /Modifier cette sauce/i })).not.toBeInTheDocument();
   });
 });

@@ -21,14 +21,20 @@ vi.mock("../../../../common/fields/fieldWrapper", () => ({
   },
 }));
 
-function Harness({ errors }: { errors?: Pick<FieldErrors<SauceCreateFormValues>, "image"> }) {
+function Harness({
+  errors,
+  imageOptional = false,
+}: {
+  errors?: Pick<FieldErrors<SauceCreateFormValues>, "image">;
+  imageOptional?: boolean;
+}) {
   const { register, formState } = useForm<SauceCreateFormValues>({
     defaultValues: sauceCreateDefaultValues,
   });
 
   const mergedErrors = { ...formState.errors, ...errors } as FieldErrors<SauceCreateFormValues>;
 
-  return <ImageFieldForm register={register} errors={mergedErrors} />;
+  return <ImageFieldForm register={register} errors={mergedErrors} imageOptional={imageOptional} />;
 }
 
 describe("ImageFieldForm", () => {
@@ -86,6 +92,14 @@ describe("ImageFieldForm", () => {
   });
 
   describe("variations", () => {
+    it("shows optional helper text when image replacement is optional", () => {
+      render(<Harness imageOptional />);
+
+      expect(
+        screen.getByText("Optionnel : ne choisissez un fichier que si vous souhaitez remplacer l’image actuelle."),
+      ).toBeInTheDocument();
+    });
+
     it("revokes previous preview URL when selecting a different file", async () => {
       const user = userEvent.setup();
       const createSpy = vi

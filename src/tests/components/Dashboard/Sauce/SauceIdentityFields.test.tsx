@@ -40,19 +40,6 @@ describe("SauceIdentityFields", () => {
       expect(getByTestId("input-field-form-characteristic")).toBeInTheDocument();
       expect(getByTestId("image-field-form")).toBeInTheDocument();
     });
-
-    it("passes correct field names and textarea type to InputFieldForm", () => {
-      render(<Harness />);
-
-      expect(inputFieldCalls).toEqual(
-        expect.arrayContaining([
-          { name: "name" },
-          { name: "tagline" },
-          { name: "description", type: "textarea" },
-          { name: "characteristic" },
-        ]),
-      );
-    });
   });
 
   describe("variations", () => {

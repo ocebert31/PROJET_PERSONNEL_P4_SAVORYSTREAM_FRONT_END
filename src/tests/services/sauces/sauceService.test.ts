@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as authentication from "../../../services/users/authentication";
 import * as fetchRequestModule from "../../../services/apiRequest/fetchRequest";
-import { createSauce, fetchSauce, fetchSauces } from "../../../services/sauces/sauceService";
+import { createSauce, fetchSauce, fetchSauces, updateSauce } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized, SauceCreateResponse } from "../../../types/sauce";
 
 vi.mock("../../../services/users/authentication", async (importOriginal) => {
@@ -145,6 +145,73 @@ describe("sauceService", () => {
         vi.mocked(fetchRequestModule.fetchRequest).mockRejectedValue(new Error("404 not found"));
 
         await expect(fetchSauce("missing-id")).rejects.toThrow("404 not found");
+      });
+    });
+  });
+
+  describe("updateSauce", () => {
+    describe("nominal case", () => {
+      it("sends multipart FormData when a FormData body is provided", async () => {
+        const response = { message: "Sauce mise à jour." };
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue(response);
+
+        const fd = new FormData();
+        fd.append("name", "Nom sauce");
+        fd.append("tagline", "Accroche");
+
+        const result = await updateSauce("sauce-id", fd, { version: 4 });
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/sauce-id", {
+          method: "PATCH",
+          body: expect.any(FormData),
+          headers: {},
+        });
+        const options = vi.mocked(authentication.fetchSessionRequest).mock.calls[0][1] as {
+          body: FormData;
+        };
+        const sent = options.body;
+        expect(sent.get("version")).toBe("4");
+        expect(sent.get("name")).toBe("Nom sauce");
+        expect(result).toEqual(response);
+      });
+
+      it("calls nested patch endpoint with versioning payload and If-Match header", async () => {
+        const response = { message: "Sauce updated." };
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue(response);
+
+        const result = await updateSauce(
+          "sauce-id",
+          { name: "Updated sauce", tagline: "Updated", description: "updated desc" },
+          { version: 3, eTag: "\"etag-v3\"" },
+        );
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/sauce-id", {
+          method: "PATCH",
+          body: { name: "Updated sauce", tagline: "Updated", description: "updated desc", version: 3 },
+          headers: { "If-Match": "\"etag-v3\"" },
+        });
+        expect(result).toEqual(response);
+      });
+    });
+
+    describe("variations", () => {
+      it("maps blank optional fields to null in payload", async () => {
+        const response = { message: "Sauce updated." };
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue(response);
+
+        await updateSauce("sauce-id", { description: "  ", characteristic: "  ", category_id: "  " });
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/sauce-id", {
+          method: "PATCH",
+          body: { description: null, characteristic: null, category_id: null },
+          headers: {},
+        });
+      });
+
+      it("propagates rejection from fetchSessionRequest", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("409 conflict"));
+
+        await expect(updateSauce("sauce-id", { name: "Updated sauce" })).rejects.toThrow("409 conflict");
       });
     });
   });

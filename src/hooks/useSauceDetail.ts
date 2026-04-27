@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import type { Conditioning, Sauce } from "../types/sauce";
+import type { Conditioning, Sauce, SauceApiSerialized } from "../types/sauce";
 import { sauceMapper } from "../mappers/sauce.mapper";
 import { fetchSauce } from "../services/sauces/sauceService";
 import { ApiError } from "../services/apiRequest/apiError";
@@ -25,6 +25,7 @@ export function defaultConditioningId(conditionnements: Conditioning[]): string 
 
 export function useSauceDetailQuery(id: string | undefined) {
   const [sauce, setSauce] = useState<Sauce | undefined>(undefined);
+  const [apiSauce, setApiSauce] = useState<SauceApiSerialized | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(() => !isBlankSauceId(id));
   const [error, setError] = useState<string | undefined>(undefined);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -33,6 +34,7 @@ export function useSauceDetailQuery(id: string | undefined) {
     const sauceId = id?.trim() ?? "";
     if (!sauceId) {
       setSauce(undefined);
+      setApiSauce(undefined);
       setError(undefined);
       setIsLoading(false);
       return;
@@ -42,16 +44,19 @@ export function useSauceDetailQuery(id: string | undefined) {
     setIsLoading(true);
     setError(undefined);
     setSauce(undefined);
+    setApiSauce(undefined);
 
     const load = async () => {
       try {
-        const { sauce: apiSauce } = await fetchSauce(sauceId);
+        const { sauce: rawSauce } = await fetchSauce(sauceId);
         if (cancelled) return;
-        setSauce(sauceMapper(apiSauce));
+        setSauce(sauceMapper(rawSauce));
+        setApiSauce(rawSauce);
         setError(undefined);
       } catch (e) {
         if (cancelled) return;
         setSauce(undefined);
+        setApiSauce(undefined);
         if (e instanceof ApiError && e.status === 404) {
           setError(undefined);
         } else {
@@ -75,7 +80,7 @@ export function useSauceDetailQuery(id: string | undefined) {
     }
   }, [id]);
 
-  return { sauce, isLoading, error, retry };
+  return { sauce, apiSauce, isLoading, error, retry };
 }
 
 export function useSaucePurchaseSelection(sauce: Sauce | undefined) {

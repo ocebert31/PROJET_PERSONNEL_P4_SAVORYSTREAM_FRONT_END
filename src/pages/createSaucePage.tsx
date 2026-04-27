@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import type { FieldArrayWithId, FieldErrors, UseFormRegister } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
 import InputFieldForm from "../common/fields/inputFieldForm";
 import FormLiveFeedback from "../common/fields/formLiveFeedback";
@@ -7,12 +8,13 @@ import { FormSection } from "../components/Dashboard/Sauce/FormSection";
 import { SauceIdentityFields } from "../components/Dashboard/Sauce/SauceIdentityFields";
 import { ConditioningFieldsSection } from "../components/Dashboard/Sauce/ConditioningFieldsSection";
 import { IngredientFieldsSection } from "../components/Dashboard/Sauce/IngredientFieldsSection";
+import type { SauceConditioningListFormSlice, SauceIngredientListFormSlice } from "../schemas/sauceCreateSchema";
 import { useCreateSauceForm } from "../hooks/useCreateSauceForm";
 import { useToast } from "../hooks/useToast";
 import { useGetSauceCategories } from "../hooks/useGetSauceCategories";
 import { createSauce } from "../services/sauces/sauceService";
 import { ApiError } from "../services/apiRequest/apiError";
-import { buildSauceCreatePayload } from "../mappers/buildSauceCreatePayload";
+import { buildSauceCreateFormData } from "../mappers/buildSauceCreateFormData";
 import Button from "../common/button/button";
 
 function CreateSaucePage() {
@@ -25,7 +27,7 @@ function CreateSaucePage() {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const result = await createSauce(buildSauceCreatePayload(values));
+      const result = await createSauce(buildSauceCreateFormData(values));
       showSuccess(result.message?.trim() || "Sauce créée.");
       navigate(`/sauce/${result.sauce.id}`, { replace: true });
     } catch (e) {
@@ -71,18 +73,18 @@ function CreateSaucePage() {
         </FormSection>
         <FormSection title="Conditionnements" description="Ajoutez un ou plusieurs formats (volume + prix).">
           <ConditioningFieldsSection
-            register={register}
-            errors={errors}
-            fields={conditioningFields}
+            register={register as unknown as UseFormRegister<SauceConditioningListFormSlice>}
+            errors={errors as unknown as FieldErrors<SauceConditioningListFormSlice>}
+            fields={conditioningFields as FieldArrayWithId<SauceConditioningListFormSlice, "conditionings", "id">[]}
             onAppend={() => appendConditioning({ volume: "", price: "" })}
             onRemove={removeConditioning}
           />
         </FormSection>
         <FormSection title="Ingrédients" description="Ajoutez un ou plusieurs ingrédients avec leur quantité.">
           <IngredientFieldsSection
-            register={register}
-            errors={errors}
-            fields={ingredientFields}
+            register={register as unknown as UseFormRegister<SauceIngredientListFormSlice>}
+            errors={errors as unknown as FieldErrors<SauceIngredientListFormSlice>}
+            fields={ingredientFields as FieldArrayWithId<SauceIngredientListFormSlice, "ingredients", "id">[]}
             onAppend={() => appendIngredient({ name: "", quantity: "" })}
             onRemove={removeIngredient}
           />

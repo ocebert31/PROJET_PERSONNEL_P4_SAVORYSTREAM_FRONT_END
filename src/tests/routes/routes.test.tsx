@@ -11,6 +11,10 @@ vi.mock('../../pages/createSaucePage', () => ({
   default: () => <div>Create Sauce Page</div>,
 }));
 
+vi.mock('../../pages/editSaucePage', () => ({
+  default: () => <div>Edit Sauce Page</div>,
+}));
+
 vi.mock('../../services/sauces/sauceService', () => ({
   fetchSauces: vi.fn(),
   fetchSauce: vi.fn(),
@@ -64,51 +68,66 @@ const mockUseAuth = (user: typeof mockAdminUser | null) => {
     refreshUser: vi.fn(),
   });
 };
-
-describe('Navigation behavior', () => {
+describe("Navigation behavior", () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  describe('public routes', () => {
+  describe("public routes", () => {
     beforeEach(() => {
       mockedFetchSauces.mockResolvedValue({ sauces: [stubCatalogueSauce] });
     });
 
-    const publicRoutes = [
-      { path: '/register', expectedText: /Inscription/i },
-      { path: '/login', expectedText: /Connexion/i },
-      { path: '/', expectedText: /Nos Sauces Maison 🍶/i },
-      { path: '/mentions-legales', expectedText: /Mentions légales/i },
-      { path: '/cgv', expectedText: /Conditions Générales de Vente/i },
-      { path: '/confidentialite', expectedText: /Politique de confidentialité/i },
-      { path: '/cookies', expectedText: /Politique cookies/i },
-    ];
-
-    publicRoutes.forEach(({ path, expectedText }) => {
-      it(`renders ${path}`, async () => {
-        renderWithRouter(path);
-        expect(await screen.findByText(expectedText)).toBeInTheDocument();
-      });
+    it.each([
+      { path: "/register", expectedText: /Inscription/i },
+      { path: "/login", expectedText: /Connexion/i },
+      { path: "/", expectedText: /Nos Sauces Maison 🍶/i },
+      { path: "/mentions-legales", expectedText: /Mentions légales/i },
+      { path: "/cgv", expectedText: /Conditions Générales de Vente/i },
+      { path: "/confidentialite", expectedText: /Politique de confidentialité/i },
+      { path: "/cookies", expectedText: /Politique cookies/i },
+    ])("renders $path", async ({ path, expectedText }) => {
+      renderWithRouter(path);
+      expect(await screen.findByText(expectedText)).toBeInTheDocument();
     });
   });
 
-  describe('protected admin route', () => {
-    it('renders create sauce route for admin users', () => {
-      mockUseAuth(mockAdminUser);
-
-      renderWithRouter('/dashboard/sauces/create');
-
-      expect(screen.getByText('Create Sauce Page')).toBeInTheDocument();
+  describe("protected admin route", () => {
+    it.each([
+      {
+        label: "create route for admin",
+        user: mockAdminUser,
+        path: "/dashboard/sauces/create",
+        allowedText: "Create Sauce Page",
+      },
+      {
+        label: "edit route for admin",
+        user: mockAdminUser,
+        path: "/dashboard/sauces/11111111-1111-1111-1111-111111111111/edit",
+        allowedText: "Edit Sauce Page",
+      },
+    ])("renders $label", ({ user, path, allowedText }) => {
+      mockUseAuth(user);
+      renderWithRouter(path);
+      expect(screen.getByText(allowedText)).toBeInTheDocument();
     });
-    
-    it('redirects non-admin users from create route to login', () => {
+
+    it.each([
+      {
+        label: "create route for non-admin",
+        path: "/dashboard/sauces/create",
+        blockedText: "Create Sauce Page",
+      },
+      {
+        label: "edit route for non-admin",
+        path: "/dashboard/sauces/11111111-1111-1111-1111-111111111111/edit",
+        blockedText: "Edit Sauce Page",
+      },
+    ])("redirects $label to login", ({ path, blockedText }) => {
       mockUseAuth(null);
-
-      renderWithRouter('/dashboard/sauces/create');
-
+      renderWithRouter(path);
       expect(screen.getByText(/Connexion/i)).toBeInTheDocument();
-      expect(screen.queryByText('Create Sauce Page')).not.toBeInTheDocument();
+      expect(screen.queryByText(blockedText)).not.toBeInTheDocument();
     });
   });
 });
