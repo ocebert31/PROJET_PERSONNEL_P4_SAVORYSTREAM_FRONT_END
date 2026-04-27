@@ -7,3 +7,10 @@ export async function fetchAdminCategories(): Promise<SauceCategory[]> {
   });
   return data.categories;
 }
+
+export async function createAdminCategory(name: string): Promise<{ message: string; category: SauceCategory }> {
+  return fetchSessionRequest<{ message: string; category: SauceCategory }>("sauces/categories", {
+    method: "POST",
+    body: { name },
+  });
+}
