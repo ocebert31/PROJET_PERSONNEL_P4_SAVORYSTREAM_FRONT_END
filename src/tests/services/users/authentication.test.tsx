@@ -115,6 +115,24 @@ describe("authentication service", () => {
       expect(result).toEqual({ ok: true });
     });
 
+    it("forwards custom headers in nominal case", async () => {
+      fetchRequestMock.mockResolvedValue({ ok: true });
+
+      const headers = { "If-Match": "\"etag-v3\"" };
+      const result = await authenticationService.fetchSessionRequest("users/sessions/me", {
+        method: "GET",
+        headers,
+      });
+
+      expect(fetchRequestMock).toHaveBeenCalledTimes(1);
+      expect(fetchRequestMock).toHaveBeenCalledWith("users/sessions/me", {
+        method: "GET",
+        headers,
+        token: null,
+      });
+      expect(result).toEqual({ ok: true });
+    });
+
     it("retries once after 401 by refreshing token", async () => {
       fetchRequestMock
         .mockRejectedValueOnce(new ApiError("Unauthorized", 401))
@@ -130,6 +148,25 @@ describe("authentication service", () => {
         body: {},
       });
       expect(fetchRequestMock).toHaveBeenNthCalledWith(3, "users/sessions/me", { method: "GET", token: null });
+      expect(result).toEqual({ user: { id: "1" } });
+    });
+
+    it("keeps custom headers when retrying after 401", async () => {
+      fetchRequestMock
+        .mockRejectedValueOnce(new ApiError("Unauthorized", 401))
+        .mockResolvedValueOnce({ access_token: "new-token" })
+        .mockResolvedValueOnce({ user: { id: "1" } });
+
+      const headers = { "If-Match": "\"etag-v3\"" };
+      const result = await authenticationService.fetchSessionRequest("users/sessions/me", { method: "GET", headers });
+
+      expect(fetchRequestMock).toHaveBeenCalledTimes(3);
+      expect(fetchRequestMock).toHaveBeenNthCalledWith(1, "users/sessions/me", { method: "GET", headers, token: null });
+      expect(fetchRequestMock).toHaveBeenNthCalledWith(2, "users/sessions/refresh", {
+        method: "POST",
+        body: {},
+      });
+      expect(fetchRequestMock).toHaveBeenNthCalledWith(3, "users/sessions/me", { method: "GET", headers, token: null });
       expect(result).toEqual({ user: { id: "1" } });
     });
 

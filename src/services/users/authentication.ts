@@ -35,6 +35,7 @@ type SessionRequestOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   body?: unknown;
   url?: string;
+  headers?: Record<string, string>;
 };
 
 /**
