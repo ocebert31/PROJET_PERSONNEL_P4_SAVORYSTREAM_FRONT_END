@@ -7,4 +7,5 @@ export interface FetchRequestOptions {
   body?: unknown;
   token?: string | null;
   url?: string;
+  headers?: Record<string, string>;
 }

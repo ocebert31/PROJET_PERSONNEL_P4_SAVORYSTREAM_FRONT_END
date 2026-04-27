@@ -51,8 +51,30 @@ describe("fetchRequest", () => {
         "fakeToken",
         '{"name":"test"}',
         "http://localhost:3000/api/v1",
+        {},
       );
       expect(data).toEqual({ success: true });
+    });
+
+    it("forwards custom headers to triggerFetch", async () => {
+      const headers = { "If-Match": "\"etag-123\"" };
+
+      await fetchRequest("/test", {
+        method: "PATCH",
+        body: { name: "updated" },
+        token: "fakeToken",
+        url: "http://localhost:3000/api/v1",
+        headers,
+      });
+
+      expect(triggerFetchMock).toHaveBeenCalledWith(
+        "/test",
+        "PATCH",
+        "fakeToken",
+        '{"name":"test"}',
+        "http://localhost:3000/api/v1",
+        headers,
+      );
     });
   });
 

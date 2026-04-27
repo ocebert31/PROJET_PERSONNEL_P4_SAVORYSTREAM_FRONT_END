@@ -5,6 +5,7 @@ import HomePage from "../pages/homePage";
 import SauceDetail from "../pages/sauceDetailPage";
 import ProtectedAdminRoute from "./guards/protectedAdminRoute";
 import CreateSaucePage from "../pages/createSaucePage";
+import EditSaucePage from "../pages/editSaucePage";
 import MentionsLegalesPage from "../pages/mentionsLegalesPage";
 import TermsOfSalePage from "../pages/termsOfSalePage";
 import PrivacyPolicyPage from "../pages/privacyPolicyPage";
@@ -23,6 +24,7 @@ function RouterComponent () {
       <Route path="/cookies" element={<CookiesPolicyPage />} />
       <Route element={<ProtectedAdminRoute />}>
         <Route path="/dashboard/sauces/create" element={<CreateSaucePage />} />
+        <Route path="/dashboard/sauces/:id/edit" element={<EditSaucePage />} />
       </Route>
     </Routes>
   );

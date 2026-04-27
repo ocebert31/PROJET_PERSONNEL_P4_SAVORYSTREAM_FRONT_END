@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import FieldWrapper from "../../../common/fields/fieldWrapper";
-import type { SauceIdentityFieldsProps } from "../../../types/sauce";
+import type { ImageFieldFormProps } from "../../../types/sauce";
 
-type ImageFieldFormProps = Pick<SauceIdentityFieldsProps, "register" | "errors">;
-
-function ImageFieldForm({ register, errors }: ImageFieldFormProps) {
+function ImageFieldForm({ register, errors, imageOptional = false }: ImageFieldFormProps) {
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [selectedImageName, setSelectedImageName] = useState<string>("");
 
@@ -34,10 +32,13 @@ function ImageFieldForm({ register, errors }: ImageFieldFormProps) {
     const imageErrorId = imageError ? "sauce-image-file-error" : undefined;
 
     return (
-        <FieldWrapper label="Image (fichier)" htmlFor="sauce-image-file" required errorId={imageErrorId} error={imageError}>
-            <input id="sauce-image-file" type="file" accept="image/*" required aria-describedby={imageErrorId}
+        <FieldWrapper label="Image (fichier)" htmlFor="sauce-image-file" required={!imageOptional} errorId={imageErrorId} error={imageError}>
+            <input id="sauce-image-file" type="file" accept="image/*" required={!imageOptional} aria-describedby={imageErrorId}
                 aria-invalid={Boolean(imageError) || undefined} className="hidden" {...imageRegistration}/>
             <div className="space-y-3">
+                {imageOptional ? (
+                  <p className="text-xs text-muted">Optionnel : ne choisissez un fichier que si vous souhaitez remplacer l’image actuelle.</p>
+                ) : null}
                 <label htmlFor="sauce-image-file" className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
                     Parcourir
                 </label>

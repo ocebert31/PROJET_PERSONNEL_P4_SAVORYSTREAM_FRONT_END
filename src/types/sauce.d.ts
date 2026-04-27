@@ -1,6 +1,11 @@
 import { Dispatch, SetStateAction } from "react";
 import type { SauceCreateFormValues } from "../schemas/sauceCreateSchema";
+import type { SauceEditFormValues } from "../schemas/sauceUpdateSchema";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";  
+import type { Conditioning } from "./conditioning";
+import type { Ingredient } from "./ingredient";
+export type { Conditioning, SauceConditioningCreatePayload, SauceConditioningMutationResponse, SauceConditioningUpdatePayload } from "./conditioning";
+export type { Ingredient, SauceIngredientCreatePayload, SauceIngredientMutationResponse, SauceIngredientUpdatePayload } from "./ingredient";
 
 export interface Sauce {
   id: string;
@@ -12,19 +17,6 @@ export interface Sauce {
   conditionnements: Conditioning[];
   ingredients?: Ingredient[];
   accroche?: string;
-}
-
-export interface Conditioning {
-  id: string;
-  volume: string;
-  prix: number;
-  stock?: number;
-}
-
-export interface Ingredient {
-  id: string;
-  name: string;
-  quantité: string;
 }
 
 export interface SauceItem {
@@ -91,7 +83,64 @@ export interface SauceCreateResponse {
   sauce: SauceApiSerialized;
 }
 
+export interface SauceVersioningOptions {
+  version?: number;
+  eTag?: string;
+}
+
+export interface SauceUpdatePayload {
+  name?: string;
+  tagline?: string;
+  description?: string | null;
+  characteristic?: string | null;
+  is_available?: boolean;
+  category_id?: string | null;
+  stock_quantity?: number | null;
+  version?: number;
+}
+
+export interface SauceMutationSuccessResponse {
+  message: string;
+}
+
+export interface SauceMutationResponse extends SauceMutationSuccessResponse {
+  sauce?: SauceApiSerialized;
+}
+
+export interface SauceApiErrorResponse {
+  message: string;
+  code?: string;
+  status?: number;
+}
+
+export interface SauceVersionConflictErrorResponse extends SauceApiErrorResponse {
+  code?: "VERSION_CONFLICT" | "ETAG_MISMATCH";
+  current_version?: number;
+}
+
+export type SauceFormDataInput = {
+  name: string;
+  tagline: string;
+  description: string;
+  characteristic: string;
+  is_available: boolean;
+  category_id: string;
+  stock_quantity: number;
+  image?: FileList;
+};
+
+export type SauceEditFormSlice = Pick<
+  SauceEditFormValues,
+  "name" | "tagline" | "description" | "characteristic" | "is_available" | "category_id" | "stock_quantity" | "image"
+>;
+
 export type SauceIdentityFieldsProps = {
   register: UseFormRegister<SauceCreateFormValues>;
   errors: FieldErrors<SauceCreateFormValues>;
+  /** En édition, l’image existante peut être conservée sans nouveau fichier. */
+  imageOptional?: boolean;
+};
+
+export type ImageFieldFormProps = Pick<SauceIdentityFieldsProps, "register" | "errors"> & {
+  imageOptional?: boolean;
 };

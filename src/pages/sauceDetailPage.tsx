@@ -1,14 +1,16 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import SauceDetailBreadcrumb from "../components/Sauce/Detail/Layout/SauceDetailBreadcrumb";
 import SauceDetailMedia from "../components/Sauce/Detail/Layout/SauceDetailMedia";
 import SauceDetailNotFound from "../components/Sauce/Detail/Layout/SauceDetailNotFound";
 import SauceDetailPurchasePanel from "../components/Sauce/Detail/Purchase/SauceDetailPurchasePanel";
 import SauceTabs from "../components/Sauce/Detail/Tabs/SauceTabs";
 import { useSauceDetail } from "../hooks/useSauceDetail";
+import { useAuth } from "../context/authContext";
 import Button from "../common/button/button";
 
 function SauceDetail() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const { sauce, selected, selectedCond, setSelectedCond, quantity, setQuantity, isLoading, error, retry } =
     useSauceDetail(id);
 
@@ -37,7 +39,14 @@ function SauceDetail() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-10 sm:py-14 lg:py-16">
-      <SauceDetailBreadcrumb productName={sauce.name} />
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <SauceDetailBreadcrumb productName={sauce.name} />
+        {user?.role === "admin" ? (
+          <Link to={`/dashboard/sauces/${sauce.id}/edit`} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+            Modifier cette sauce
+          </Link>
+        ) : null}
+      </div>
       <div className="ds-card ds-card-elevated overflow-hidden border border-border bg-surface">
         <div className="flex flex-col lg:flex-row lg:items-stretch">
           <SauceDetailMedia imageUrl={sauce.image_url} name={sauce.name} />

@@ -8,6 +8,7 @@ async function triggerFetch(
   token: string | null,
   body: SanitizedBody,
   url: string,
+  headers: Record<string, string> = {},
 ): Promise<Response> {
   const payload = body ?? undefined;
 
@@ -18,6 +19,7 @@ async function triggerFetch(
       Accept: "application/json; charset=UTF-8",
       ...(token && { Authorization: `Bearer ${token}` }),
       ...(body && !(body instanceof FormData) && { "Content-Type": "application/json" }),
+      ...headers,
     },
     body:
       payload === undefined

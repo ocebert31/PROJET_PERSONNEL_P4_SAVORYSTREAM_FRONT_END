@@ -11,7 +11,7 @@ import { sauceCreateDefaultValues } from "../../schemas/sauceCreateSchema";
 import type { SauceCreateResponse } from "../../types/sauce";
 import { ApiError } from "../../services/apiRequest/apiError";
 import * as sauceService from "../../services/sauces/sauceService";
-import { buildSauceCreatePayload } from "../../mappers/buildSauceCreatePayload";
+import { buildSauceCreateFormData } from "../../mappers/buildSauceCreateFormData";
 
 const hoisted = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -52,8 +52,8 @@ vi.mock("../../services/sauces/sauceService", () => ({
   createSauce: vi.fn(),
 }));
 
-vi.mock("../../mappers/buildSauceCreatePayload", () => ({
-  buildSauceCreatePayload: vi.fn(),
+vi.mock("../../mappers/buildSauceCreateFormData", () => ({
+  buildSauceCreateFormData: vi.fn(),
 }));
 
 vi.mock("react-hook-form", async (importOriginal) => {
@@ -164,24 +164,24 @@ describe("CreateSaucePage", () => {
       handleSubmit: makeHandleSubmit(validValues),
       formState: { errors: {}, touchedFields: {}, isSubmitting: false, isValid: false },
     });
-    vi.mocked(buildSauceCreatePayload).mockReturnValue(new FormData());
+    vi.mocked(buildSauceCreateFormData).mockReturnValue(new FormData());
     vi.mocked(sauceService.createSauce).mockResolvedValue(minimalSauceResponse());
   });
 
   describe("nominal case", () => {
-    it("submits via buildSauceCreatePayload and createSauce, shows success, then navigates to the new sauce", async () => {
+    it("submits via buildSauceCreateFormData and createSauce, shows success, then navigates to the new sauce", async () => {
       const user = userEvent.setup();
       const payload = new FormData();
       payload.append("name", "Sauce test");
-      vi.mocked(buildSauceCreatePayload).mockReturnValue(payload);
+      vi.mocked(buildSauceCreateFormData).mockReturnValue(payload);
 
       renderPage();
 
       await user.click(screen.getByRole("button", { name: /Créer la sauce/i }));
 
       await waitFor(() => {
-        expect(buildSauceCreatePayload).toHaveBeenCalledTimes(1);
-        expect(buildSauceCreatePayload).toHaveBeenCalledWith(validValues);
+        expect(buildSauceCreateFormData).toHaveBeenCalledTimes(1);
+        expect(buildSauceCreateFormData).toHaveBeenCalledWith(validValues);
         expect(sauceService.createSauce).toHaveBeenCalledTimes(1);
         expect(sauceService.createSauce).toHaveBeenCalledWith(payload);
         expect(hoisted.showSuccess).toHaveBeenCalledWith("Créée");
@@ -286,33 +286,6 @@ describe("CreateSaucePage", () => {
       await user.click(screen.getByRole("button", { name: /Ajouter un conditionnement/i }));
 
       expect(hoisted.appendConditioning).toHaveBeenCalledWith({ volume: "", price: "" });
-    });
-
-    it("removes a conditioning row when user clicks remove conditioning", async () => {
-      const user = userEvent.setup();
-      renderPage();
-
-      await user.click(screen.getByRole("button", { name: /Supprimer ce conditionnement/i }));
-
-      expect(hoisted.removeConditioning).toHaveBeenCalledWith(0);
-    });
-
-    it("appends an ingredient row when user clicks add ingredient", async () => {
-      const user = userEvent.setup();
-      renderPage();
-
-      await user.click(screen.getByRole("button", { name: /Ajouter un ingrédient/i }));
-
-      expect(hoisted.appendIngredient).toHaveBeenCalledWith({ name: "", quantity: "" });
-    });
-
-    it("removes an ingredient row when user clicks remove ingredient", async () => {
-      const user = userEvent.setup();
-      renderPage();
-
-      await user.click(screen.getByRole("button", { name: /Supprimer cet ingrédient/i }));
-
-      expect(hoisted.removeIngredient).toHaveBeenCalledWith(0);
     });
 
     it("removes a conditioning row when user clicks remove conditioning", async () => {
