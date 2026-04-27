@@ -5,13 +5,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { axe } from "vitest-axe";
-import CreateSaucePage from "../../pages/createSaucePage";
-import type { SauceCreateFormValues } from "../../schemas/sauceCreateSchema";
-import { sauceCreateDefaultValues } from "../../schemas/sauceCreateSchema";
-import type { SauceCreateResponse } from "../../types/sauce";
-import { ApiError } from "../../services/apiRequest/apiError";
-import * as sauceService from "../../services/sauces/sauceService";
-import { buildSauceCreateFormData } from "../../mappers/buildSauceCreateFormData";
+import CreateSaucePage from "../../../../pages/dashboard/sauce/createSaucePage";
+import type { SauceCreateFormValues } from "../../../../schemas/sauceCreateSchema";
+import { sauceCreateDefaultValues } from "../../../../schemas/sauceCreateSchema";
+import type { SauceCreateResponse } from "../../../../types/sauce";
+import { ApiError } from "../../../../services/apiRequest/apiError";
+import * as sauceService from "../../../../services/sauces/sauceService";
+import { buildSauceCreateFormData } from "../../../../mappers/buildSauceCreateFormData";
 
 const hoisted = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -33,26 +33,26 @@ vi.mock("react-router-dom", async (importOriginal) => {
   };
 });
 
-vi.mock("../../hooks/useToast", () => ({
+vi.mock("../../../../hooks/useToast", () => ({
   useToast: () => ({
     showSuccess: hoisted.showSuccess,
     showError: hoisted.showError,
   }),
 }));
 
-vi.mock("../../hooks/useCreateSauceForm", () => ({
+vi.mock("../../../../hooks/useCreateSauceForm", () => ({
   useCreateSauceForm: hoisted.useCreateSauceForm,
 }));
 
-vi.mock("../../hooks/useGetSauceCategories", () => ({
+vi.mock("../../../../hooks/useGetSauceCategories", () => ({
   useGetSauceCategories: hoisted.useGetSauceCategories,
 }));
 
-vi.mock("../../services/sauces/sauceService", () => ({
+vi.mock("../../../../services/sauces/sauceService", () => ({
   createSauce: vi.fn(),
 }));
 
-vi.mock("../../mappers/buildSauceCreateFormData", () => ({
+vi.mock("../../../../mappers/buildSauceCreateFormData", () => ({
   buildSauceCreateFormData: vi.fn(),
 }));
 
@@ -68,17 +68,17 @@ vi.mock("react-hook-form", async (importOriginal) => {
   };
 });
 
-vi.mock("../../components/Dashboard/Sauce/SauceIdentityFields", () => ({
+vi.mock("../../../../components/Dashboard/Sauce/SauceIdentityFields", () => ({
   SauceIdentityFields: () => <div data-testid="sauce-identity" />,
 }));
 
-vi.mock("../../components/Dashboard/Sauce/FormSection", () => ({
+vi.mock("../../../../components/Dashboard/Sauce/FormSection", () => ({
   FormSection: ({ title, children }: { title: string; children?: ReactNode }) => (
     <div data-testid={`section-${title}`}>{children}</div>
   ),
 }));
 
-vi.mock("../../components/Dashboard/Sauce/ConditioningFieldsSection", () => ({
+vi.mock("../../../../components/Dashboard/Sauce/ConditioningFieldsSection", () => ({
   ConditioningFieldsSection: ({ onAppend, onRemove }: { onAppend: () => void; onRemove: (index: number) => void }) => (
     <div data-testid="conditioning-section">
       <button type="button" onClick={onAppend}>Ajouter un conditionnement</button>
@@ -87,7 +87,7 @@ vi.mock("../../components/Dashboard/Sauce/ConditioningFieldsSection", () => ({
   ),
 }));
 
-vi.mock("../../components/Dashboard/Sauce/IngredientFieldsSection", () => ({
+vi.mock("../../../../components/Dashboard/Sauce/IngredientFieldsSection", () => ({
   IngredientFieldsSection: ({ onAppend, onRemove }: { onAppend: () => void; onRemove: (index: number) => void }) => (
     <div data-testid="ingredient-section">
       <button type="button" onClick={onAppend}>Ajouter un ingrédient</button>
@@ -96,7 +96,7 @@ vi.mock("../../components/Dashboard/Sauce/IngredientFieldsSection", () => ({
   ),
 }));
 
-vi.mock("../../common/fields/inputFieldForm", () => ({
+vi.mock("../../../../common/fields/inputFieldForm", () => ({
   default: ({ additionalContent }: { additionalContent?: ReactNode }) => (
     <div data-testid="input-field-stub">{additionalContent ?? null}</div>
   ),

@@ -21,8 +21,8 @@ function Header() {
             Accueil
           </NavLink>
           {user?.role === 'admin' ? (
-            <NavLink to="/dashboard/sauces/create" className={navLinkClass}>
-              Créer une sauce
+            <NavLink to="/dashboard" className={navLinkClass}>
+              Dashboard
             </NavLink>
           ) : null}
           <NavLink to="/register" className={navLinkClass}>

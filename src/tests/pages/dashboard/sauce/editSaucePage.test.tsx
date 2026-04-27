@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import EditSaucePage from "../../pages/editSaucePage";
+import EditSaucePage from "../../../../pages/dashboard/sauce/editSaucePage";
 import {
   fetchSauce,
   createSauceConditioning,
@@ -12,9 +12,9 @@ import {
   deleteSauceConditioning,
   updateSauceIngredient,
   deleteSauceIngredient,
-} from "../../services/sauces/sauceService";
-import { ApiError } from "../../services/apiRequest/apiError";
-import type { SauceApiSerialized } from "../../types/sauce";
+} from "../../../../services/sauces/sauceService";
+import { ApiError } from "../../../../services/apiRequest/apiError";
+import type { SauceApiSerialized } from "../../../../types/sauce";
 
 const hoisted = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -35,11 +35,11 @@ vi.mock("react-router-dom", async (importOriginal) => {
 const showSuccess = vi.fn();
 const showError = vi.fn();
 
-vi.mock("../../hooks/useToast", () => ({
+vi.mock("../../../../hooks/useToast", () => ({
   useToast: () => ({ showSuccess, showError }),
 }));
 
-vi.mock("../../hooks/useGetSauceCategories", () => ({
+vi.mock("../../../../hooks/useGetSauceCategories", () => ({
   useGetSauceCategories: () => ({
     error: hoisted.categoriesState.error,
     selectOptions: [
@@ -50,7 +50,7 @@ vi.mock("../../hooks/useGetSauceCategories", () => ({
   }),
 }));
 
-vi.mock("../../services/sauces/sauceService", () => ({
+vi.mock("../../../../services/sauces/sauceService", () => ({
   fetchSauce: vi.fn(),
   createSauceConditioning: vi.fn(),
   createSauceIngredient: vi.fn(),

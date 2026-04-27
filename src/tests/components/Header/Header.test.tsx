@@ -40,7 +40,7 @@ describe('Header component', () => {
             expect(screen.getByText(text).closest('a')).toHaveAttribute('href', href);
         });
 
-        expect(screen.queryByText('Créer une sauce')).not.toBeInTheDocument();
+        expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
     });
 
     it('renders admin navigation links with correct href values', () => {
@@ -62,7 +62,7 @@ describe('Header component', () => {
 
         const adminLinks = [
             { text: 'Accueil', href: '/' },
-            { text: 'Créer une sauce', href: '/dashboard/sauces/create' },
+            { text: 'Dashboard', href: '/dashboard' },
             { text: 'Inscription', href: '/register' },
             { text: 'Connexion', href: '/login' },
         ];
