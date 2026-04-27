@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Pencil } from "lucide-react";
 import Button from "../../../common/button/button";
+import EntityRowActions from "../../../common/button/EntityRowActions";
 import { ApiError } from "../../../services/apiRequest/apiError";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
+import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
 
 type LoadStatus = "idle" | "loading" | "success" | "error";
 
@@ -18,10 +19,12 @@ function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
   const [status, setStatus] = useState<LoadStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { deleteSauceById, deletingSauceId, deleteErrorMessage, clearDeleteError } = useDeleteSauce();
 
   const loadSauces = useCallback(async () => {
     setStatus("loading");
     setErrorMessage("");
+    clearDeleteError();
     try {
       const result = await fetchSauces();
       setSauces(result.sauces);
@@ -31,7 +34,7 @@ function DashboardSaucesPage() {
       setErrorMessage(toErrorMessage(error));
       setStatus("error");
     }
-  }, []);
+  }, [clearDeleteError]);
 
   useEffect(() => {
     void loadSauces();
@@ -45,10 +48,7 @@ function DashboardSaucesPage() {
           <h1 className="text-heading-1 mt-2 text-foreground">Sauces</h1>
           <p className="text-body-sm mt-3 text-muted">Gérez les sauces existantes et accédez rapidement au formulaire d'édition.</p>
         </div>
-        <NavLink
-          to="/dashboard/sauces/create"
-          className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-        >
+        <NavLink to="/dashboard/sauces/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
           Créer une sauce
         </NavLink>
       </div>
@@ -65,6 +65,9 @@ function DashboardSaucesPage() {
           </Button>
         </div>
       ) : null}
+      {deleteErrorMessage ? (
+        <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
+      ) : null}
       {status === "success" ? (
         <div className="mt-8 space-y-3">
           {sauces.length === 0 ? (
@@ -72,21 +75,15 @@ function DashboardSaucesPage() {
           ) : (
             sauces.map((sauce) => (
               <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
-                <img
-                  src={sauce.image_url || "/assets/bbq.jpg"}
-                  alt={sauce.name}
-                  className="h-16 w-16 rounded-lg object-cover"
-                />
+                <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
                 <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
-                <NavLink
-                  to={`/dashboard/sauces/${sauce.id}/edit`}
-                  aria-label={`Editer la sauce ${sauce.name}`}
-                  title={`Editer la sauce ${sauce.name}`}
-                  className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover"
-                >
-                  <Pencil aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-                  <span className="sr-only">Editer</span>
-                </NavLink>
+                <EntityRowActions editTo={`/dashboard/sauces/${sauce.id}/edit`} editLabel={`Editer la sauce ${sauce.name}`}
+                  deleteItemName={`la sauce ${sauce.name}`} deleteId={sauce.id}
+                  onDeleteById={deleteSauceById}
+                  onDeleteSuccess={(deletedId) =>
+                    setSauces((currentSauces) => currentSauces.filter((item) => item.id !== deletedId))
+                  }
+                  onOpenDeleteConfirm={clearDeleteError} isDeleting={deletingSauceId === sauce.id}/>
               </article>
             ))
           )}

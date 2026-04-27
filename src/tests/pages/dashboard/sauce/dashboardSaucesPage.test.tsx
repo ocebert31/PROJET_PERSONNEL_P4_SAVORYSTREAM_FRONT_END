@@ -5,14 +5,54 @@ import { MemoryRouter } from "react-router-dom";
 import DashboardSaucesPage from "../../../../pages/dashboard/sauce/dashboardSaucesPage";
 import { ApiError } from "../../../../services/apiRequest/apiError";
 import type { SauceApiSerialized } from "../../../../types/sauce";
+import { useDeleteSauce } from "../../../../hooks/useDeleteSauce";
 
 vi.mock("../../../../services/sauces/sauceService", () => ({
   fetchSauces: vi.fn(),
 }));
 
+vi.mock("../../../../hooks/useDeleteSauce", () => ({
+  useDeleteSauce: vi.fn(),
+}));
+
+vi.mock("../../../../common/button/EntityRowActions", () => ({
+  default: ({
+    editTo,
+    editLabel,
+    deleteId,
+    onDeleteById,
+    onDeleteSuccess,
+  }: {
+    editTo: string;
+    editLabel: string;
+    deleteId: string;
+    onDeleteById: (id: string) => Promise<boolean>;
+    onDeleteSuccess?: (id: string) => void;
+  }) => (
+    <div data-testid={`row-actions-${deleteId}`}>
+      <span>{editLabel}</span>
+      <span>{editTo}</span>
+      <button
+        type="button"
+        onClick={async () => {
+          const wasDeleted = await onDeleteById(deleteId);
+          if (wasDeleted) {
+            onDeleteSuccess?.(deleteId);
+          }
+        }}
+      >
+        trigger-delete-{deleteId}
+      </button>
+    </div>
+  ),
+}));
+
 import { fetchSauces } from "../../../../services/sauces/sauceService";
 
 const mockedFetchSauces = vi.mocked(fetchSauces);
+const mockedUseDeleteSauce = vi.mocked(useDeleteSauce);
+const deleteSauceByIdMock = vi.fn<(id: string) => Promise<boolean>>();
+const clearDeleteErrorMock = vi.fn();
 
 function apiSauce(partial: Partial<SauceApiSerialized> & Pick<SauceApiSerialized, "id" | "name">): SauceApiSerialized {
   return {
@@ -43,10 +83,17 @@ function renderPage() {
 describe("dashboardSaucesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedUseDeleteSauce.mockReturnValue({
+      deleteSauceById: deleteSauceByIdMock,
+      deletingSauceId: null,
+      deleteErrorMessage: "",
+      clearDeleteError: clearDeleteErrorMock,
+    });
+    deleteSauceByIdMock.mockResolvedValue(true);
   });
 
   describe("nominal case", () => {
-    it("renders sauces with image, title and edit link", async () => {
+    it("renders sauces with image, title and row actions", async () => {
       mockedFetchSauces.mockResolvedValue({
         sauces: [
           apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" }),
@@ -60,15 +107,10 @@ describe("dashboardSaucesPage", () => {
       expect(screen.getByRole("link", { name: "Créer une sauce" })).toHaveAttribute("href", "/dashboard/sauces/create");
       expect(screen.getByRole("img", { name: "Sauce BBQ" })).toHaveAttribute("src", "bbq.jpg");
       expect(screen.getByRole("img", { name: "Sauce Miel" })).toHaveAttribute("src", "miel.jpg");
-
-      expect(screen.getByRole("link", { name: "Editer la sauce Sauce BBQ" })).toHaveAttribute(
-        "href",
-        "/dashboard/sauces/s-1/edit",
-      );
-      expect(screen.getByRole("link", { name: "Editer la sauce Sauce Miel" })).toHaveAttribute(
-        "href",
-        "/dashboard/sauces/s-2/edit",
-      );
+      expect(screen.getByTestId("row-actions-s-1")).toBeInTheDocument();
+      expect(screen.getByTestId("row-actions-s-2")).toBeInTheDocument();
+      expect(screen.getByText("Editer la sauce Sauce BBQ")).toBeInTheDocument();
+      expect(screen.getByText("/dashboard/sauces/s-1/edit")).toBeInTheDocument();
     });
   });
 
@@ -119,6 +161,43 @@ describe("dashboardSaucesPage", () => {
         expect(screen.getByText("Sauce Relance")).toBeInTheDocument();
       });
       expect(mockedFetchSauces).toHaveBeenCalledTimes(2);
+    });
+
+    it("removes row when delete action succeeds", async () => {
+      mockedFetchSauces.mockResolvedValue({
+        sauces: [
+          apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" }),
+          apiSauce({ id: "s-2", name: "Sauce Miel", image_url: "miel.jpg" }),
+        ],
+      });
+      deleteSauceByIdMock.mockResolvedValue(true);
+      const user = userEvent.setup();
+
+      renderPage();
+      await screen.findByText("Sauce BBQ");
+      await user.click(screen.getByRole("button", { name: "trigger-delete-s-1" }));
+
+      await waitFor(() => {
+        expect(deleteSauceByIdMock).toHaveBeenCalledWith("s-1");
+      });
+      expect(screen.queryByText("Sauce BBQ")).not.toBeInTheDocument();
+      expect(screen.getByText("Sauce Miel")).toBeInTheDocument();
+    });
+
+    it("shows delete error message from hook", async () => {
+      mockedUseDeleteSauce.mockReturnValue({
+        deleteSauceById: deleteSauceByIdMock,
+        deletingSauceId: null,
+        deleteErrorMessage: "Suppression impossible",
+        clearDeleteError: clearDeleteErrorMock,
+      });
+      mockedFetchSauces.mockResolvedValue({
+        sauces: [apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" })],
+      });
+
+      renderPage();
+
+      expect(await screen.findByText("Suppression impossible")).toBeInTheDocument();
     });
   });
 });

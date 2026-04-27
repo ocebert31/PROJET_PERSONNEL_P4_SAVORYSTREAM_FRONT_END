@@ -20,6 +20,12 @@ export async function fetchSauce(id: string): Promise<{ sauce: SauceApiSerialize
   return fetchRequest<{ sauce: SauceApiSerialized }>(`sauces/${id}`);
 }
 
+export async function deleteSauce(id: string): Promise<SauceMutationResponse> {
+  return fetchSessionRequest<SauceMutationResponse>(`sauces/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export function buildVersioningHeaders(options: SauceVersioningOptions = {}): Record<string, string> {
   if (!options.eTag) {
     return {};
