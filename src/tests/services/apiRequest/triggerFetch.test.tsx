@@ -14,7 +14,8 @@ describe("triggerFetch", () => {
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     body: FormData | string | number | boolean | null | undefined,
     authToken: string | null = token,
-  ) => triggerFetch(endpoint, method, authToken, body, baseUrl);
+    customHeaders: Record<string, string> = {},
+  ) => triggerFetch(endpoint, method, authToken, body, baseUrl, customHeaders);
 
   const expectFetchCalledWith = (expected: Record<string, unknown>) => {
     expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining(expected));
@@ -116,6 +117,18 @@ describe("triggerFetch", () => {
   });
 
   describe("headers and body edge cases", () => {
+    it("merges custom headers into the request headers", async () => {
+      await callTriggerFetch("PATCH", jsonBody, token, { "If-Match": "\"etag-v2\"" });
+      expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
+        headers: expect.objectContaining({
+          Accept: "application/json; charset=UTF-8",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "If-Match": "\"etag-v2\"",
+        }),
+      }));
+    });
+
     it.each([null, undefined])("does not add Content-Type when body is %s", async (body) => {
       await callTriggerFetch("POST", body);
       expect(global.fetch).toHaveBeenCalledWith(endpointUrl, expect.objectContaining({
