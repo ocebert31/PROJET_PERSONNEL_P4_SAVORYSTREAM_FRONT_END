@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as authentication from "../../../services/users/authentication";
 import * as fetchRequestModule from "../../../services/apiRequest/fetchRequest";
-import { createSauce, fetchSauce, fetchSauces, updateSauce } from "../../../services/sauces/sauceService";
+import { createSauce, deleteSauce, fetchSauce, fetchSauces, updateSauce } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized, SauceCreateResponse } from "../../../types/sauce";
 
 vi.mock("../../../services/users/authentication", async (importOriginal) => {
@@ -145,6 +145,31 @@ describe("sauceService", () => {
         vi.mocked(fetchRequestModule.fetchRequest).mockRejectedValue(new Error("404 not found"));
 
         await expect(fetchSauce("missing-id")).rejects.toThrow("404 not found");
+      });
+    });
+  });
+
+  describe("deleteSauce", () => {
+    describe("nominal case", () => {
+      it("calls fetchSessionRequest with delete method and returns response", async () => {
+        const response = { message: "Sauce supprimée." };
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue(response);
+
+        const result = await deleteSauce("sauce-id");
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledTimes(1);
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/sauce-id", {
+          method: "DELETE",
+        });
+        expect(result).toEqual(response);
+      });
+    });
+
+    describe("variations", () => {
+      it("propagates rejection from fetchSessionRequest", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("403 forbidden"));
+
+        await expect(deleteSauce("sauce-id")).rejects.toThrow("403 forbidden");
       });
     });
   });
