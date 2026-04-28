@@ -2,18 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Button from "../../../common/button/button";
 import EntityRowActions from "../../../common/button/EntityRowActions";
-import { ApiError } from "../../../services/apiRequest/apiError";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
 import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
+import { toErrorMessage } from "../../../utils/errorMessage";
 
 type LoadStatus = "idle" | "loading" | "success" | "error";
-
-function toErrorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  if (error instanceof Error) return error.message;
-  return "Impossible de charger les sauces.";
-}
 
 function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
@@ -31,7 +25,7 @@ function DashboardSaucesPage() {
       setStatus("success");
     } catch (error) {
       setSauces([]);
-      setErrorMessage(toErrorMessage(error));
+      setErrorMessage(toErrorMessage(error, "Impossible de charger les sauces."));
       setStatus("error");
     }
   }, [clearDeleteError]);

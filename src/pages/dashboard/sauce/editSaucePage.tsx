@@ -19,7 +19,9 @@ import type { SauceConditioningListFormSlice, SauceCreateFormValues, SauceIngred
 import { SauceEditFormSchema, buildSauceEditFormDefaultsFromApi, emptySauceEditFormValues, type SauceEditFormValues } from "../../../schemas/sauceUpdateSchema";
 import { buildSauceEditFormData } from "../../../mappers/buildSauceEditFormData";
 import { updateSauce } from "../../../services/sauces/sauceService";
-import { ApiError, isVersionConflictApiError } from "../../../services/apiRequest/apiError";
+import { isVersionConflictApiError } from "../../../services/apiRequest/apiError";
+import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import { toErrorMessage } from "../../../utils/errorMessage";
 
 const VERSION_CONFLICT_USER_MESSAGE = "Cette fiche a été modifiée ailleurs ou la version côté serveur ne correspond plus. Rechargez les données pour repartir de l'état actuel du serveur.";
 
@@ -39,7 +41,7 @@ function EditSaucePage() {
         setVersionConflictVisible(true);
         return;
       }
-      showError(e instanceof ApiError ? e.message : fallbackMessage);
+      showError(toErrorMessage(e, fallbackMessage));
     },
     [showError],
   );
@@ -98,36 +100,36 @@ function EditSaucePage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-        <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-        <h1 className="text-heading-1 mt-2 text-foreground">Edition de sauce</h1>
-        <p className="text-body-sm mt-4 text-muted" role="status">
-          Chargement de la sauce...
-        </p>
-      </div>
+      <AdminFormPageLayout title="Edition de sauce">
+        <div className="min-h-[24rem]">
+          <p className="text-body-sm mt-4 text-muted" role="status">
+            Chargement de la sauce...
+          </p>
+        </div>
+      </AdminFormPageLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-        <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-        <h1 className="text-heading-1 mt-2 text-foreground">Edition de sauce</h1>
-        <p className="text-body-sm mt-4 text-destructive">{error}</p>
-        <Button type="button" variant="secondary" className="mt-4" onClick={retry}>
-          Reessayer
-        </Button>
-      </div>
+      <AdminFormPageLayout title="Edition de sauce">
+        <div className="min-h-[24rem]">
+          <p className="text-body-sm mt-4 text-destructive">{error}</p>
+          <Button type="button" variant="secondary" className="mt-4" onClick={retry}>
+            Reessayer
+          </Button>
+        </div>
+      </AdminFormPageLayout>
     );
   }
 
   if (!apiSauce) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-        <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-        <h1 className="text-heading-1 mt-2 text-foreground">Edition de sauce</h1>
-        <p className="text-body-sm mt-4 text-muted">Sauce introuvable.</p>
-      </div>
+      <AdminFormPageLayout title="Edition de sauce">
+        <div className="min-h-[24rem]">
+          <p className="text-body-sm mt-4 text-muted">Sauce introuvable.</p>
+        </div>
+      </AdminFormPageLayout>
     );
   }
 
@@ -137,21 +139,23 @@ function EditSaucePage() {
   const listActionsDisabled = isSavingEntireSauce;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-      <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-      <h1 className="text-heading-1 mt-2 text-foreground">Edition de sauce</h1>
-      <p className="text-body-sm mt-3 text-muted">
-        Modifiez la fiche, les conditionnements et les ingrédients, puis enregistrez tout avec le bouton « Enregistrer la sauce ». Les suppressions sont prises en compte au moment de cet enregistrement global.
-      </p>
-      <RequiredFieldsHint className="text-caption mt-2 text-muted" />
-      {versionConflictVisible ? (
-        <div className="mt-6 rounded-lg border border-destructive/40 bg-destructive/5 p-4" role="alert" aria-live="assertive">
-          <p className="text-body-sm text-foreground">{VERSION_CONFLICT_USER_MESSAGE}</p>
-          <Button type="button" variant="secondary" className="mt-3" onClick={reloadServerData}>
-            Recharger les données serveur
-          </Button>
-        </div>
-      ) : null}
+    <AdminFormPageLayout
+      title="Edition de sauce"
+      description="Modifiez la fiche, les conditionnements et les ingrédients, puis enregistrez tout avec le bouton « Enregistrer la sauce ». Les suppressions sont prises en compte au moment de cet enregistrement global."
+      headerContent={
+        <>
+          <RequiredFieldsHint className="text-caption mt-2 text-muted" />
+          {versionConflictVisible ? (
+            <div className="mt-6 rounded-lg border border-destructive/40 bg-destructive/5 p-4" role="alert" aria-live="assertive">
+              <p className="text-body-sm text-foreground">{VERSION_CONFLICT_USER_MESSAGE}</p>
+              <Button type="button" variant="secondary" className="mt-3" onClick={reloadServerData}>
+                Recharger les données serveur
+              </Button>
+            </div>
+          ) : null}
+        </>
+      }
+    >
       <form onSubmit={(event) => { event.preventDefault() }} className="mt-10 space-y-6" noValidate>
         <fieldset disabled={isSavingEntireSauce} className="min-w-0 space-y-6 border-0 p-0">
           <FormSection title="Fiche sauce" description="Informations affichées sur la fiche produit.">
@@ -203,7 +207,7 @@ function EditSaucePage() {
           </Button>
         </div>
       </form>
-    </div>
+    </AdminFormPageLayout>
   );
 }
 

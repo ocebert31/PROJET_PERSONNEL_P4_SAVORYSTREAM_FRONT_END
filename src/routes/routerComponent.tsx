@@ -13,6 +13,8 @@ import CookiesPolicyPage from "../pages/cookiesPolicyPage";
 import DashboardSaucesPage from "../pages/dashboard/sauce/dashboardSaucesPage";
 import DashboardPage from "../pages/dashboard/dashboardPage";
 import DashboardCategoriesPage from "../pages/dashboard/category/dashboardCategoriesPage";
+import EditCategoryPage from "../pages/dashboard/category/editCategoryPage";
+import CreateCategoryPage from "../pages/dashboard/category/createCategoryPage";
 
 function RouterComponent () {
   return (
@@ -32,6 +34,8 @@ function RouterComponent () {
           <Route path="sauces/create" element={<CreateSaucePage />} />
           <Route path="sauces/:id/edit" element={<EditSaucePage />} />
           <Route path="categories" element={<DashboardCategoriesPage />} />
+          <Route path="categories/create" element={<CreateCategoryPage />} />
+          <Route path="categories/:id/edit" element={<EditCategoryPage />} />
         </Route>
       </Route>
     </Routes>

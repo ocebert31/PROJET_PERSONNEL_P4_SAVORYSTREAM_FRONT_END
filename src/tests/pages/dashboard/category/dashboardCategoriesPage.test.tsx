@@ -2,31 +2,72 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import DashboardCategoriesPage from "../../../../pages/dashboard/category/dashboardCategoriesPage";
 import { ApiError } from "../../../../services/apiRequest/apiError";
-import { createAdminCategory, fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
-import { useToast } from "../../../../hooks/useToast";
+import { fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
+import { useDeleteCategory } from "../../../../hooks/useDeleteCategory";
 
 vi.mock("../../../../services/sauces/category/categoryService", () => ({
   fetchAdminCategories: vi.fn(),
-  createAdminCategory: vi.fn(),
 }));
 
-vi.mock("../../../../hooks/useToast", () => ({
-  useToast: vi.fn(),
+vi.mock("../../../../hooks/useDeleteCategory", () => ({
+  useDeleteCategory: vi.fn(),
+}));
+
+vi.mock("../../../../common/button/EntityRowActions", () => ({
+  default: ({
+    editTo,
+    editLabel,
+    deleteId,
+    onDeleteById,
+    onDeleteSuccess,
+  }: {
+    editTo: string;
+    editLabel: string;
+    deleteId: string;
+    onDeleteById: (id: string) => Promise<boolean>;
+    onDeleteSuccess?: (id: string) => void;
+  }) => (
+    <div data-testid={`row-actions-${deleteId}`}>
+      <span>{editLabel}</span>
+      <span>{editTo}</span>
+      <button
+        type="button"
+        onClick={async () => {
+          const wasDeleted = await onDeleteById(deleteId);
+          if (wasDeleted) {
+            onDeleteSuccess?.(deleteId);
+          }
+        }}
+      >
+        trigger-delete-{deleteId}
+      </button>
+    </div>
+  ),
 }));
 
 const mockedFetchAdminCategories = vi.mocked(fetchAdminCategories);
-const mockedCreateAdminCategory = vi.mocked(createAdminCategory);
-const mockedUseToast = vi.mocked(useToast);
-let showSuccessMock: ReturnType<typeof vi.fn>;
-let showErrorMock: ReturnType<typeof vi.fn>;
+const mockedUseDeleteCategory = vi.mocked(useDeleteCategory);
+const deleteCategoryByIdMock = vi.fn<(id: string) => Promise<boolean>>();
+const clearDeleteErrorMock = vi.fn();
 
 function renderPage() {
   return render(
     <MemoryRouter>
       <DashboardCategoriesPage />
+    </MemoryRouter>,
+  );
+}
+
+function renderPageWithRoutes() {
+  return render(
+    <MemoryRouter initialEntries={["/dashboard/categories"]}>
+      <Routes>
+        <Route path="/dashboard/categories" element={<DashboardCategoriesPage />} />
+        <Route path="/dashboard/categories/create" element={<div>Create Category Page</div>} />
+      </Routes>
     </MemoryRouter>,
   );
 }
@@ -43,35 +84,36 @@ function category(id: string, name: string) {
 describe("dashboardCategoriesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    showSuccessMock = vi.fn();
-    showErrorMock = vi.fn();
-    mockedUseToast.mockReturnValue({
-      showSuccess: showSuccessMock,
-      showError: showErrorMock,
-    });
     mockedFetchAdminCategories.mockResolvedValue([category("c-1", "Piquante")]);
-    mockedCreateAdminCategory.mockResolvedValue({
-      message: "Catégorie créée.",
-      category: category("c-2", "Fumée"),
+    mockedUseDeleteCategory.mockReturnValue({
+      deleteCategoryById: deleteCategoryByIdMock,
+      deletingCategoryId: null,
+      deleteErrorMessage: "",
+      clearDeleteError: clearDeleteErrorMock,
     });
+    deleteCategoryByIdMock.mockResolvedValue(true);
   });
 
   describe("nominal case", () => {
-    it("loads categories and creates a new category through embedded create component", async () => {
-      const user = userEvent.setup();
+    it("loads categories and displays create navigation button", async () => {
       renderPage();
 
       expect(await screen.findByRole("heading", { name: "Catégories" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Créer une catégorie" })).toHaveAttribute("href", "/dashboard/categories/create");
       expect(screen.getByText("Piquante")).toBeInTheDocument();
+      expect(screen.getByTestId("row-actions-c-1")).toBeInTheDocument();
+      expect(screen.getByText("Editer la catégorie Piquante")).toBeInTheDocument();
+      expect(screen.getByText("/dashboard/categories/c-1/edit")).toBeInTheDocument();
+    });
 
-      await user.type(screen.getByLabelText("Nom de la catégorie"), "Fumée");
-      await user.click(screen.getByRole("button", { name: "Ajouter la catégorie" }));
+    it("navigates to create category route when create button is clicked", async () => {
+      const user = userEvent.setup();
+      renderPageWithRoutes();
 
-      await waitFor(() => {
-        expect(mockedCreateAdminCategory).toHaveBeenCalledWith("Fumée");
-      });
-      expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(2);
-      expect(showSuccessMock).toHaveBeenCalledWith("Catégorie créée.");
+      await screen.findByRole("heading", { name: "Catégories" });
+      await user.click(screen.getByRole("link", { name: "Créer une catégorie" }));
+
+      expect(screen.getByText("Create Category Page")).toBeInTheDocument();
     });
   });
 
@@ -110,12 +152,29 @@ describe("dashboardCategoriesPage", () => {
       expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(2);
     });
 
-    it("keeps embedded create form visible when categories are empty", async () => {
+    it("keeps create button visible when categories are empty", async () => {
       mockedFetchAdminCategories.mockResolvedValue([]);
       renderPage();
       expect(await screen.findByText("Aucune catégorie trouvée.")).toBeInTheDocument();
-      expect(screen.getByLabelText("Nom de la catégorie")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Ajouter la catégorie" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Créer une catégorie" })).toBeInTheDocument();
+    });
+
+    it("removes row when delete action succeeds", async () => {
+      mockedFetchAdminCategories.mockResolvedValue([
+        category("c-1", "Piquante"),
+        category("c-2", "Fumée"),
+      ]);
+      const user = userEvent.setup();
+
+      renderPage();
+      await screen.findByText("Piquante");
+      await user.click(screen.getByRole("button", { name: "trigger-delete-c-1" }));
+
+      await waitFor(() => {
+        expect(deleteCategoryByIdMock).toHaveBeenCalledWith("c-1");
+      });
+      expect(screen.queryByText("Piquante")).not.toBeInTheDocument();
+      expect(screen.getByText("Fumée")).toBeInTheDocument();
     });
   });
 });

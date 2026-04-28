@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
-import { ApiError } from "../services/apiRequest/apiError";
 import { deleteSauce } from "../services/sauces/sauceService";
+import { toErrorMessage } from "../utils/errorMessage";
 
 type UseDeleteSauceResult = {
   deletingSauceId: string | null;
@@ -8,12 +8,6 @@ type UseDeleteSauceResult = {
   clearDeleteError: () => void;
   deleteSauceById: (sauceId: string) => Promise<boolean>;
 };
-
-function toErrorMessage(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  if (error instanceof Error) return error.message;
-  return "Suppression impossible.";
-}
 
 export function useDeleteSauce(): UseDeleteSauceResult {
   const [deletingSauceId, setDeletingSauceId] = useState<string | null>(null);
@@ -30,7 +24,7 @@ export function useDeleteSauce(): UseDeleteSauceResult {
       await deleteSauce(sauceId);
       return true;
     } catch (error) {
-      setDeleteErrorMessage(toErrorMessage(error));
+      setDeleteErrorMessage(toErrorMessage(error, "Suppression impossible."));
       return false;
     } finally {
       setDeletingSauceId(null);

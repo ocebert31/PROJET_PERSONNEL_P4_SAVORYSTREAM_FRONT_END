@@ -15,6 +15,7 @@ import { useGetSauceCategories } from "../../../hooks/useGetSauceCategories";
 import { createSauce } from "../../../services/sauces/sauceService";
 import { ApiError } from "../../../services/apiRequest/apiError";
 import { buildSauceCreateFormData } from "../../../mappers/buildSauceCreateFormData";
+import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
 import Button from "../../../common/button/button";
 
 function CreateSaucePage() {
@@ -45,14 +46,14 @@ function CreateSaucePage() {
   const touchedErrorCount = touchedKeys.filter((key) => Boolean(errors[key as keyof typeof errors])).length;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-      <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-      <h1 className="text-heading-1 mt-2 text-foreground">Nouvelle sauce</h1>
-      <p className="text-body-sm mt-3 text-muted">Renseignez les informations produit.</p>
-      <RequiredFieldsHint className="text-caption mt-1 text-muted" />
-      <p className="text-caption mt-1 text-muted">
-        Après validation, vous serez redirigé vers la fiche produit créée.
-      </p>
+    <AdminFormPageLayout title="Nouvelle sauce" description="Renseignez les informations produit." headerContent={
+      <>
+        <RequiredFieldsHint className="text-caption mt-1 text-muted" />
+        <p className="text-caption mt-1 text-muted">
+          Après validation, vous serez redirigé vers la fiche produit créée.
+        </p>
+      </>
+    }>
       <form onSubmit={onSubmit} className="mt-10 space-y-6" noValidate>
         <p aria-live="polite" className="sr-only">
           {isSubmitting ? "Enregistrement en cours." : categoriesBlocked ? "Impossible de charger les catégories." : ""}
@@ -98,7 +99,7 @@ function CreateSaucePage() {
           </Button>
         </div>
       </form>
-    </div>
+    </AdminFormPageLayout>
   );
 }
 
