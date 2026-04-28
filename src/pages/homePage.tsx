@@ -2,19 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import type { Sauce } from "../types/sauce";
 import { sauceMapper } from "../mappers/sauce.mapper";
 import { fetchSauces } from "../services/sauces/sauceService";
-import { ApiError } from "../services/apiRequest/apiError";
 import HomeHero from "../components/Home/HomeHero";
 import HomeCatalogue from "../components/Home/HomeCatalogue";
 import HomeTrustStrip from "../components/Home/HomeTrustStrip";
 import Button from "../common/button/button";
+import { toErrorMessage } from "../utils/errorMessage";
 
 type LoadStatus = "idle" | "loading" | "error" | "success";
-
-function errorMessageFromUnknown(e: unknown): string {
-  if (e instanceof ApiError) return e.message;
-  if (e instanceof Error) return e.message;
-  return "Impossible de charger les sauces.";
-}
 
 function HomePage() {
   const [sauces, setSauces] = useState<Sauce[]>([]);
@@ -30,7 +24,7 @@ function HomePage() {
       setStatus("success");
     } catch (e) {
       setSauces([]);
-      setErrorMessage(errorMessageFromUnknown(e));
+      setErrorMessage(toErrorMessage(e, "Impossible de charger les sauces."));
       setStatus("error");
     }
   }, []);

@@ -3,12 +3,7 @@ import type { Conditioning, Sauce, SauceApiSerialized } from "../types/sauce";
 import { sauceMapper } from "../mappers/sauce.mapper";
 import { fetchSauce } from "../services/sauces/sauceService";
 import { ApiError } from "../services/apiRequest/apiError";
-
-export function errorMessageFromUnknown(e: unknown): string {
-  if (e instanceof ApiError) return e.message;
-  if (e instanceof Error) return e.message;
-  return "Impossible de charger la sauce.";
-}
+import { toErrorMessage } from "../utils/errorMessage";
 
 export function isBlankSauceId(id: string | undefined): boolean {
   return !id?.trim();
@@ -60,7 +55,7 @@ export function useSauceDetailQuery(id: string | undefined) {
         if (e instanceof ApiError && e.status === 404) {
           setError(undefined);
         } else {
-          setError(errorMessageFromUnknown(e));
+          setError(toErrorMessage(e, "Impossible de charger la sauce."));
         }
       } finally {
         if (!cancelled) setIsLoading(false);

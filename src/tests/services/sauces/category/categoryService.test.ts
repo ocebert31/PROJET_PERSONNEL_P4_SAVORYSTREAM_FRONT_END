@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as authentication from "../../../../services/users/authentication";
-import { createAdminCategory, fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
+import {
+  createAdminCategory,
+  deleteAdminCategory,
+  fetchAdminCategories,
+  fetchAdminCategoryById,
+  updateAdminCategory,
+} from "../../../../services/sauces/category/categoryService";
 import type { SauceCategory } from "../../../../types/sauceCategory";
 
 vi.mock("../../../../services/users/authentication", async (importOriginal) => {
@@ -83,6 +89,82 @@ describe("categoryService", () => {
         vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("Nom déjà utilisé"));
 
         await expect(createAdminCategory("Smoky")).rejects.toThrow("Nom déjà utilisé");
+      });
+    });
+  });
+
+  describe("fetchAdminCategoryById", () => {
+    describe("nominal case", () => {
+      it("calls fetchSessionRequest with GET on sauces/categories/:id", async () => {
+        const targetCategory = category({ id: "cat-9", name: "Smoky" });
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue({ category: targetCategory });
+
+        const result = await fetchAdminCategoryById("cat-9");
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledTimes(1);
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/categories/cat-9", { method: "GET" });
+        expect(result).toEqual({ category: targetCategory });
+      });
+    });
+
+    describe("variations", () => {
+      it("propagates rejection from fetchSessionRequest", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("Catégorie introuvable"));
+
+        await expect(fetchAdminCategoryById("cat-404")).rejects.toThrow("Catégorie introuvable");
+      });
+    });
+  });
+
+  describe("updateAdminCategory", () => {
+    describe("nominal case", () => {
+      it("calls fetchSessionRequest with PUT on sauces/categories/:id", async () => {
+        const targetCategory = category({ id: "cat-9", name: "Smoky" });
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue({
+          message: "Catégorie mise à jour.",
+          category: targetCategory,
+        });
+
+        const result = await updateAdminCategory("cat-9", "Smoky");
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledTimes(1);
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/categories/cat-9", {
+          method: "PUT",
+          body: { name: "Smoky" },
+        });
+        expect(result).toEqual({ message: "Catégorie mise à jour.", category: targetCategory });
+      });
+    });
+
+    describe("variations", () => {
+      it("propagates rejection from fetchSessionRequest", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("Nom déjà utilisé"));
+
+        await expect(updateAdminCategory("cat-9", "Smoky")).rejects.toThrow("Nom déjà utilisé");
+      });
+    });
+  });
+
+  describe("deleteAdminCategory", () => {
+    describe("nominal case", () => {
+      it("calls fetchSessionRequest with DELETE on sauces/categories/:id", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockResolvedValue({ message: "Catégorie supprimée." });
+
+        const result = await deleteAdminCategory("cat-9");
+
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledTimes(1);
+        expect(authentication.fetchSessionRequest).toHaveBeenCalledWith("sauces/categories/cat-9", {
+          method: "DELETE",
+        });
+        expect(result).toEqual({ message: "Catégorie supprimée." });
+      });
+    });
+
+    describe("variations", () => {
+      it("propagates rejection from fetchSessionRequest", async () => {
+        vi.mocked(authentication.fetchSessionRequest).mockRejectedValue(new Error("Suppression impossible"));
+
+        await expect(deleteAdminCategory("cat-9")).rejects.toThrow("Suppression impossible");
       });
     });
   });

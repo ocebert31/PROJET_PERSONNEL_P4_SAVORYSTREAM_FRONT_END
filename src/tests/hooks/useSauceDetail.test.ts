@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import {
   defaultConditioningId,
-  errorMessageFromUnknown,
   isBlankSauceId,
   useSauceDetail,
   useSauceDetailQuery,
@@ -11,6 +10,7 @@ import {
 import { ApiError } from "../../services/apiRequest/apiError";
 import type { Sauce, SauceApiSerialized } from "../../types/sauce";
 import { fetchSauce } from "../../services/sauces/sauceService";
+import { toErrorMessage } from "../../utils/errorMessage";
 
 vi.mock("../../services/sauces/sauceService", () => ({
   fetchSauce: vi.fn(),
@@ -94,17 +94,17 @@ function installDefaultCatalogMock() {
   });
 }
 
-describe("errorMessageFromUnknown", () => {
+describe("toErrorMessage", () => {
   it("should return ApiError message on the happy path", () => {
-    expect(errorMessageFromUnknown(new ApiError("Service unavailable", 503))).toBe("Service unavailable");
+    expect(toErrorMessage(new ApiError("Service unavailable", 503), "Impossible de charger la sauce.")).toBe("Service unavailable");
   });
 
   it("should return native Error message", () => {
-    expect(errorMessageFromUnknown(new Error("network down"))).toBe("network down");
+    expect(toErrorMessage(new Error("network down"), "Impossible de charger la sauce.")).toBe("network down");
   });
 
   it("should return fallback message for non-Error values", () => {
-    expect(errorMessageFromUnknown("plain-string-failure")).toBe("Impossible de charger la sauce.");
+    expect(toErrorMessage("plain-string-failure", "Impossible de charger la sauce.")).toBe("Impossible de charger la sauce.");
   });
 });
 

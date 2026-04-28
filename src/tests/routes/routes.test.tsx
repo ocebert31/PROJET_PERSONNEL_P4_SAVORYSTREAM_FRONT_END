@@ -19,6 +19,14 @@ vi.mock('../../pages/dashboard/category/dashboardCategoriesPage', () => ({
   default: () => <div>Dashboard Categories Page</div>,
 }));
 
+vi.mock('../../pages/dashboard/category/editCategoryPage', () => ({
+  default: () => <div>Edit Category Page</div>,
+}));
+
+vi.mock('../../pages/dashboard/category/createCategoryPage', () => ({
+  default: () => <div>Create Category Page</div>,
+}));
+
 vi.mock('../../services/sauces/sauceService', () => ({
   fetchSauces: vi.fn(),
   fetchSauce: vi.fn(),
@@ -116,6 +124,18 @@ describe("Navigation behavior", () => {
         path: "/dashboard/categories",
         allowedText: "Dashboard Categories Page",
       },
+      {
+        label: "category edit route for admin",
+        user: mockAdminUser,
+        path: "/dashboard/categories/11111111-1111-1111-1111-111111111111/edit",
+        allowedText: "Edit Category Page",
+      },
+      {
+        label: "category create route for admin",
+        user: mockAdminUser,
+        path: "/dashboard/categories/create",
+        allowedText: "Create Category Page",
+      },
     ])("renders $label", ({ user, path, allowedText }) => {
       mockUseAuth(user);
       renderWithRouter(path);
@@ -143,6 +163,16 @@ describe("Navigation behavior", () => {
         label: "categories route for non-admin",
         path: "/dashboard/categories",
         blockedText: "Dashboard Categories Page",
+      },
+      {
+        label: "category edit route for non-admin",
+        path: "/dashboard/categories/11111111-1111-1111-1111-111111111111/edit",
+        blockedText: "Edit Category Page",
+      },
+      {
+        label: "category create route for non-admin",
+        path: "/dashboard/categories/create",
+        blockedText: "Create Category Page",
       },
     ])("redirects $label to login", ({ path, blockedText }) => {
       mockUseAuth(null);

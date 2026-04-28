@@ -14,3 +14,22 @@ export async function createAdminCategory(name: string): Promise<{ message: stri
     body: { name },
   });
 }
+
+export async function fetchAdminCategoryById(categoryId: string): Promise<{ category: SauceCategory }> {
+  return fetchSessionRequest<{ category: SauceCategory }>(`sauces/categories/${categoryId}`, {
+    method: "GET",
+  });
+}
+
+export async function updateAdminCategory(categoryId: string, name: string): Promise<{ message: string; category: SauceCategory }> {
+  return fetchSessionRequest<{ message: string; category: SauceCategory }>(`sauces/categories/${categoryId}`, {
+    method: "PUT",
+    body: { name },
+  });
+}
+
+export async function deleteAdminCategory(categoryId: string): Promise<{ message: string }> {
+  return fetchSessionRequest<{ message: string }>(`sauces/categories/${categoryId}`, {
+    method: "DELETE",
+  });
+}
