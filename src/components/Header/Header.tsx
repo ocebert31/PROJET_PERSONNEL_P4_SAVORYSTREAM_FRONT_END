@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/authContext';
+import AuthAction from "../Auth/AuthAction";
 
 function Header() {
   const { user } = useAuth();
@@ -25,12 +26,7 @@ function Header() {
               Dashboard
             </NavLink>
           ) : null}
-          <NavLink to="/register" className={navLinkClass}>
-            Inscription
-          </NavLink>
-          <NavLink to="/login" className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-md shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 sm:px-5">
-            Connexion
-          </NavLink>
+          <AuthAction user={user} />
         </nav>
       </div>
     </header>

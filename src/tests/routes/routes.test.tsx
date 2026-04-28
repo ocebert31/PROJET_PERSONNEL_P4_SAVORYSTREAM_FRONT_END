@@ -78,6 +78,7 @@ const mockUseAuth = (user: typeof mockAdminUser | null) => {
   vi.spyOn(authContext, 'useAuth').mockReturnValue({
     user,
     refreshUser: vi.fn(),
+    logout: vi.fn(),
   });
 };
 describe("Navigation behavior", () => {

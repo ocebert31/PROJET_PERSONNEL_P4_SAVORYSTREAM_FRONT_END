@@ -24,6 +24,7 @@ function mockUseAuth(refreshUser = vi.fn().mockResolvedValue(undefined)) {
   vi.mocked(authContextModule.useAuth).mockReturnValue({
     user: null,
     refreshUser,
+    logout: vi.fn(),
   });
   return refreshUser;
 }

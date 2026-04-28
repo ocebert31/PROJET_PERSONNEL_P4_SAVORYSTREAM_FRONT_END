@@ -44,6 +44,7 @@ describe('LoginPage - unit behavior', () => {
     vi.spyOn(authContext, 'useAuth').mockReturnValue({
       user: null,
       refreshUser: refreshUserMock,
+      logout: vi.fn(),
     });
     vi.spyOn(toastHook, 'useToast').mockReturnValue({
       showSuccess: showSuccessMock,
