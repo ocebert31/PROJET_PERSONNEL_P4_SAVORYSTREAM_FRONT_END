@@ -46,6 +46,7 @@ function renderWithMemoryRouter(user: UserPublic | null) {
   vi.mocked(authContext.useAuth).mockReturnValue({
     user,
     refreshUser: vi.fn(),
+    logout: vi.fn(),
   });
 
   return render(

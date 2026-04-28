@@ -4,6 +4,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import Header from '../../../components/Header/Header';
 import * as authContext from '../../../context/authContext';
 
+const navigateMock = vi.fn();
+vi.mock("react-router-dom", async () => {
+    const actual = await vi.importActual<typeof import("react-router-dom")>("react-router-dom");
+    return {
+        ...actual,
+        useNavigate: () => navigateMock,
+    };
+});
+
 const renderHeader = () => {
   render(
     <BrowserRouter>
@@ -21,6 +30,7 @@ describe('Header component', () => {
         vi.spyOn(authContext, 'useAuth').mockReturnValue({
             user: null,
             refreshUser: vi.fn(),
+            logout: vi.fn(),
         });
 
         renderHeader();
@@ -32,13 +42,13 @@ describe('Header component', () => {
 
         const publicLinks = [
             { text: 'Accueil', href: '/' },
-            { text: 'Inscription', href: '/register' },
-            { text: 'Connexion', href: '/login' },
         ];
 
         publicLinks.forEach(({ text, href }) => {
             expect(screen.getByText(text).closest('a')).toHaveAttribute('href', href);
         });
+        expect(screen.getByRole("button", { name: "Inscription" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Connexion" })).toBeInTheDocument();
 
         expect(screen.queryByText('Dashboard')).not.toBeInTheDocument();
     });
@@ -56,6 +66,7 @@ describe('Header component', () => {
                 updated_at: new Date().toISOString(),
             },
             refreshUser: vi.fn(),
+            logout: vi.fn().mockResolvedValue(undefined),
         });
 
         renderHeader();
@@ -63,13 +74,14 @@ describe('Header component', () => {
         const adminLinks = [
             { text: 'Accueil', href: '/' },
             { text: 'Dashboard', href: '/dashboard' },
-            { text: 'Inscription', href: '/register' },
-            { text: 'Connexion', href: '/login' },
         ];
 
         adminLinks.forEach(({ text, href }) => {
             expect(screen.getByText(text)).toBeInTheDocument();
             expect(screen.getByText(text).closest('a')).toHaveAttribute('href', href);
         });
+        expect(screen.queryByText('Inscription')).not.toBeInTheDocument();
+        expect(screen.queryByText('Connexion')).not.toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Déconnexion" })).toBeInTheDocument();
     });
 });

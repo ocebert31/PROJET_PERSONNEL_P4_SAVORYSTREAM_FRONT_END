@@ -10,6 +10,7 @@ vi.mock("../../services/users/authentication", async (importOriginal) => {
   return {
     ...actual,
     fetchCurrentUser: vi.fn(),
+    revokeAndClear: vi.fn(),
   };
 });
 
@@ -29,12 +30,15 @@ function makeUser(overrides: Partial<UserPublic> = {}): UserPublic {
 }
 
 function AuthProbe() {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   return (
     <div>
       <span data-testid="user-email">{user?.email ?? "none"}</span>
       <button type="button" onClick={() => void refreshUser()}>
         refresh
+      </button>
+      <button type="button" onClick={() => void logout()}>
+        logout
       </button>
     </div>
   );
@@ -139,6 +143,29 @@ describe("AuthContext", () => {
       await waitFor(() => {
         expect(authenticationService.fetchCurrentUser).toHaveBeenCalledTimes(2);
         expect(screen.getByTestId("user-email")).toHaveTextContent("b@example.com");
+      });
+    });
+
+    it("clears user and revokes session on logout", async () => {
+      const user = userEvent.setup();
+      vi.mocked(authenticationService.fetchCurrentUser).mockResolvedValue(makeUser({ email: "a@example.com" }));
+      vi.mocked(authenticationService.revokeAndClear).mockResolvedValue(undefined);
+
+      render(
+        <AuthProvider>
+          <AuthProbe />
+        </AuthProvider>,
+      );
+
+      await user.click(screen.getByRole("button", { name: "refresh" }));
+      await waitFor(() => {
+        expect(screen.getByTestId("user-email")).toHaveTextContent("a@example.com");
+      });
+
+      await user.click(screen.getByRole("button", { name: "logout" }));
+      await waitFor(() => {
+        expect(authenticationService.revokeAndClear).toHaveBeenCalledTimes(1);
+        expect(screen.getByTestId("user-email")).toHaveTextContent("none");
       });
     });
   });
