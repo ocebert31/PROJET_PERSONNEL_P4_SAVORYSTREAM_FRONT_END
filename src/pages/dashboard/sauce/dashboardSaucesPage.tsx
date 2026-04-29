@@ -6,36 +6,33 @@ import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
 import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
 import { toErrorMessage } from "../../../utils/errorMessage";
-
-type LoadStatus = "idle" | "loading" | "success" | "error";
+import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
-  const [status, setStatus] = useState<LoadStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
   const { deleteSauceById, deletingSauceId, deleteErrorMessage, clearDeleteError } = useDeleteSauce();
 
   const loadSauces = useCallback(async () => {
-    setStatus("loading");
+    startLoading(false);
     setErrorMessage("");
     clearDeleteError();
     try {
       const result = await fetchSauces();
       setSauces(result.sauces);
-      setStatus("success");
+      setSuccess();
     } catch (error) {
       setSauces([]);
-      setErrorMessage(toErrorMessage(error, "Impossible de charger les sauces."));
-      setStatus("error");
+      setError(toErrorMessage(error, "Impossible de charger les sauces."));
     }
-  }, [clearDeleteError]);
+  }, [clearDeleteError, setError, setErrorMessage, setSuccess, startLoading]);
 
   useEffect(() => {
     void loadSauces();
   }, [loadSauces]);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14" aria-busy={status === "loading" || status === "idle"}>
+    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14" aria-busy={isBusy}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
@@ -46,12 +43,12 @@ function DashboardSaucesPage() {
           Créer une sauce
         </NavLink>
       </div>
-      {status === "loading" || status === "idle" ? (
+      {isBusy ? (
         <p role="status" className="text-body-sm mt-6 text-muted">
           Chargement des sauces...
         </p>
       ) : null}
-      {status === "error" ? (
+      {isError ? (
         <div className="mt-6">
           <p className="text-body-sm text-destructive">{errorMessage}</p>
           <Button variant="secondary" className="mt-3" onClick={() => void loadSauces()}>
@@ -62,7 +59,7 @@ function DashboardSaucesPage() {
       {deleteErrorMessage ? (
         <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
       ) : null}
-      {status === "success" ? (
+      {isSuccess ? (
         <div className="mt-8 space-y-3">
           {sauces.length === 0 ? (
             <p className="text-body-sm text-muted">Aucune sauce trouvée.</p>

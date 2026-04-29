@@ -6,36 +6,33 @@ import { fetchAdminCategories } from "../../../services/sauces/category/category
 import type { SauceCategory } from "../../../types/sauceCategory";
 import { useDeleteCategory } from "../../../hooks/useDeleteCategory";
 import { toErrorMessage } from "../../../utils/errorMessage";
-
-type LoadStatus = "idle" | "loading" | "success" | "error";
+import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 function DashboardCategoriesPage() {
   const [categories, setCategories] = useState<SauceCategory[]>([]);
-  const [status, setStatus] = useState<LoadStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+  const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
   const { deleteCategoryById, deletingCategoryId, deleteErrorMessage, clearDeleteError } = useDeleteCategory();
 
   const loadCategories = useCallback(async () => {
-    setStatus("loading");
+    startLoading(false);
     setErrorMessage("");
     clearDeleteError();
     try {
       const list = await fetchAdminCategories();
       setCategories(list);
-      setStatus("success");
+      setSuccess();
     } catch (error) {
       setCategories([]);
-      setErrorMessage(toErrorMessage(error, "Impossible de charger les catégories."));
-      setStatus("error");
+      setError(toErrorMessage(error, "Impossible de charger les catégories."));
     }
-  }, [clearDeleteError]);
+  }, [clearDeleteError, setError, setErrorMessage, setSuccess, startLoading]);
 
   useEffect(() => {
     void loadCategories();
   }, [loadCategories]);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14" aria-busy={status === "loading" || status === "idle"}>
+    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14" aria-busy={isBusy}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
@@ -47,13 +44,13 @@ function DashboardCategoriesPage() {
         </NavLink>
       </div>
 
-      {status === "loading" || status === "idle" ? (
+      {isBusy ? (
         <p className="text-body-sm mt-6 text-muted" role="status">
           Chargement des catégories...
         </p>
       ) : null}
 
-      {status === "error" ? (
+      {isError ? (
         <div className="mt-6">
           <p className="text-body-sm text-destructive">{errorMessage}</p>
           <Button variant="secondary" className="mt-3" onClick={() => void loadCategories()}>
@@ -66,7 +63,7 @@ function DashboardCategoriesPage() {
         <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
       ) : null}
 
-      {status === "success" ? (
+      {isSuccess ? (
         <div className="mt-8">
           <h2 className="text-label text-foreground">Liste des catégories</h2>
           {categories.length === 0 ? (
