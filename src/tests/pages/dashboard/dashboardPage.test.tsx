@@ -11,6 +11,7 @@ describe("dashboardPage", () => {
           <Route path="/dashboard" element={<DashboardPage />}>
             <Route path="sauces" element={<div>{outlet}</div>} />
             <Route path="sauces/create" element={<div>{outlet}</div>} />
+            <Route path="sauces/:id/edit" element={<div>{outlet}</div>} />
             <Route path="categories" element={<div>{outlet}</div>} />
           </Route>
         </Routes>

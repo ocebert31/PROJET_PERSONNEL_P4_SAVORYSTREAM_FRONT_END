@@ -1,56 +1,77 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render } from "@testing-library/react";
+import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 
+const pageShellSpy = vi.fn();
+
+vi.mock("../../../common/layout/pageShell", () => ({
+  default: (props: {
+    title: string;
+    eyebrow?: string;
+    description?: ReactNode;
+    containerClassName?: string;
+    headerSuffix?: ReactNode;
+    children: ReactNode;
+  }) => {
+    pageShellSpy(props);
+    return <div data-testid="page-shell-mock">{props.children}</div>;
+  },
+}));
+
 describe("AdminFormPageLayout", () => {
-  it("renders title and children with default eyebrow", () => {
+  it("passes default props contract to PageShell", () => {
+    pageShellSpy.mockClear();
+
     render(
       <AdminFormPageLayout title="Nouvelle sauce">
         <p>Form content</p>
       </AdminFormPageLayout>
     );
 
-    expect(screen.getByText("Administration")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 1, name: "Nouvelle sauce" })).toBeInTheDocument();
-    expect(screen.getByText("Form content")).toBeInTheDocument();
+    expect(pageShellSpy).toHaveBeenCalledTimes(1);
+    const callProps = pageShellSpy.mock.calls[0]?.[0];
+    expect(callProps).toMatchObject({
+      title: "Nouvelle sauce",
+      eyebrow: "Administration",
+      containerClassName: "mx-auto max-w-7xl",
+    });
   });
 
-  it("renders custom eyebrow when provided", () => {
-    render(
-      <AdminFormPageLayout title="Edition" eyebrow="Backoffice">
-        <p>Form content</p>
-      </AdminFormPageLayout>
-    );
+  it("forwards optional props to PageShell", () => {
+    pageShellSpy.mockClear();
 
-    expect(screen.getByText("Backoffice")).toBeInTheDocument();
-    expect(screen.queryByText("Administration")).not.toBeInTheDocument();
-  });
-
-  it("renders description content when provided", () => {
-    render(
-      <AdminFormPageLayout
-        title="Nouvelle catégorie"
-        description={<p>Description personnalisée</p>}
-      >
-        <p>Form content</p>
-      </AdminFormPageLayout>
-    );
-
-    expect(screen.getByText("Description personnalisée")).toBeInTheDocument();
-  });
-
-  it("renders header content before children", () => {
     render(
       <AdminFormPageLayout
         title="Edition"
+        eyebrow="Backoffice"
+        description={<p>Description personnalisée</p>}
         headerContent={<p>Header helper</p>}
       >
         <p>Form content</p>
       </AdminFormPageLayout>
     );
 
-    const helper = screen.getByText("Header helper");
-    const formContent = screen.getByText("Form content");
-    expect(helper.compareDocumentPosition(formContent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const callProps = pageShellSpy.mock.calls[0]?.[0];
+    expect(callProps).toMatchObject({
+      title: "Edition",
+      eyebrow: "Backoffice",
+      containerClassName: "mx-auto max-w-7xl",
+    });
+    expect(callProps?.description).toBeTruthy();
+    expect(callProps?.headerSuffix).toBeTruthy();
+  });
+
+  it("uses custom contentClassName instead of default", () => {
+    pageShellSpy.mockClear();
+
+    render(
+      <AdminFormPageLayout title="Edition" contentClassName="max-w-5xl mx-auto">
+        <p>Form content</p>
+      </AdminFormPageLayout>
+    );
+
+    const callProps = pageShellSpy.mock.calls[0]?.[0];
+    expect(callProps?.containerClassName).toBe("max-w-5xl mx-auto");
   });
 });
