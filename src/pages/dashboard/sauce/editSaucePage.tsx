@@ -22,6 +22,7 @@ import { updateSauce } from "../../../services/sauces/sauceService";
 import { isVersionConflictApiError } from "../../../services/apiRequest/apiError";
 import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
 import { toErrorMessage } from "../../../utils/errorMessage";
+import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 const VERSION_CONFLICT_USER_MESSAGE = "Cette fiche a été modifiée ailleurs ou la version côté serveur ne correspond plus. Rechargez les données pour repartir de l'état actuel du serveur.";
 
@@ -30,6 +31,7 @@ function EditSaucePage() {
   const { id: routeId } = useParams<{ id: string }>();
   const sauceId = routeId?.trim() ?? "";
   const { apiSauce, isLoading, error, retry } = useSauceDetailQuery(routeId);
+  const { errorMessage: loadErrorMessage, startLoading, setError, setSuccess, isBusy, isError } = useAsyncStatus("loading");
   const { showSuccess, showError } = useToast();
   const { error: categoriesError, selectOptions, categoriesBlocked } = useGetSauceCategories();
   const [versionConflictVisible, setVersionConflictVisible] = useState(false);
@@ -72,6 +74,18 @@ function EditSaucePage() {
     resetPendingIngredientDeletes();
   }, [apiSauce, reset, resetPendingConditioningDeletes, resetPendingIngredientDeletes]);
 
+  useEffect(() => {
+    if (isLoading) {
+      startLoading();
+      return;
+    }
+    if (error) {
+      setError(error);
+      return;
+    }
+    setSuccess();
+  }, [error, isLoading, setError, setSuccess, startLoading]);
+
   const saveSauceEdition = useCallback(async () => {
     if (!sauceId) return;
     const valid = await trigger();
@@ -98,7 +112,7 @@ function EditSaucePage() {
     sauceId, showSuccess, syncConditioningRows,
     syncIngredientRows, trigger ]);
 
-  if (isLoading) {
+  if (isBusy) {
     return (
       <AdminFormPageLayout title="Edition de sauce">
         <div className="min-h-[24rem]">
@@ -110,11 +124,11 @@ function EditSaucePage() {
     );
   }
 
-  if (error) {
+  if (isError) {
     return (
       <AdminFormPageLayout title="Edition de sauce">
         <div className="min-h-[24rem]">
-          <p className="text-body-sm mt-4 text-destructive">{error}</p>
+          <p className="text-body-sm mt-4 text-destructive">{loadErrorMessage}</p>
           <Button type="button" variant="secondary" className="mt-4" onClick={retry}>
             Reessayer
           </Button>

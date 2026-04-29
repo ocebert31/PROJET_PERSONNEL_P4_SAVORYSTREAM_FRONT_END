@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../../common/button/button";
@@ -9,8 +9,7 @@ import { useEditCategory } from "../../../hooks/useEditCategory";
 import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
 import type { CreateCategoryFormValues } from "../../../types/sauceCategory";
 import { toErrorMessage } from "../../../utils/errorMessage";
-
-type LoadStatus = "idle" | "loading" | "success" | "error";
+import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 function EditCategoryPage() {
   const navigate = useNavigate();
@@ -18,8 +17,7 @@ function EditCategoryPage() {
   const categoryId = routeId?.trim() ?? "";
   const { showSuccess, showError } = useToast();
   const { editCategoryById, editingCategoryId, editErrorMessage, clearEditError } = useEditCategory();
-  const [status, setStatus] = useState<LoadStatus>("idle");
-  const [loadErrorMessage, setLoadErrorMessage] = useState("");
+  const { errorMessage: loadErrorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isError } = useAsyncStatus("idle");
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateCategoryFormValues>({
     defaultValues: { name: "" },
@@ -27,23 +25,21 @@ function EditCategoryPage() {
 
   const loadCategory = useCallback(async () => {
     if (!categoryId) {
-      setStatus("error");
-      setLoadErrorMessage("Catégorie introuvable.");
+      setError("Catégorie introuvable.");
       return;
     }
 
-    setStatus("loading");
-    setLoadErrorMessage("");
+    startLoading(false);
+    setErrorMessage("");
     clearEditError();
     try {
       const result = await fetchAdminCategoryById(categoryId);
       reset({ name: result.category.name });
-      setStatus("success");
+      setSuccess();
     } catch (error) {
-      setLoadErrorMessage(toErrorMessage(error, "Impossible de charger la catégorie."));
-      setStatus("error");
+      setError(toErrorMessage(error, "Impossible de charger la catégorie."));
     }
-  }, [categoryId, clearEditError, reset]);
+  }, [categoryId, clearEditError, reset, setError, setErrorMessage, setSuccess, startLoading]);
 
   useEffect(() => {
     void loadCategory();
@@ -63,7 +59,7 @@ function EditCategoryPage() {
     navigate("/dashboard/categories", { replace: true });
   });
 
-  if (status === "loading" || status === "idle") {
+  if (isBusy) {
     return (
       <AdminFormPageLayout title="Edition de catégorie">
         <p className="text-body-sm mt-4 text-muted" role="status">
@@ -73,7 +69,7 @@ function EditCategoryPage() {
     );
   }
 
-  if (status === "error") {
+  if (isError) {
     return (
       <AdminFormPageLayout title="Edition de catégorie">
         <p className="text-body-sm mt-4 text-destructive">{loadErrorMessage}</p>
