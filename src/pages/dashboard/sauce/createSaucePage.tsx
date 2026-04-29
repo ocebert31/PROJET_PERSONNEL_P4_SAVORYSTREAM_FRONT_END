@@ -15,7 +15,7 @@ import { useGetSauceCategories } from "../../../hooks/useGetSauceCategories";
 import { createSauce } from "../../../services/sauces/sauceService";
 import { ApiError } from "../../../services/apiRequest/apiError";
 import { buildSauceCreateFormData } from "../../../mappers/buildSauceCreateFormData";
-import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 import Button from "../../../common/button/button";
 
 function CreateSaucePage() {

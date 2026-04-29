@@ -5,7 +5,7 @@ import { fetchSauces } from "../services/sauces/sauceService";
 import HomeHero from "../components/Home/HomeHero";
 import HomeCatalogue from "../components/Home/HomeCatalogue";
 import HomeTrustStrip from "../components/Home/HomeTrustStrip";
-import Button from "../common/button/button";
+import AsyncStateView from "../common/feedback/asyncStateView";
 import { toErrorMessage } from "../utils/errorMessage";
 import { useAsyncStatus } from "../hooks/useAsyncStatus";
 
@@ -44,17 +44,9 @@ function HomePage() {
   return (
     <div className="pb-16">
       <HomeHero backgroundImageUrl={heroImage} featuredSauceId={featuredSauceId} />
-      {isBusy && (
-        <p className="mx-auto max-w-7xl px-6 pt-10 text-center text-sm text-muted" role="status">
-          Chargement du catalogue…
-        </p>
-      )}
-      {isError && (
+      {(isBusy || isError) && (
         <div className="mx-auto max-w-7xl px-6 pt-10 text-center">
-          <p className="text-body-sm text-destructive">{errorMessage}</p>
-          <Button variant="secondary" onClick={() => void loadSauces()} className="mt-4">
-            Réessayer
-          </Button>
+          <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement du catalogue…" errorMessage={errorMessage} onRetry={() => void loadSauces()}/>
         </div>
       )}
       {isSuccess && <HomeCatalogue sauces={sauces} />}

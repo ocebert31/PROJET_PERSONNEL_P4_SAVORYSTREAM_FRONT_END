@@ -15,7 +15,7 @@ vi.mock("../../../../hooks/useDeleteSauce", () => ({
   useDeleteSauce: vi.fn(),
 }));
 
-vi.mock("../../../../common/button/EntityRowActions", () => ({
+vi.mock("../../../../common/button/entityRowActions", () => ({
   default: ({
     editTo,
     editLabel,

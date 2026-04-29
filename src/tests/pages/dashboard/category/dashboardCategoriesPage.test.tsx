@@ -16,7 +16,7 @@ vi.mock("../../../../hooks/useDeleteCategory", () => ({
   useDeleteCategory: vi.fn(),
 }));
 
-vi.mock("../../../../common/button/EntityRowActions", () => ({
+vi.mock("../../../../common/button/entityRowActions", () => ({
   default: ({
     editTo,
     editLabel,
@@ -83,7 +83,7 @@ function category(id: string, name: string) {
 
 describe("dashboardCategoriesPage", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mockedFetchAdminCategories.mockResolvedValue([category("c-1", "Piquante")]);
     mockedUseDeleteCategory.mockReturnValue({
       deleteCategoryById: deleteCategoryByIdMock,

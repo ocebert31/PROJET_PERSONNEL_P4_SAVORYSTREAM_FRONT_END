@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import Button from "../../../common/button/button";
-import EntityRowActions from "../../../common/button/EntityRowActions";
+import AsyncStateView from "../../../common/feedback/asyncStateView";
+import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
+import EntityRowActions from "../../../common/button/entityRowActions";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
 import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
@@ -32,32 +34,15 @@ function DashboardSaucesPage() {
   }, [loadSauces]);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14" aria-busy={isBusy}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-          <h1 className="text-heading-1 mt-2 text-foreground">Sauces</h1>
-          <p className="text-body-sm mt-3 text-muted">Gérez les sauces existantes et accédez rapidement au formulaire d'édition.</p>
-        </div>
+    <DashboardPageLayout title="Sauces" description="Gérez les sauces existantes et accédez rapidement au formulaire d'édition." isBusy={isBusy}
+      action={
         <NavLink to="/dashboard/sauces/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
           Créer une sauce
         </NavLink>
-      </div>
-      {isBusy ? (
-        <p role="status" className="text-body-sm mt-6 text-muted">
-          Chargement des sauces...
-        </p>
-      ) : null}
-      {isError ? (
-        <div className="mt-6">
-          <p className="text-body-sm text-destructive">{errorMessage}</p>
-          <Button variant="secondary" className="mt-3" onClick={() => void loadSauces()}>
-            Réessayer
-          </Button>
-        </div>
-      ) : null}
+      }>
+      <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement des sauces..." errorMessage={errorMessage} onRetry={() => void loadSauces()}/>
       {deleteErrorMessage ? (
-        <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
+        <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>
       ) : null}
       {isSuccess ? (
         <div className="mt-8 space-y-3">
@@ -80,7 +65,7 @@ function DashboardSaucesPage() {
           )}
         </div>
       ) : null}
-    </div>
+    </DashboardPageLayout>
   );
 }
 

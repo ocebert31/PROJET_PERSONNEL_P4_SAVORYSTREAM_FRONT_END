@@ -5,7 +5,7 @@ import SauceDetailNotFound from "../components/Sauce/Detail/Layout/SauceDetailNo
 import SauceDetailPurchasePanel from "../components/Sauce/Detail/Purchase/SauceDetailPurchasePanel";
 import SauceTabs from "../components/Sauce/Detail/Tabs/SauceTabs";
 import { useSauceDetail } from "../hooks/useSauceDetail";
-import Button from "../common/button/button";
+import AsyncStateView from "../common/feedback/asyncStateView";
 
 function SauceDetail() {
   const { id } = useParams<{ id: string }>();
@@ -15,9 +15,7 @@ function SauceDetail() {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl px-6 py-20 text-center">
-        <p className="text-sm text-muted" role="status">
-          Chargement de la sauce…
-        </p>
+        <AsyncStateView isLoading={isLoading} isError={false} loadingLabel="Chargement de la sauce…"/>
       </div>
     );
   }
@@ -25,10 +23,7 @@ function SauceDetail() {
   if (error) {
     return (
       <div className="mx-auto max-w-6xl px-6 py-20 text-center">
-        <p className="text-body-sm text-destructive">{error}</p>
-        <Button type="button" variant="secondary" onClick={retry} className="mt-4">
-          Réessayer
-        </Button>
+        <AsyncStateView isLoading={false} isError={Boolean(error)} loadingLabel="" errorMessage={error} onRetry={retry}/>
       </div>
     );
   }

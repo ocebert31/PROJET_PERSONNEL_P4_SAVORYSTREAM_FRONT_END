@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import Button from "../../../common/button/button";
-import EntityRowActions from "../../../common/button/EntityRowActions";
+import EntityRowActions from "../../../common/button/entityRowActions";
+import AsyncStateView from "../../../common/feedback/asyncStateView";
+import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import { fetchAdminCategories } from "../../../services/sauces/category/categoryService";
 import type { SauceCategory } from "../../../types/sauceCategory";
 import { useDeleteCategory } from "../../../hooks/useDeleteCategory";
@@ -32,37 +34,15 @@ function DashboardCategoriesPage() {
   }, [loadCategories]);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 sm:py-14" aria-busy={isBusy}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-          <h1 className="text-heading-1 mt-2 text-foreground">Catégories</h1>
-          <p className="text-body-sm mt-3 text-muted">Consultez les catégories existantes et mettez-les à jour.</p>
-        </div>
+    <DashboardPageLayout title="Catégories" description="Consultez les catégories existantes et mettez-les à jour." isBusy={isBusy}
+      action={
         <NavLink to="/dashboard/categories/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
           Créer une catégorie
-        </NavLink>
-      </div>
-
-      {isBusy ? (
-        <p className="text-body-sm mt-6 text-muted" role="status">
-          Chargement des catégories...
-        </p>
-      ) : null}
-
-      {isError ? (
-        <div className="mt-6">
-          <p className="text-body-sm text-destructive">{errorMessage}</p>
-          <Button variant="secondary" className="mt-3" onClick={() => void loadCategories()}>
-            Réessayer
-          </Button>
-        </div>
-      ) : null}
-
+        </NavLink>}>
+      <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement des catégories..." errorMessage={errorMessage} onRetry={() => void loadCategories()}/>
       {deleteErrorMessage ? (
-        <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
+        <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>
       ) : null}
-
       {isSuccess ? (
         <div className="mt-8">
           <h2 className="text-label text-foreground">Liste des catégories</h2>
@@ -85,7 +65,7 @@ function DashboardCategoriesPage() {
           )}
         </div>
       ) : null}
-    </div>
+    </DashboardPageLayout>
   );
 }
 

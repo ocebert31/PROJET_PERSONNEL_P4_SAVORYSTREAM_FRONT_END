@@ -4,7 +4,7 @@ import Button from "../../../common/button/button";
 import InputFieldForm from "../../../common/fields/inputFieldForm";
 import { createAdminCategory } from "../../../services/sauces/category/categoryService";
 import { useToast } from "../../../hooks/useToast";
-import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 import type { CreateCategoryFormValues, CreateCategoryPageProps } from "../../../types/sauceCategory";
 import { toErrorMessage } from "../../../utils/errorMessage";
 

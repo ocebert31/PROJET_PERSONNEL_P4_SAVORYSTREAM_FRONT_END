@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 
 describe("AdminFormPageLayout", () => {
   it("renders title and children with default eyebrow", () => {
