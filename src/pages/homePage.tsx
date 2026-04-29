@@ -13,20 +13,28 @@ function HomePage() {
   const [sauces, setSauces] = useState<Sauce[]>([]);
   const { errorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
 
-  const loadSauces = useCallback(async () => {
+  const loadSauces = useCallback(async (isCancelled: () => boolean = () => false) => {
     startLoading();
     try {
       const { sauces: apiSauces } = await fetchSauces();
+      if (isCancelled()) return;
       setSauces(apiSauces.map(sauceMapper));
+      if (isCancelled()) return;
       setSuccess();
     } catch (e) {
+      if (isCancelled()) return;
       setSauces([]);
+      if (isCancelled()) return;
       setError(toErrorMessage(e, "Impossible de charger les sauces."));
     }
   }, [setError, setSuccess, startLoading]);
 
   useEffect(() => {
-    void loadSauces();
+    let cancelled = false;
+    void loadSauces(() => cancelled);
+    return () => {
+      cancelled = true;
+    };
   }, [loadSauces]);
 
   const hero = sauces[0];
