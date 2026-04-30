@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
 import EntityRowActions from "../../../common/button/entityRowActions";
 import AsyncStateView from "../../../common/feedback/asyncStateView";
 import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardCreateActionLink from "../../../common/section/dashboardCreateActionLink";
 import DashboardEntityListSection from "../../../common/section/dashboardEntityListSection";
 import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import { fetchAdminCategories } from "../../../services/sauces/category/categoryService";
@@ -37,9 +37,9 @@ function DashboardCategoriesPage() {
   return (
     <DashboardPageLayout title="Catégories" description="Consultez les catégories existantes et mettez-les à jour." isBusy={isBusy}
       action={
-        <NavLink to="/dashboard/categories/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+        <DashboardCreateActionLink to="/dashboard/categories/create">
           Créer une catégorie
-        </NavLink>}>
+        </DashboardCreateActionLink>}>
       <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement des catégories..." errorMessage={errorMessage} onRetry={() => void loadCategories()}/>
       {deleteErrorMessage ? (
         <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>

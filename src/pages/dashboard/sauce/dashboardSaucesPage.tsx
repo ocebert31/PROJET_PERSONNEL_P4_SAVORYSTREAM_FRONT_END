@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
 import AsyncStateView from "../../../common/feedback/asyncStateView";
 import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardCreateActionLink from "../../../common/section/dashboardCreateActionLink";
 import DashboardEntityListSection from "../../../common/section/dashboardEntityListSection";
 import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import EntityRowActions from "../../../common/button/entityRowActions";
@@ -37,9 +37,9 @@ function DashboardSaucesPage() {
   return (
     <DashboardPageLayout title="Sauces" description="Gérez les sauces existantes et accédez rapidement au formulaire d'édition." isBusy={isBusy}
       action={
-        <NavLink to="/dashboard/sauces/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+        <DashboardCreateActionLink to="/dashboard/sauces/create">
           Créer une sauce
-        </NavLink>
+        </DashboardCreateActionLink>
       }>
       <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement des sauces..." errorMessage={errorMessage} onRetry={() => void loadSauces()}/>
       {deleteErrorMessage ? (
