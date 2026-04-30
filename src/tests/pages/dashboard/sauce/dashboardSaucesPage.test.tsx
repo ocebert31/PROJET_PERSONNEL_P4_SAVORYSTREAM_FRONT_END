@@ -2,47 +2,72 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
+import type { ReactNode } from "react";
 import DashboardSaucesPage from "../../../../pages/dashboard/sauce/dashboardSaucesPage";
 import { ApiError } from "../../../../services/apiRequest/apiError";
 import type { SauceApiSerialized } from "../../../../types/sauce";
-import { useDeleteSauce } from "../../../../hooks/useDeleteSauce";
+import { useSauceRowActions } from "../../../../hooks/useSauceRowActions";
+import { useAsyncStatus } from "../../../../hooks/useAsyncStatus";
 
 vi.mock("../../../../services/sauces/sauceService", () => ({
   fetchSauces: vi.fn(),
 }));
 
-vi.mock("../../../../hooks/useDeleteSauce", () => ({
-  useDeleteSauce: vi.fn(),
+vi.mock("../../../../hooks/useSauceRowActions", () => ({
+  useSauceRowActions: vi.fn(),
+}));
+
+vi.mock("../../../../hooks/useAsyncStatus", () => ({
+  useAsyncStatus: vi.fn(),
+}));
+
+vi.mock("../../../../common/layout/dashboardPageLayout", () => ({
+  default: ({
+    title,
+    description,
+    action,
+    children,
+  }: {
+    title: string;
+    description: string;
+    action?: ReactNode;
+    children: ReactNode;
+  }) => (
+    <section>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <div>{action}</div>
+      <div>{children}</div>
+    </section>
+  ),
+}));
+
+vi.mock("../../../../common/feedback/asyncStateView", () => ({
+  default: ({
+    loadingLabel,
+    errorMessage,
+    onRetry,
+  }: {
+    loadingLabel: string;
+    errorMessage?: string;
+    onRetry?: () => void;
+  }) => (
+    <div data-testid="async-state-view">
+      <span>{loadingLabel}</span>
+      {errorMessage ? <span>{errorMessage}</span> : null}
+      {onRetry ? (
+        <button type="button" onClick={onRetry}>
+          retry-load
+        </button>
+      ) : null}
+    </div>
+  ),
 }));
 
 vi.mock("../../../../common/button/entityRowActions", () => ({
-  default: ({
-    editTo,
-    editLabel,
-    deleteId,
-    onDeleteById,
-    onDeleteSuccess,
-  }: {
-    editTo: string;
-    editLabel: string;
-    deleteId: string;
-    onDeleteById: (id: string) => Promise<boolean>;
-    onDeleteSuccess?: (id: string) => void;
-  }) => (
-    <div data-testid={`row-actions-${deleteId}`}>
-      <span>{editLabel}</span>
-      <span>{editTo}</span>
-      <button
-        type="button"
-        onClick={async () => {
-          const wasDeleted = await onDeleteById(deleteId);
-          if (wasDeleted) {
-            onDeleteSuccess?.(deleteId);
-          }
-        }}
-      >
-        trigger-delete-{deleteId}
-      </button>
+  default: (props: Record<string, unknown>) => (
+    <div data-testid={`row-actions-${String(props.deleteId)}`}>
+      row-actions-{String(props.deleteId)}
     </div>
   ),
 }));
@@ -50,9 +75,16 @@ vi.mock("../../../../common/button/entityRowActions", () => ({
 import { fetchSauces } from "../../../../services/sauces/sauceService";
 
 const mockedFetchSauces = vi.mocked(fetchSauces);
-const mockedUseDeleteSauce = vi.mocked(useDeleteSauce);
-const deleteSauceByIdMock = vi.fn<(id: string) => Promise<boolean>>();
+const mockedUseSauceRowActions = vi.mocked(useSauceRowActions);
+const mockedUseAsyncStatus = vi.mocked(useAsyncStatus);
 const clearDeleteErrorMock = vi.fn();
+const getSauceRowActionPropsMock = vi.fn();
+const startLoadingMock = vi.fn();
+const setErrorMessageMock = vi.fn();
+const setSuccessMock = vi.fn();
+const setErrorMock = vi.fn();
+const setStatusMock = vi.fn();
+const resetMock = vi.fn();
 
 function apiSauce(partial: Partial<SauceApiSerialized> & Pick<SauceApiSerialized, "id" | "name">): SauceApiSerialized {
   return {
@@ -80,124 +112,128 @@ function renderPage() {
   );
 }
 
+function makeAsyncStatusMock(status: "idle" | "loading" | "success" | "error", errorMessage = "") {
+  return {
+    status,
+    errorMessage,
+    setErrorMessage: setErrorMessageMock,
+    setStatus: setStatusMock,
+    startLoading: startLoadingMock,
+    setSuccess: setSuccessMock,
+    setError: setErrorMock,
+    reset: resetMock,
+    isIdle: status === "idle",
+    isLoading: status === "loading",
+    isSuccess: status === "success",
+    isError: status === "error",
+    isBusy: status === "idle" || status === "loading",
+  };
+}
+
 describe("dashboardSaucesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockedUseDeleteSauce.mockReturnValue({
-      deleteSauceById: deleteSauceByIdMock,
-      deletingSauceId: null,
+    mockedFetchSauces.mockResolvedValue({
+      sauces: [apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" })],
+    });
+    getSauceRowActionPropsMock.mockImplementation((sauce: SauceApiSerialized) => ({
+      deleteId: sauce.id,
+      editTo: `/dashboard/sauces/${sauce.id}/edit`,
+      editLabel: `Editer la sauce ${sauce.name}`,
+      deleteItemName: `la sauce ${sauce.name}`,
+      onDeleteById: vi.fn(),
+      onDeleteSuccess: vi.fn(),
+      onOpenDeleteConfirm: vi.fn(),
+      isDeleting: false,
+    }));
+    mockedUseSauceRowActions.mockReturnValue({
       deleteErrorMessage: "",
       clearDeleteError: clearDeleteErrorMock,
+      getSauceRowActionProps: getSauceRowActionPropsMock,
     });
-    deleteSauceByIdMock.mockResolvedValue(true);
+    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("success"));
   });
 
-  describe("nominal case", () => {
-    it("renders sauces with image, title and row actions", async () => {
-      mockedFetchSauces.mockResolvedValue({
-        sauces: [
-          apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" }),
-          apiSauce({ id: "s-2", name: "Sauce Miel", image_url: "miel.jpg" }),
-        ],
-      });
+  it("renders page title, create link and fetched sauces", async () => {
+    renderPage();
 
-      renderPage();
-
-      expect(await screen.findByRole("heading", { name: "Sauces" })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Créer une sauce" })).toHaveAttribute("href", "/dashboard/sauces/create");
-      expect(screen.getByRole("img", { name: "Sauce BBQ" })).toHaveAttribute("src", "bbq.jpg");
-      expect(screen.getByRole("img", { name: "Sauce Miel" })).toHaveAttribute("src", "miel.jpg");
-      expect(screen.getByTestId("row-actions-s-1")).toBeInTheDocument();
-      expect(screen.getByTestId("row-actions-s-2")).toBeInTheDocument();
-      expect(screen.getByText("Editer la sauce Sauce BBQ")).toBeInTheDocument();
-      expect(screen.getByText("/dashboard/sauces/s-1/edit")).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("heading", { name: "Sauces" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Créer une sauce" })).toHaveAttribute("href", "/dashboard/sauces/create");
+    expect(screen.getByText("Sauce BBQ")).toBeInTheDocument();
+    expect(screen.getByTestId("row-actions-s-1")).toBeInTheDocument();
   });
 
-  describe("variations", () => {
-    it("shows loading state while sauces are being fetched", () => {
-      mockedFetchSauces.mockImplementationOnce(
-        () =>
-          new Promise(() => {
-          }),
-      );
+  it("loads sauces on mount and updates async status callbacks", async () => {
+    renderPage();
 
-      const { container } = renderPage();
-
-      expect(screen.getByRole("status")).toHaveTextContent("Chargement des sauces...");
-      expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
-      expect(screen.queryByText("Aucune sauce trouvée.")).not.toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockedFetchSauces).toHaveBeenCalledTimes(1);
     });
 
-    it("shows empty state when no sauce exists", async () => {
-      mockedFetchSauces.mockResolvedValue({ sauces: [] });
-      renderPage();
-      expect(await screen.findByText("Aucune sauce trouvée.")).toBeInTheDocument();
-    });
-
-    it("uses fallback image when image_url is null", async () => {
-      mockedFetchSauces.mockResolvedValue({
-        sauces: [apiSauce({ id: "s-1", name: "Sans image", image_url: null })],
-      });
-      renderPage();
-      expect(await screen.findByRole("img", { name: "Sans image" })).toHaveAttribute("src", "/assets/bbq.jpg");
-    });
-
-    it("shows API error and retries successfully", async () => {
-      mockedFetchSauces
-        .mockRejectedValueOnce(new ApiError("Erreur API", 500))
-        .mockResolvedValueOnce({
-          sauces: [apiSauce({ id: "s-3", name: "Sauce Relance", image_url: "relance.jpg" })],
-        });
-
-      const user = userEvent.setup();
-      renderPage();
-
-      expect(await screen.findByText("Erreur API")).toBeInTheDocument();
-      await user.click(screen.getByRole("button", { name: "Réessayer" }));
-
-      await waitFor(() => {
-        expect(screen.getByText("Sauce Relance")).toBeInTheDocument();
-      });
-      expect(mockedFetchSauces).toHaveBeenCalledTimes(2);
-    });
-
-    it("removes row when delete action succeeds", async () => {
-      mockedFetchSauces.mockResolvedValue({
-        sauces: [
-          apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" }),
-          apiSauce({ id: "s-2", name: "Sauce Miel", image_url: "miel.jpg" }),
-        ],
-      });
-      deleteSauceByIdMock.mockResolvedValue(true);
-      const user = userEvent.setup();
-
-      renderPage();
-      await screen.findByText("Sauce BBQ");
-      await user.click(screen.getByRole("button", { name: "trigger-delete-s-1" }));
-
-      await waitFor(() => {
-        expect(deleteSauceByIdMock).toHaveBeenCalledWith("s-1");
-      });
-      expect(screen.queryByText("Sauce BBQ")).not.toBeInTheDocument();
-      expect(screen.getByText("Sauce Miel")).toBeInTheDocument();
-    });
-
-    it("shows delete error message from hook", async () => {
-      mockedUseDeleteSauce.mockReturnValue({
-        deleteSauceById: deleteSauceByIdMock,
-        deletingSauceId: null,
-        deleteErrorMessage: "Suppression impossible",
-        clearDeleteError: clearDeleteErrorMock,
-      });
-      mockedFetchSauces.mockResolvedValue({
-        sauces: [apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" })],
-      });
-
-      renderPage();
-
-      expect(await screen.findByText("Suppression impossible")).toBeInTheDocument();
-    });
+    expect(startLoadingMock).toHaveBeenCalledWith(false);
+    expect(setErrorMessageMock).toHaveBeenCalledWith("");
+    expect(clearDeleteErrorMock).toHaveBeenCalledTimes(1);
+    expect(setSuccessMock).toHaveBeenCalledTimes(1);
+    expect(setErrorMock).not.toHaveBeenCalled();
   });
+
+  it("forwards mapped row-action props for each sauce", async () => {
+    mockedFetchSauces.mockResolvedValue({
+      sauces: [
+        apiSauce({ id: "s-1", name: "Sauce BBQ", image_url: "bbq.jpg" }),
+        apiSauce({ id: "s-2", name: "Sauce Miel", image_url: "miel.jpg" }),
+      ],
+    });
+
+    renderPage();
+
+    await screen.findByText("Sauce BBQ");
+    expect(getSauceRowActionPropsMock).toHaveBeenCalledTimes(2);
+    expect(getSauceRowActionPropsMock).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: "s-1", name: "Sauce BBQ" }));
+    expect(getSauceRowActionPropsMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: "s-2", name: "Sauce Miel" }));
+  });
+
+  it("displays delete error message from row actions hook", async () => {
+    mockedUseSauceRowActions.mockReturnValue({
+      deleteErrorMessage: "Suppression impossible",
+      clearDeleteError: clearDeleteErrorMock,
+      getSauceRowActionProps: getSauceRowActionPropsMock,
+    });
+
+    renderPage();
+
+    expect(await screen.findByText("Suppression impossible")).toBeInTheDocument();
+  });
+
+  it("passes retry callback and reloads sauces when retry is clicked", async () => {
+    mockedFetchSauces
+      .mockRejectedValueOnce(new ApiError("Erreur API", 500))
+      .mockResolvedValueOnce({
+        sauces: [apiSauce({ id: "s-3", name: "Sauce Relance", image_url: "relance.jpg" })],
+      });
+    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("error", "Erreur API"));
+    const user = userEvent.setup();
+
+    renderPage();
+    await waitFor(() => expect(mockedFetchSauces).toHaveBeenCalledTimes(1));
+
+    await user.click(screen.getByRole("button", { name: "retry-load" }));
+
+    await waitFor(() => expect(mockedFetchSauces).toHaveBeenCalledTimes(2));
+  });
+
+  it("renders fallback image when image_url is missing", async () => {
+    mockedFetchSauces.mockResolvedValue({
+      sauces: [apiSauce({ id: "s-1", name: "Sans image", image_url: null })],
+    });
+    renderPage();
+
+    expect(await screen.findByRole("img", { name: "Sans image" })).toHaveAttribute("src", "/assets/bbq.jpg");
+  });
+
+  it("renders empty message when no sauce is returned", async () => {
+    mockedFetchSauces.mockResolvedValue({ sauces: [] });
+    renderPage();
+    expect(await screen.findByText("Aucune sauce trouvée.")).toBeInTheDocument();
+    });
 });

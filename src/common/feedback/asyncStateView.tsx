@@ -1,4 +1,5 @@
 import Button from "../button/button";
+import { UI_LABELS } from "../constants/uiLabels";
 
 type AsyncStateViewProps = {
   isLoading: boolean;
@@ -11,7 +12,16 @@ type AsyncStateViewProps = {
   minHeightClass?: string;
 };
 
-function AsyncStateView({ isLoading, isError, loadingLabel, errorMessage, emptyMessage, onRetry, retryLabel = "Réessayer", minHeightClass }: AsyncStateViewProps) {
+function AsyncStateView({
+  isLoading,
+  isError,
+  loadingLabel,
+  errorMessage,
+  emptyMessage,
+  onRetry,
+  retryLabel = UI_LABELS.RETRY,
+  minHeightClass,
+}: AsyncStateViewProps) {
   if (isLoading) {
     return (
       <div className={minHeightClass}>

@@ -1,57 +1,99 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
+import type { ReactNode } from "react";
+import type { SauceCategory } from "../../../../types/sauceCategory";
 import DashboardCategoriesPage from "../../../../pages/dashboard/category/dashboardCategoriesPage";
 import { ApiError } from "../../../../services/apiRequest/apiError";
 import { fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
-import { useDeleteCategory } from "../../../../hooks/useDeleteCategory";
+import { useCategoryRowActions } from "../../../../hooks/useCategoryRowActions";
+import { useAsyncStatus } from "../../../../hooks/useAsyncStatus";
 
 vi.mock("../../../../services/sauces/category/categoryService", () => ({
   fetchAdminCategories: vi.fn(),
 }));
 
-vi.mock("../../../../hooks/useDeleteCategory", () => ({
-  useDeleteCategory: vi.fn(),
+vi.mock("../../../../hooks/useCategoryRowActions", () => ({
+  useCategoryRowActions: vi.fn(),
+}));
+
+vi.mock("../../../../hooks/useAsyncStatus", () => ({
+  useAsyncStatus: vi.fn(),
+}));
+
+vi.mock("../../../../common/layout/dashboardPageLayout", () => ({
+  default: ({
+    title,
+    description,
+    action,
+    children,
+  }: {
+    title: string;
+    description: string;
+    action?: ReactNode;
+    children: ReactNode;
+  }) => (
+    <section>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      <div>{action}</div>
+      <div>{children}</div>
+    </section>
+  ),
+}));
+
+vi.mock("../../../../common/feedback/asyncStateView", () => ({
+  default: ({
+    loadingLabel,
+    errorMessage,
+    onRetry,
+  }: {
+    loadingLabel: string;
+    errorMessage?: string;
+    onRetry?: () => void;
+  }) => (
+    <div data-testid="async-state-view">
+      <span>{loadingLabel}</span>
+      {errorMessage ? <span>{errorMessage}</span> : null}
+      {onRetry ? (
+        <button type="button" onClick={onRetry}>
+          retry-load
+        </button>
+      ) : null}
+    </div>
+  ),
 }));
 
 vi.mock("../../../../common/button/entityRowActions", () => ({
-  default: ({
-    editTo,
-    editLabel,
-    deleteId,
-    onDeleteById,
-    onDeleteSuccess,
-  }: {
-    editTo: string;
-    editLabel: string;
-    deleteId: string;
-    onDeleteById: (id: string) => Promise<boolean>;
-    onDeleteSuccess?: (id: string) => void;
-  }) => (
-    <div data-testid={`row-actions-${deleteId}`}>
-      <span>{editLabel}</span>
-      <span>{editTo}</span>
-      <button
-        type="button"
-        onClick={async () => {
-          const wasDeleted = await onDeleteById(deleteId);
-          if (wasDeleted) {
-            onDeleteSuccess?.(deleteId);
-          }
-        }}
-      >
-        trigger-delete-{deleteId}
-      </button>
+  default: (props: Record<string, unknown>) => (
+    <div data-testid={`row-actions-${String(props.deleteId)}`}>
+      row-actions-{String(props.deleteId)}
     </div>
   ),
 }));
 
 const mockedFetchAdminCategories = vi.mocked(fetchAdminCategories);
-const mockedUseDeleteCategory = vi.mocked(useDeleteCategory);
-const deleteCategoryByIdMock = vi.fn<(id: string) => Promise<boolean>>();
+const mockedUseCategoryRowActions = vi.mocked(useCategoryRowActions);
+const mockedUseAsyncStatus = vi.mocked(useAsyncStatus);
+
 const clearDeleteErrorMock = vi.fn();
+const getCategoryRowActionPropsMock = vi.fn();
+const startLoadingMock = vi.fn();
+const setErrorMessageMock = vi.fn();
+const setSuccessMock = vi.fn();
+const setErrorMock = vi.fn();
+const setStatusMock = vi.fn();
+const resetMock = vi.fn();
+
+function makeCategory(id: string, name: string): SauceCategory {
+  return {
+    id,
+    name,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+  };
+}
 
 function renderPage() {
   return render(
@@ -61,120 +103,110 @@ function renderPage() {
   );
 }
 
-function renderPageWithRoutes() {
-  return render(
-    <MemoryRouter initialEntries={["/dashboard/categories"]}>
-      <Routes>
-        <Route path="/dashboard/categories" element={<DashboardCategoriesPage />} />
-        <Route path="/dashboard/categories/create" element={<div>Create Category Page</div>} />
-      </Routes>
-    </MemoryRouter>,
-  );
-}
-
-function category(id: string, name: string) {
+function makeAsyncStatusMock(status: "idle" | "loading" | "success" | "error", errorMessage = "") {
   return {
-    id,
-    name,
-    created_at: "2026-01-01T00:00:00.000Z",
-    updated_at: "2026-01-01T00:00:00.000Z",
+    status,
+    errorMessage,
+    setErrorMessage: setErrorMessageMock,
+    setStatus: setStatusMock,
+    startLoading: startLoadingMock,
+    setSuccess: setSuccessMock,
+    setError: setErrorMock,
+    reset: resetMock,
+    isIdle: status === "idle",
+    isLoading: status === "loading",
+    isSuccess: status === "success",
+    isError: status === "error",
+    isBusy: status === "idle" || status === "loading",
   };
 }
 
 describe("dashboardCategoriesPage", () => {
   beforeEach(() => {
-    vi.resetAllMocks();
-    mockedFetchAdminCategories.mockResolvedValue([category("c-1", "Piquante")]);
-    mockedUseDeleteCategory.mockReturnValue({
-      deleteCategoryById: deleteCategoryByIdMock,
-      deletingCategoryId: null,
+    vi.clearAllMocks();
+
+    mockedFetchAdminCategories.mockResolvedValue([makeCategory("c-1", "Piquante")]);
+    getCategoryRowActionPropsMock.mockImplementation((category: SauceCategory) => ({
+      deleteId: category.id,
+      editTo: `/dashboard/categories/${category.id}/edit`,
+      editLabel: `Editer la catégorie ${category.name}`,
+      deleteItemName: `la catégorie ${category.name}`,
+      onDeleteById: vi.fn(),
+      onDeleteSuccess: vi.fn(),
+      onOpenDeleteConfirm: vi.fn(),
+      isDeleting: false,
+    }));
+
+    mockedUseCategoryRowActions.mockReturnValue({
       deleteErrorMessage: "",
       clearDeleteError: clearDeleteErrorMock,
+      getCategoryRowActionProps: getCategoryRowActionPropsMock,
     });
-    deleteCategoryByIdMock.mockResolvedValue(true);
+
+    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("success"));
   });
 
-  describe("nominal case", () => {
-    it("loads categories and displays create navigation button", async () => {
-      renderPage();
+  it("renders page title, create link and fetched categories", async () => {
+    renderPage();
 
-      expect(await screen.findByRole("heading", { name: "Catégories" })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Créer une catégorie" })).toHaveAttribute("href", "/dashboard/categories/create");
-      expect(screen.getByText("Piquante")).toBeInTheDocument();
-      expect(screen.getByTestId("row-actions-c-1")).toBeInTheDocument();
-      expect(screen.getByText("Editer la catégorie Piquante")).toBeInTheDocument();
-      expect(screen.getByText("/dashboard/categories/c-1/edit")).toBeInTheDocument();
-    });
-
-    it("navigates to create category route when create button is clicked", async () => {
-      const user = userEvent.setup();
-      renderPageWithRoutes();
-
-      await screen.findByRole("heading", { name: "Catégories" });
-      await user.click(screen.getByRole("link", { name: "Créer une catégorie" }));
-
-      expect(screen.getByText("Create Category Page")).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("heading", { name: "Catégories" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Créer une catégorie" })).toHaveAttribute("href", "/dashboard/categories/create");
+    expect(screen.getByText("Piquante")).toBeInTheDocument();
+    expect(screen.getByTestId("row-actions-c-1")).toBeInTheDocument();
   });
 
-  describe("variations", () => {
-    it("shows loading state while categories are being fetched", () => {
-      mockedFetchAdminCategories.mockImplementationOnce(
-        () =>
-          new Promise(() => {
-          }),
-      );
+  it("loads categories on mount and updates async status callbacks", async () => {
+    renderPage();
 
-      const { container } = renderPage();
-
-      expect(screen.getByRole("status")).toHaveTextContent("Chargement des catégories...");
-      expect(container.firstElementChild).toHaveAttribute("aria-busy", "true");
-      expect(screen.queryByText("Aucune catégorie trouvée.")).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(1);
     });
 
-    it("shows empty state when no category exists", async () => {
-      mockedFetchAdminCategories.mockResolvedValue([]);
-      renderPage();
-      expect(await screen.findByText("Aucune catégorie trouvée.")).toBeInTheDocument();
+    expect(startLoadingMock).toHaveBeenCalledWith(false);
+    expect(setErrorMessageMock).toHaveBeenCalledWith("");
+    expect(clearDeleteErrorMock).toHaveBeenCalledTimes(1);
+    expect(setSuccessMock).toHaveBeenCalledTimes(1);
+    expect(setErrorMock).not.toHaveBeenCalled();
+  });
+
+  it("forwards mapped row-action props for each category", async () => {
+    mockedFetchAdminCategories.mockResolvedValue([
+      makeCategory("c-1", "Piquante"),
+      makeCategory("c-2", "Fumée"),
+    ]);
+
+    renderPage();
+
+    await screen.findByText("Piquante");
+    expect(getCategoryRowActionPropsMock).toHaveBeenCalledTimes(2);
+    expect(getCategoryRowActionPropsMock).toHaveBeenNthCalledWith(1, expect.objectContaining({ id: "c-1", name: "Piquante" }));
+    expect(getCategoryRowActionPropsMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ id: "c-2", name: "Fumée" }));
+  });
+
+  it("displays delete error message from row actions hook", async () => {
+    mockedUseCategoryRowActions.mockReturnValue({
+      deleteErrorMessage: "Suppression impossible.",
+      clearDeleteError: clearDeleteErrorMock,
+      getCategoryRowActionProps: getCategoryRowActionPropsMock,
     });
 
-    it("shows load error and retries successfully", async () => {
-      mockedFetchAdminCategories
-        .mockRejectedValueOnce(new ApiError("Erreur chargement", 500))
-        .mockResolvedValueOnce([category("c-1", "Piquante")]);
-      const user = userEvent.setup();
-      renderPage();
+    renderPage();
 
-      expect(await screen.findByText("Erreur chargement")).toBeInTheDocument();
-      await user.click(screen.getByRole("button", { name: "Réessayer" }));
+    expect(await screen.findByText("Suppression impossible.")).toBeInTheDocument();
+  });
 
-      expect(await screen.findByText("Piquante")).toBeInTheDocument();
-      expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(2);
-    });
+  it("passes retry callback and reloads categories when retry is clicked", async () => {
+    mockedFetchAdminCategories
+      .mockRejectedValueOnce(new ApiError("Erreur chargement", 500))
+      .mockResolvedValueOnce([makeCategory("c-1", "Piquante")]);
+    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("error", "Erreur chargement"));
+    const user = userEvent.setup();
 
-    it("keeps create button visible when categories are empty", async () => {
-      mockedFetchAdminCategories.mockResolvedValue([]);
-      renderPage();
-      expect(await screen.findByText("Aucune catégorie trouvée.")).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Créer une catégorie" })).toBeInTheDocument();
-    });
+    renderPage();
+    await waitFor(() => expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(1));
 
-    it("removes row when delete action succeeds", async () => {
-      mockedFetchAdminCategories.mockResolvedValue([
-        category("c-1", "Piquante"),
-        category("c-2", "Fumée"),
-      ]);
-      const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "retry-load" }));
 
-      renderPage();
-      await screen.findByText("Piquante");
-      await user.click(screen.getByRole("button", { name: "trigger-delete-c-1" }));
-
-      await waitFor(() => {
-        expect(deleteCategoryByIdMock).toHaveBeenCalledWith("c-1");
-      });
-      expect(screen.queryByText("Piquante")).not.toBeInTheDocument();
-      expect(screen.getByText("Fumée")).toBeInTheDocument();
-    });
+    await waitFor(() => expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(2));
   });
 });

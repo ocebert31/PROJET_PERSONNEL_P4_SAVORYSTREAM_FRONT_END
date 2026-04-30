@@ -6,14 +6,14 @@ import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
 import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import { fetchAdminCategories } from "../../../services/sauces/category/categoryService";
 import type { SauceCategory } from "../../../types/sauceCategory";
-import { useDeleteCategory } from "../../../hooks/useDeleteCategory";
+import { useCategoryRowActions } from "../../../hooks/useCategoryRowActions";
 import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 function DashboardCategoriesPage() {
   const [categories, setCategories] = useState<SauceCategory[]>([]);
   const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
-  const { deleteCategoryById, deletingCategoryId, deleteErrorMessage, clearDeleteError } = useDeleteCategory();
+  const { deleteErrorMessage, clearDeleteError, getCategoryRowActionProps } = useCategoryRowActions(setCategories);
 
   const loadCategories = useCallback(async () => {
     startLoading(false);
@@ -53,12 +53,7 @@ function DashboardCategoriesPage() {
               {categories.map((category) => (
                 <li key={category.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface px-4 py-3 text-sm text-foreground">
                   <span className="flex-1">{category.name}</span>
-                  <EntityRowActions editTo={`/dashboard/categories/${category.id}/edit`} editLabel={`Editer la catégorie ${category.name}`}
-                    deleteItemName={`la catégorie ${category.name}`} deleteId={category.id} onDeleteById={deleteCategoryById}
-                    onDeleteSuccess={(deletedId) =>
-                      setCategories((currentCategories) => currentCategories.filter((item) => item.id !== deletedId))
-                    } onOpenDeleteConfirm={clearDeleteError} isDeleting={deletingCategoryId === category.id}
-                  />
+                  <EntityRowActions {...getCategoryRowActionProps(category)} />
                 </li>
               ))}
             </ul>

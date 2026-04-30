@@ -6,14 +6,14 @@ import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import EntityRowActions from "../../../common/button/entityRowActions";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
-import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
+import { useSauceRowActions } from "../../../hooks/useSauceRowActions";
 import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
 function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
   const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
-  const { deleteSauceById, deletingSauceId, deleteErrorMessage, clearDeleteError } = useDeleteSauce();
+  const { deleteErrorMessage, clearDeleteError, getSauceRowActionProps } = useSauceRowActions(setSauces);
 
   const loadSauces = useCallback(async () => {
     startLoading(false);
@@ -53,13 +53,7 @@ function DashboardSaucesPage() {
               <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
                 <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
                 <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
-                <EntityRowActions editTo={`/dashboard/sauces/${sauce.id}/edit`} editLabel={`Editer la sauce ${sauce.name}`}
-                  deleteItemName={`la sauce ${sauce.name}`} deleteId={sauce.id}
-                  onDeleteById={deleteSauceById}
-                  onDeleteSuccess={(deletedId) =>
-                    setSauces((currentSauces) => currentSauces.filter((item) => item.id !== deletedId))
-                  }
-                  onOpenDeleteConfirm={clearDeleteError} isDeleting={deletingSauceId === sauce.id}/>
+                <EntityRowActions {...getSauceRowActionProps(sauce)} />
               </article>
             ))
           )}
