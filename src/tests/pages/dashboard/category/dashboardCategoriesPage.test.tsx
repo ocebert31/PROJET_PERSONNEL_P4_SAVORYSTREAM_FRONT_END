@@ -8,7 +8,6 @@ import DashboardCategoriesPage from "../../../../pages/dashboard/category/dashbo
 import { ApiError } from "../../../../services/apiRequest/apiError";
 import { fetchAdminCategories } from "../../../../services/sauces/category/categoryService";
 import { useCategoryRowActions } from "../../../../hooks/useCategoryRowActions";
-import { useAsyncStatus } from "../../../../hooks/useAsyncStatus";
 
 vi.mock("../../../../services/sauces/category/categoryService", () => ({
   fetchAdminCategories: vi.fn(),
@@ -16,10 +15,6 @@ vi.mock("../../../../services/sauces/category/categoryService", () => ({
 
 vi.mock("../../../../hooks/useCategoryRowActions", () => ({
   useCategoryRowActions: vi.fn(),
-}));
-
-vi.mock("../../../../hooks/useAsyncStatus", () => ({
-  useAsyncStatus: vi.fn(),
 }));
 
 vi.mock("../../../../common/layout/dashboardPageLayout", () => ({
@@ -75,16 +70,9 @@ vi.mock("../../../../common/button/entityRowActions", () => ({
 
 const mockedFetchAdminCategories = vi.mocked(fetchAdminCategories);
 const mockedUseCategoryRowActions = vi.mocked(useCategoryRowActions);
-const mockedUseAsyncStatus = vi.mocked(useAsyncStatus);
 
 const clearDeleteErrorMock = vi.fn();
 const getCategoryRowActionPropsMock = vi.fn();
-const startLoadingMock = vi.fn();
-const setErrorMessageMock = vi.fn();
-const setSuccessMock = vi.fn();
-const setErrorMock = vi.fn();
-const setStatusMock = vi.fn();
-const resetMock = vi.fn();
 
 function makeCategory(id: string, name: string): SauceCategory {
   return {
@@ -101,24 +89,6 @@ function renderPage() {
       <DashboardCategoriesPage />
     </MemoryRouter>,
   );
-}
-
-function makeAsyncStatusMock(status: "idle" | "loading" | "success" | "error", errorMessage = "") {
-  return {
-    status,
-    errorMessage,
-    setErrorMessage: setErrorMessageMock,
-    setStatus: setStatusMock,
-    startLoading: startLoadingMock,
-    setSuccess: setSuccessMock,
-    setError: setErrorMock,
-    reset: resetMock,
-    isIdle: status === "idle",
-    isLoading: status === "loading",
-    isSuccess: status === "success",
-    isError: status === "error",
-    isBusy: status === "idle" || status === "loading",
-  };
 }
 
 describe("dashboardCategoriesPage", () => {
@@ -142,8 +112,6 @@ describe("dashboardCategoriesPage", () => {
       clearDeleteError: clearDeleteErrorMock,
       getCategoryRowActionProps: getCategoryRowActionPropsMock,
     });
-
-    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("success"));
   });
 
   it("renders page title, create link and fetched categories", async () => {
@@ -151,22 +119,19 @@ describe("dashboardCategoriesPage", () => {
 
     expect(await screen.findByRole("heading", { name: "Catégories" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Créer une catégorie" })).toHaveAttribute("href", "/dashboard/categories/create");
+    expect(screen.getByRole("heading", { name: "Liste des catégories", level: 2 })).toBeInTheDocument();
     expect(screen.getByText("Piquante")).toBeInTheDocument();
     expect(screen.getByTestId("row-actions-c-1")).toBeInTheDocument();
   });
 
-  it("loads categories on mount and updates async status callbacks", async () => {
+  it("loads categories on mount", async () => {
     renderPage();
 
     await waitFor(() => {
       expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(1);
     });
 
-    expect(startLoadingMock).toHaveBeenCalledWith(false);
-    expect(setErrorMessageMock).toHaveBeenCalledWith("");
     expect(clearDeleteErrorMock).toHaveBeenCalledTimes(1);
-    expect(setSuccessMock).toHaveBeenCalledTimes(1);
-    expect(setErrorMock).not.toHaveBeenCalled();
   });
 
   it("forwards mapped row-action props for each category", async () => {
@@ -199,7 +164,6 @@ describe("dashboardCategoriesPage", () => {
     mockedFetchAdminCategories
       .mockRejectedValueOnce(new ApiError("Erreur chargement", 500))
       .mockResolvedValueOnce([makeCategory("c-1", "Piquante")]);
-    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("error", "Erreur chargement"));
     const user = userEvent.setup();
 
     renderPage();
@@ -208,5 +172,13 @@ describe("dashboardCategoriesPage", () => {
     await user.click(screen.getByRole("button", { name: "retry-load" }));
 
     await waitFor(() => expect(mockedFetchAdminCategories).toHaveBeenCalledTimes(2));
+  });
+
+  it("renders empty message when no category is returned", async () => {
+    mockedFetchAdminCategories.mockResolvedValue([]);
+
+    renderPage();
+
+    expect(await screen.findByText("Aucune catégorie trouvée.")).toBeInTheDocument();
   });
 });

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import AsyncStateView from "../../../common/feedback/asyncStateView";
 import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardEntityListSection from "../../../common/section/dashboardEntityListSection";
 import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import EntityRowActions from "../../../common/button/entityRowActions";
 import { fetchSauces } from "../../../services/sauces/sauceService";
@@ -45,19 +46,15 @@ function DashboardSaucesPage() {
         <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>
       ) : null}
       {isSuccess ? (
-        <div className="mt-8 space-y-3">
-          {sauces.length === 0 ? (
-            <p className="text-body-sm text-muted">Aucune sauce trouvée.</p>
-          ) : (
-            sauces.map((sauce) => (
-              <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
-                <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
-                <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
-                <EntityRowActions {...getSauceRowActionProps(sauce)} />
-              </article>
-            ))
+        <DashboardEntityListSection items={sauces} emptyMessage="Aucune sauce trouvée." sectionClassName="mt-8" listClassName="space-y-3"
+          renderItem={(sauce) => (
+            <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
+              <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
+              <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
+              <EntityRowActions {...getSauceRowActionProps(sauce)} />
+            </article>
           )}
-        </div>
+        />
       ) : null}
     </DashboardPageLayout>
   );

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import EntityRowActions from "../../../common/button/entityRowActions";
 import AsyncStateView from "../../../common/feedback/asyncStateView";
 import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardEntityListSection from "../../../common/section/dashboardEntityListSection";
 import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import { fetchAdminCategories } from "../../../services/sauces/category/categoryService";
 import type { SauceCategory } from "../../../types/sauceCategory";
@@ -44,21 +45,15 @@ function DashboardCategoriesPage() {
         <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>
       ) : null}
       {isSuccess ? (
-        <div className="mt-8">
-          <h2 className="text-label text-foreground">Liste des catégories</h2>
-          {categories.length === 0 ? (
-            <p className="text-body-sm mt-2 text-muted">Aucune catégorie trouvée.</p>
-          ) : (
-            <ul className="mt-3 space-y-2">
-              {categories.map((category) => (
-                <li key={category.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface px-4 py-3 text-sm text-foreground">
-                  <span className="flex-1">{category.name}</span>
-                  <EntityRowActions {...getCategoryRowActionProps(category)} />
-                </li>
-              ))}
-            </ul>
+        <DashboardEntityListSection items={categories} sectionTitle="Liste des catégories" emptyMessage="Aucune catégorie trouvée." sectionClassName="mt-8" emptyMessageClassName="text-body-sm mt-2 text-muted"
+          renderItem={(category) => (
+            <div key={category.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface px-4 py-3 text-sm text-foreground">
+              <span className="flex-1">{category.name}</span>
+              <EntityRowActions {...getCategoryRowActionProps(category)} />
+            </div>
           )}
-        </div>
+          listClassName="mt-3 space-y-2"
+        />
       ) : null}
     </DashboardPageLayout>
   );

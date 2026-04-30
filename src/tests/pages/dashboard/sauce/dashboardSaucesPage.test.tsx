@@ -7,7 +7,6 @@ import DashboardSaucesPage from "../../../../pages/dashboard/sauce/dashboardSauc
 import { ApiError } from "../../../../services/apiRequest/apiError";
 import type { SauceApiSerialized } from "../../../../types/sauce";
 import { useSauceRowActions } from "../../../../hooks/useSauceRowActions";
-import { useAsyncStatus } from "../../../../hooks/useAsyncStatus";
 
 vi.mock("../../../../services/sauces/sauceService", () => ({
   fetchSauces: vi.fn(),
@@ -15,10 +14,6 @@ vi.mock("../../../../services/sauces/sauceService", () => ({
 
 vi.mock("../../../../hooks/useSauceRowActions", () => ({
   useSauceRowActions: vi.fn(),
-}));
-
-vi.mock("../../../../hooks/useAsyncStatus", () => ({
-  useAsyncStatus: vi.fn(),
 }));
 
 vi.mock("../../../../common/layout/dashboardPageLayout", () => ({
@@ -76,15 +71,8 @@ import { fetchSauces } from "../../../../services/sauces/sauceService";
 
 const mockedFetchSauces = vi.mocked(fetchSauces);
 const mockedUseSauceRowActions = vi.mocked(useSauceRowActions);
-const mockedUseAsyncStatus = vi.mocked(useAsyncStatus);
 const clearDeleteErrorMock = vi.fn();
 const getSauceRowActionPropsMock = vi.fn();
-const startLoadingMock = vi.fn();
-const setErrorMessageMock = vi.fn();
-const setSuccessMock = vi.fn();
-const setErrorMock = vi.fn();
-const setStatusMock = vi.fn();
-const resetMock = vi.fn();
 
 function apiSauce(partial: Partial<SauceApiSerialized> & Pick<SauceApiSerialized, "id" | "name">): SauceApiSerialized {
   return {
@@ -112,24 +100,6 @@ function renderPage() {
   );
 }
 
-function makeAsyncStatusMock(status: "idle" | "loading" | "success" | "error", errorMessage = "") {
-  return {
-    status,
-    errorMessage,
-    setErrorMessage: setErrorMessageMock,
-    setStatus: setStatusMock,
-    startLoading: startLoadingMock,
-    setSuccess: setSuccessMock,
-    setError: setErrorMock,
-    reset: resetMock,
-    isIdle: status === "idle",
-    isLoading: status === "loading",
-    isSuccess: status === "success",
-    isError: status === "error",
-    isBusy: status === "idle" || status === "loading",
-  };
-}
-
 describe("dashboardSaucesPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -151,7 +121,6 @@ describe("dashboardSaucesPage", () => {
       clearDeleteError: clearDeleteErrorMock,
       getSauceRowActionProps: getSauceRowActionPropsMock,
     });
-    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("success"));
   });
 
   it("renders page title, create link and fetched sauces", async () => {
@@ -163,18 +132,14 @@ describe("dashboardSaucesPage", () => {
     expect(screen.getByTestId("row-actions-s-1")).toBeInTheDocument();
   });
 
-  it("loads sauces on mount and updates async status callbacks", async () => {
+  it("loads sauces on mount", async () => {
     renderPage();
 
     await waitFor(() => {
       expect(mockedFetchSauces).toHaveBeenCalledTimes(1);
     });
 
-    expect(startLoadingMock).toHaveBeenCalledWith(false);
-    expect(setErrorMessageMock).toHaveBeenCalledWith("");
     expect(clearDeleteErrorMock).toHaveBeenCalledTimes(1);
-    expect(setSuccessMock).toHaveBeenCalledTimes(1);
-    expect(setErrorMock).not.toHaveBeenCalled();
   });
 
   it("forwards mapped row-action props for each sauce", async () => {
@@ -211,7 +176,6 @@ describe("dashboardSaucesPage", () => {
       .mockResolvedValueOnce({
         sauces: [apiSauce({ id: "s-3", name: "Sauce Relance", image_url: "relance.jpg" })],
       });
-    mockedUseAsyncStatus.mockReturnValue(makeAsyncStatusMock("error", "Erreur API"));
     const user = userEvent.setup();
 
     renderPage();
@@ -234,6 +198,8 @@ describe("dashboardSaucesPage", () => {
   it("renders empty message when no sauce is returned", async () => {
     mockedFetchSauces.mockResolvedValue({ sauces: [] });
     renderPage();
+
     expect(await screen.findByText("Aucune sauce trouvée.")).toBeInTheDocument();
-    });
+    expect(screen.queryByTestId("row-actions-s-1")).not.toBeInTheDocument();
+  });
 });
