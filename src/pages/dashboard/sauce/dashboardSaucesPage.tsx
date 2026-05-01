@@ -8,27 +8,25 @@ import EntityRowActions from "../../../common/button/entityRowActions";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
 import { useSauceRowActions } from "../../../hooks/useSauceRowActions";
-import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
+import { useDashboardEntityLoader } from "../../../hooks/useDashboardEntityLoader";
 
 function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
   const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
   const { deleteErrorMessage, clearDeleteError, getSauceRowActionProps } = useSauceRowActions(setSauces);
+  const fetchSauceItems = useCallback(async () => (await fetchSauces()).sauces, []);
 
-  const loadSauces = useCallback(async () => {
-    startLoading(false);
-    setErrorMessage("");
-    clearDeleteError();
-    try {
-      const result = await fetchSauces();
-      setSauces(result.sauces);
-      setSuccess();
-    } catch (error) {
-      setSauces([]);
-      setError(toErrorMessage(error, "Impossible de charger les sauces."));
-    }
-  }, [clearDeleteError, setError, setErrorMessage, setSuccess, startLoading]);
+  const loadSauces = useDashboardEntityLoader<SauceApiSerialized>({
+    fetchItems: fetchSauceItems,
+    setItems: setSauces,
+    clearTransientError: clearDeleteError,
+    setErrorMessage,
+    startLoading,
+    setSuccess,
+    setError,
+    errorFallbackMessage: "Impossible de charger les sauces.",
+  });
 
   useEffect(() => {
     void loadSauces();

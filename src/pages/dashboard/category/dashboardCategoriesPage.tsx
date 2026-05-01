@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import EntityRowActions from "../../../common/button/entityRowActions";
 import AsyncStateView from "../../../common/feedback/asyncStateView";
 import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
@@ -8,27 +8,24 @@ import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
 import { fetchAdminCategories } from "../../../services/sauces/category/categoryService";
 import type { SauceCategory } from "../../../types/sauceCategory";
 import { useCategoryRowActions } from "../../../hooks/useCategoryRowActions";
-import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
+import { useDashboardEntityLoader } from "../../../hooks/useDashboardEntityLoader";
 
 function DashboardCategoriesPage() {
   const [categories, setCategories] = useState<SauceCategory[]>([]);
   const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
   const { deleteErrorMessage, clearDeleteError, getCategoryRowActionProps } = useCategoryRowActions(setCategories);
 
-  const loadCategories = useCallback(async () => {
-    startLoading(false);
-    setErrorMessage("");
-    clearDeleteError();
-    try {
-      const list = await fetchAdminCategories();
-      setCategories(list);
-      setSuccess();
-    } catch (error) {
-      setCategories([]);
-      setError(toErrorMessage(error, "Impossible de charger les catégories."));
-    }
-  }, [clearDeleteError, setError, setErrorMessage, setSuccess, startLoading]);
+  const loadCategories = useDashboardEntityLoader<SauceCategory>({
+    fetchItems: fetchAdminCategories,
+    setItems: setCategories,
+    clearTransientError: clearDeleteError,
+    setErrorMessage,
+    startLoading,
+    setSuccess,
+    setError,
+    errorFallbackMessage: "Impossible de charger les catégories.",
+  });
 
   useEffect(() => {
     void loadCategories();
