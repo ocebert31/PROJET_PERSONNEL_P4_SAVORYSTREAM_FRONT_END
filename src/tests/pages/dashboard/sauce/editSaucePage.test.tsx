@@ -285,7 +285,7 @@ describe("EditSaucePage", () => {
     renderEditPage(`/dashboard/sauces/${EDIT_UUID}/edit`);
 
     expect(await screen.findByText("Service indisponible")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Reessayer/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Réessayer/i })).toBeInTheDocument();
   });
 
   it("marks a conditioning row for deletion and deletes it on global save", async () => {
@@ -414,7 +414,7 @@ describe("EditSaucePage", () => {
     expect(await screen.findByText("Service indisponible")).toBeInTheDocument();
     expect(fetchSauceMock).toHaveBeenCalledTimes(1);
 
-    await user.click(screen.getByRole("button", { name: /Reessayer/i }));
+    await user.click(screen.getByRole("button", { name: /Réessayer/i }));
 
     expect(await screen.findByDisplayValue("Sauce edition test")).toBeInTheDocument();
     await waitFor(() => {

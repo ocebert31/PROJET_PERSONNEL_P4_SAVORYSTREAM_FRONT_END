@@ -1,86 +1,60 @@
 import { useCallback, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
-import Button from "../../../common/button/button";
-import EntityRowActions from "../../../common/button/EntityRowActions";
+import AsyncStateView from "../../../common/feedback/asyncStateView";
+import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
+import DashboardCreateActionLink from "../../../common/section/dashboardCreateActionLink";
+import DashboardEntityListSection from "../../../common/section/dashboardEntityListSection";
+import DashboardPageLayout from "../../../common/layout/dashboardPageLayout";
+import EntityRowActions from "../../../common/button/entityRowActions";
 import { fetchSauces } from "../../../services/sauces/sauceService";
 import type { SauceApiSerialized } from "../../../types/sauce";
-import { useDeleteSauce } from "../../../hooks/useDeleteSauce";
-import { toErrorMessage } from "../../../utils/errorMessage";
+import { useSauceRowActions } from "../../../hooks/useSauceRowActions";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
+import { useDashboardEntityLoader } from "../../../hooks/useDashboardEntityLoader";
 
 function DashboardSaucesPage() {
   const [sauces, setSauces] = useState<SauceApiSerialized[]>([]);
   const { errorMessage, setErrorMessage, startLoading, setSuccess, setError, isBusy, isSuccess, isError } = useAsyncStatus("idle");
-  const { deleteSauceById, deletingSauceId, deleteErrorMessage, clearDeleteError } = useDeleteSauce();
+  const { deleteErrorMessage, clearDeleteError, getSauceRowActionProps } = useSauceRowActions(setSauces);
+  const fetchSauceItems = useCallback(async () => (await fetchSauces()).sauces, []);
 
-  const loadSauces = useCallback(async () => {
-    startLoading(false);
-    setErrorMessage("");
-    clearDeleteError();
-    try {
-      const result = await fetchSauces();
-      setSauces(result.sauces);
-      setSuccess();
-    } catch (error) {
-      setSauces([]);
-      setError(toErrorMessage(error, "Impossible de charger les sauces."));
-    }
-  }, [clearDeleteError, setError, setErrorMessage, setSuccess, startLoading]);
+  const loadSauces = useDashboardEntityLoader<SauceApiSerialized>({
+    fetchItems: fetchSauceItems,
+    setItems: setSauces,
+    clearTransientError: clearDeleteError,
+    setErrorMessage,
+    startLoading,
+    setSuccess,
+    setError,
+    errorFallbackMessage: "Impossible de charger les sauces.",
+  });
 
   useEffect(() => {
     void loadSauces();
   }, [loadSauces]);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 sm:py-14" aria-busy={isBusy}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-caption font-semibold uppercase tracking-wider text-primary">Administration</p>
-          <h1 className="text-heading-1 mt-2 text-foreground">Sauces</h1>
-          <p className="text-body-sm mt-3 text-muted">Gérez les sauces existantes et accédez rapidement au formulaire d'édition.</p>
-        </div>
-        <NavLink to="/dashboard/sauces/create" className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
+    <DashboardPageLayout title="Sauces" description="Gérez les sauces existantes et accédez rapidement au formulaire d'édition." isBusy={isBusy}
+      action={
+        <DashboardCreateActionLink to="/dashboard/sauces/create">
           Créer une sauce
-        </NavLink>
-      </div>
-      {isBusy ? (
-        <p role="status" className="text-body-sm mt-6 text-muted">
-          Chargement des sauces...
-        </p>
-      ) : null}
-      {isError ? (
-        <div className="mt-6">
-          <p className="text-body-sm text-destructive">{errorMessage}</p>
-          <Button variant="secondary" className="mt-3" onClick={() => void loadSauces()}>
-            Réessayer
-          </Button>
-        </div>
-      ) : null}
+        </DashboardCreateActionLink>
+      }>
+      <AsyncStateView isLoading={isBusy} isError={isError} loadingLabel="Chargement des sauces..." errorMessage={errorMessage} onRetry={() => void loadSauces()}/>
       {deleteErrorMessage ? (
-        <p className="text-body-sm mt-4 text-destructive">{deleteErrorMessage}</p>
+        <InlineErrorMessage className="mt-4">{deleteErrorMessage}</InlineErrorMessage>
       ) : null}
       {isSuccess ? (
-        <div className="mt-8 space-y-3">
-          {sauces.length === 0 ? (
-            <p className="text-body-sm text-muted">Aucune sauce trouvée.</p>
-          ) : (
-            sauces.map((sauce) => (
-              <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
-                <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
-                <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
-                <EntityRowActions editTo={`/dashboard/sauces/${sauce.id}/edit`} editLabel={`Editer la sauce ${sauce.name}`}
-                  deleteItemName={`la sauce ${sauce.name}`} deleteId={sauce.id}
-                  onDeleteById={deleteSauceById}
-                  onDeleteSuccess={(deletedId) =>
-                    setSauces((currentSauces) => currentSauces.filter((item) => item.id !== deletedId))
-                  }
-                  onOpenDeleteConfirm={clearDeleteError} isDeleting={deletingSauceId === sauce.id}/>
-              </article>
-            ))
+        <DashboardEntityListSection items={sauces} emptyMessage="Aucune sauce trouvée." sectionClassName="mt-8" listClassName="space-y-3"
+          renderItem={(sauce) => (
+            <article key={sauce.id} className="flex items-center gap-4 rounded-xl border border-border/70 bg-surface p-3">
+              <img src={sauce.image_url || "/assets/bbq.jpg"} alt={sauce.name} className="h-16 w-16 rounded-lg object-cover"/>
+              <h2 className="text-label flex-1 font-semibold text-foreground">{sauce.name}</h2>
+              <EntityRowActions {...getSauceRowActionProps(sauce)} />
+            </article>
           )}
-        </div>
+        />
       ) : null}
-    </div>
+    </DashboardPageLayout>
   );
 }
 

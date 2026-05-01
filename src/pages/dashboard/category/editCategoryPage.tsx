@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../../common/button/button";
 import InputFieldForm from "../../../common/fields/inputFieldForm";
+import AsyncStateView from "../../../common/feedback/asyncStateView";
+import InlineErrorMessage from "../../../common/feedback/inlineErrorMessage";
 import { fetchAdminCategoryById } from "../../../services/sauces/category/categoryService";
 import { useToast } from "../../../hooks/useToast";
 import { useEditCategory } from "../../../hooks/useEditCategory";
-import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 import type { CreateCategoryFormValues } from "../../../types/sauceCategory";
 import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
@@ -62,9 +64,7 @@ function EditCategoryPage() {
   if (isBusy) {
     return (
       <AdminFormPageLayout title="Edition de catégorie">
-        <p className="text-body-sm mt-4 text-muted" role="status">
-          Chargement de la catégorie...
-        </p>
+        <AsyncStateView isLoading={isBusy} isError={false} loadingLabel="Chargement de la catégorie..." minHeightClass="min-h-[20rem]"/>
       </AdminFormPageLayout>
     );
   }
@@ -72,10 +72,7 @@ function EditCategoryPage() {
   if (isError) {
     return (
       <AdminFormPageLayout title="Edition de catégorie">
-        <p className="text-body-sm mt-4 text-destructive">{loadErrorMessage}</p>
-        <Button type="button" variant="secondary" className="mt-4" onClick={() => void loadCategory()}>
-          Reessayer
-        </Button>
+        <AsyncStateView isLoading={false} isError={isError} loadingLabel="" errorMessage={loadErrorMessage} onRetry={() => void loadCategory()} minHeightClass="min-h-[20rem]"/>
       </AdminFormPageLayout>
     );
   }
@@ -83,20 +80,12 @@ function EditCategoryPage() {
   return (
     <AdminFormPageLayout title="Edition de catégorie" description="Mettez à jour le nom puis enregistrez les changements.">
       {editErrorMessage ? (
-        <p className="text-body-sm mt-4 text-destructive">{editErrorMessage}</p>
+        <InlineErrorMessage className="mt-4">{editErrorMessage}</InlineErrorMessage>
       ) : null}
       <form className="mt-8 max-w-xl space-y-4" onSubmit={onSubmit} noValidate>
-        <InputFieldForm<CreateCategoryFormValues>
-          label="Nom de la catégorie"
-          name="name"
-          htmlFor="category-name"
-          id="category-name"
-          register={register}
-          errors={errors}
-          type="text"
-          disabled={editingCategoryId === categoryId}
-          autoComplete="off"
-        />
+        <InputFieldForm<CreateCategoryFormValues> label="Nom de la catégorie" name="name"
+          htmlFor="category-name" id="category-name" register={register}
+          errors={errors} type="text" disabled={editingCategoryId === categoryId} autoComplete="off"/>
         <Button type="submit" variant="primary" disabled={editingCategoryId === categoryId}>
           {editingCategoryId === categoryId ? "Enregistrement..." : "Enregistrer la catégorie"}
         </Button>

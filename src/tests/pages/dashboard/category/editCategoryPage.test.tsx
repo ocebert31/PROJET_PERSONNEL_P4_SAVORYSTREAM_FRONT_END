@@ -120,7 +120,7 @@ describe("editCategoryPage", () => {
       renderPage();
 
       expect(await screen.findByText("Erreur chargement")).toBeInTheDocument();
-      await user.click(screen.getByRole("button", { name: "Reessayer" }));
+      await user.click(screen.getByRole("button", { name: "Réessayer" }));
 
       await waitFor(() => {
         expect(mockedFetchAdminCategoryById).toHaveBeenCalledTimes(2);

@@ -6,6 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "../../../common/button/button";
 import InputFieldForm from "../../../common/fields/inputFieldForm";
 import RequiredFieldsHint from "../../../common/fields/requiredFieldsHint";
+import AsyncStateView from "../../../common/feedback/asyncStateView";
 import { FormSection } from "../../../components/Dashboard/Sauce/FormSection";
 import { ConditioningFieldsSection } from "../../../components/Dashboard/Sauce/ConditioningFieldsSection";
 import { IngredientFieldsSection } from "../../../components/Dashboard/Sauce/IngredientFieldsSection";
@@ -20,7 +21,7 @@ import { SauceEditFormSchema, buildSauceEditFormDefaultsFromApi, emptySauceEditF
 import { buildSauceEditFormData } from "../../../mappers/buildSauceEditFormData";
 import { updateSauce } from "../../../services/sauces/sauceService";
 import { isVersionConflictApiError } from "../../../services/apiRequest/apiError";
-import AdminFormPageLayout from "../../../common/layout/AdminFormPageLayout";
+import AdminFormPageLayout from "../../../common/layout/adminFormPageLayout";
 import { toErrorMessage } from "../../../utils/errorMessage";
 import { useAsyncStatus } from "../../../hooks/useAsyncStatus";
 
@@ -115,11 +116,12 @@ function EditSaucePage() {
   if (isBusy) {
     return (
       <AdminFormPageLayout title="Edition de sauce">
-        <div className="min-h-[24rem]">
-          <p className="text-body-sm mt-4 text-muted" role="status">
-            Chargement de la sauce...
-          </p>
-        </div>
+        <AsyncStateView
+          isLoading={isBusy}
+          isError={false}
+          loadingLabel="Chargement de la sauce..."
+          minHeightClass="min-h-[24rem]"
+        />
       </AdminFormPageLayout>
     );
   }
@@ -127,12 +129,7 @@ function EditSaucePage() {
   if (isError) {
     return (
       <AdminFormPageLayout title="Edition de sauce">
-        <div className="min-h-[24rem]">
-          <p className="text-body-sm mt-4 text-destructive">{loadErrorMessage}</p>
-          <Button type="button" variant="secondary" className="mt-4" onClick={retry}>
-            Reessayer
-          </Button>
-        </div>
+        <AsyncStateView isLoading={false} isError={isError} loadingLabel="" errorMessage={loadErrorMessage} onRetry={retry} minHeightClass="min-h-[24rem]" />
       </AdminFormPageLayout>
     );
   }
@@ -140,9 +137,7 @@ function EditSaucePage() {
   if (!apiSauce) {
     return (
       <AdminFormPageLayout title="Edition de sauce">
-        <div className="min-h-[24rem]">
-          <p className="text-body-sm mt-4 text-muted">Sauce introuvable.</p>
-        </div>
+        <AsyncStateView isLoading={false} isError={false} loadingLabel="" emptyMessage="Sauce introuvable." minHeightClass="min-h-[24rem]"/>
       </AdminFormPageLayout>
     );
   }
