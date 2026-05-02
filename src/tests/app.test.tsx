@@ -16,6 +16,12 @@ vi.mock("../context/authContext", () => ({
   ),
 }));
 
+vi.mock("../context/cartContext", () => ({
+  CartProvider: ({ children }: { children: ReactNode }) => (
+    <div data-testid="cart-provider">{children}</div>
+  ),
+}));
+
 vi.mock("../context/consentContext", () => ({
   ConsentProvider: ({ children }: { children: ReactNode }) => (
     <div data-testid="consent-provider">{children}</div>
@@ -48,6 +54,7 @@ describe("App", () => {
     expect(screen.getByTestId("toast-provider")).toBeInTheDocument();
     expect(screen.getByTestId("consent-provider")).toBeInTheDocument();
     expect(screen.getByTestId("auth-provider")).toBeInTheDocument();
+    expect(screen.getByTestId("cart-provider")).toBeInTheDocument();
     expect(screen.getByTestId("session-initializer")).toBeInTheDocument();
   });
 

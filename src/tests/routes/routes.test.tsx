@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import * as authContext from '../../context/authContext';
 import { AuthProvider } from '../../context/authContext';
+import { CartProvider } from '../../context/cartContext';
 import RouterComponent from '../../routes/routerComponent';
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
@@ -33,6 +34,23 @@ vi.mock('../../services/sauces/sauceService', () => ({
   createSauce: vi.fn(),
 }));
 
+vi.mock('../../services/carts/cartService', () => ({
+  fetchCart: vi.fn().mockResolvedValue({
+    cart: {
+      id: 'cart-routes-test',
+      user_id: null,
+      guest_id: 'guest-routes-test',
+      items_count: 0,
+      total_amount: 0,
+      items: [],
+    },
+  }),
+  addCartItem: vi.fn(),
+  updateCartItemQuantity: vi.fn(),
+  removeCartItem: vi.fn(),
+  clearCart: vi.fn(),
+}));
+
 import { fetchSauces } from '../../services/sauces/sauceService';
 
 const mockedFetchSauces = vi.mocked(fetchSauces);
@@ -57,7 +75,9 @@ const renderWithRouter = (initialRoute: string) => {
   render(
     <MemoryRouter initialEntries={[initialRoute]}>
       <AuthProvider>
-        <RouterComponent />
+        <CartProvider>
+          <RouterComponent />
+        </CartProvider>
       </AuthProvider>
     </MemoryRouter>
   );
@@ -99,6 +119,7 @@ describe("Navigation behavior", () => {
       { path: "/cgv", expectedText: /Conditions Générales de Vente/i },
       { path: "/confidentialite", expectedText: /Politique de confidentialité/i },
       { path: "/cookies", expectedText: /Politique cookies/i },
+      { path: "/cart", expectedText: /Panier/i },
     ])("renders $path", async ({ path, expectedText }) => {
       renderWithRouter(path);
       expect(await screen.findByText(expectedText)).toBeInTheDocument();

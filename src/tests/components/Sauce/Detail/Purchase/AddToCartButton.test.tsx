@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import type { Conditioning, Sauce } from "../../../../../types/sauce";
 import AddToCartButton from "../../../../../components/Sauce/Detail/Purchase/AddToCartButton";
+import * as cartContext from "../../../../../context/cartContext";
 
 const sauce: Sauce = {
   id: "1",
@@ -15,35 +16,42 @@ const sauce: Sauce = {
 
 const selected: Conditioning = { id: "1", volume: "250ml", prix: 4 };
 
-vi.mock("@/components/Sauce/Detail/Purchase/AddSauceToCart", () => ({
-  default: vi.fn(),
-}));
+const showErrorMock = vi.fn();
 
-const showSuccessMock = vi.fn();
 vi.mock("@/hooks/useToast", () => ({
   useToast: () => ({
-    showSuccess: showSuccessMock,
-    showError: vi.fn(),
+    showSuccess: vi.fn(),
+    showError: showErrorMock,
   }),
 }));
 
-import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
-
 describe("AddToCartButton", () => {
+  const addItem = vi.fn().mockResolvedValue(undefined);
+
   beforeEach(() => {
-    vi.mocked(AddSauceToCart).mockClear();
-    showSuccessMock.mockClear();
+    addItem.mockClear();
+    showErrorMock.mockClear();
+    vi.spyOn(cartContext, "useCart").mockReturnValue({
+      cart: null,
+      loadStatus: "ready",
+      loadError: null,
+      refreshCart: vi.fn(),
+      addItem,
+      updateLineQuantity: vi.fn(),
+      removeLine: vi.fn(),
+      clearCart: vi.fn(),
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("calls AddSauceToCart and success toast on click when available", async () => {
+  it("calls addItem on click when available without showing success toast", async () => {
     render(<AddToCartButton sauce={sauce} selected={selected} quantity={2} />);
     await userEvent.click(screen.getByRole("button", { name: /Ajouter cette sauce au panier/i }));
-    expect(AddSauceToCart).toHaveBeenCalledWith(sauce, selected, 2);
-    expect(showSuccessMock).toHaveBeenCalledWith("2 × Sauce X ajoutés au panier.");
+    expect(addItem).toHaveBeenCalledWith("1", "1", 2);
+    expect(showErrorMock).not.toHaveBeenCalled();
   });
 
   it("renders nothing when selected is null", () => {

@@ -3,6 +3,8 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import SauceDetail from "../../pages/sauceDetailPage";
+import { AuthProvider } from "../../context/authContext";
+import { CartProvider } from "../../context/cartContext";
 import { ApiError } from "../../services/apiRequest/apiError";
 import type { SauceApiSerialized } from "../../types/sauce";
 import { fetchSauce } from "../../services/sauces/sauceService";
@@ -11,6 +13,23 @@ vi.mock("../../services/sauces/sauceService", () => ({
   fetchSauce: vi.fn(),
   fetchSauces: vi.fn(),
   createSauce: vi.fn(),
+}));
+
+vi.mock("../../services/carts/cartService", () => ({
+  fetchCart: vi.fn().mockResolvedValue({
+    cart: {
+      id: "cart-sauce-detail-test",
+      user_id: null,
+      guest_id: "guest-sauce-detail-test",
+      items_count: 0,
+      total_amount: 0,
+      items: [],
+    },
+  }),
+  addCartItem: vi.fn(),
+  updateCartItemQuantity: vi.fn(),
+  removeCartItem: vi.fn(),
+  clearCart: vi.fn(),
 }));
 
 const fetchSauceMock = vi.mocked(fetchSauce);
@@ -44,9 +63,13 @@ function detailApiSauce(): SauceApiSerialized {
 function renderSauceDetail(initialPath: string) {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <Routes>
-        <Route path="/sauce/:id" element={<SauceDetail />} />
-      </Routes>
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            <Route path="/sauce/:id" element={<SauceDetail />} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
     </MemoryRouter>
   );
 }

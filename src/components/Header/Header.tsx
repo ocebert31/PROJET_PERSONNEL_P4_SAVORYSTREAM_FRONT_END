@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/authContext';
 import AuthAction from "../Auth/AuthAction";
+import CartAction from "../Cart/CartAction";
 
 function Header() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ function Header() {
           <NavLink to="/" className={navLinkClass}>
             Accueil
           </NavLink>
+          <CartAction navLinkClass={navLinkClass} />
           {user?.role === 'admin' ? (
             <NavLink to="/dashboard" className={navLinkClass}>
               Dashboard

@@ -19,15 +19,6 @@ export interface Sauce {
   accroche?: string;
 }
 
-export interface SauceItem {
-  sauceId: string;
-  condId: string;
-  name: string;
-  volume: number;
-  prix: number;
-  quantity: number;
-}
-
 export interface ProductVariantsProps {
   variants: Conditioning[];
   selectedId: string | null;
