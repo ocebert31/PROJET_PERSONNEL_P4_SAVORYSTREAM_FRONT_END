@@ -15,6 +15,7 @@ import DashboardPage from "../pages/dashboard/dashboardPage";
 import DashboardCategoriesPage from "../pages/dashboard/category/dashboardCategoriesPage";
 import EditCategoryPage from "../pages/dashboard/category/editCategoryPage";
 import CreateCategoryPage from "../pages/dashboard/category/createCategoryPage";
+import CartPage from "../pages/cartPage";
 
 function RouterComponent () {
   return (
@@ -23,6 +24,7 @@ function RouterComponent () {
       <Route path="/login" element={<LoginPage/>} />
       <Route path="/" element={<HomePage/>} />
       <Route path="/sauce/:id" element={<SauceDetail/>} />
+      <Route path="/cart" element={<CartPage />} />
       <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
       <Route path="/cgv" element={<TermsOfSalePage />} />
       <Route path="/confidentialite" element={<PrivacyPolicyPage />} />

@@ -1,24 +1,33 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import type { AddToCartProps } from "@/types/sauce";
-import AddSauceToCart from "@/components/Sauce/Detail/Purchase/AddSauceToCart";
 import { useToast } from "@/hooks/useToast";
+import { useCart } from "@/context/cartContext";
 import Button from "@/common/button/button";
+import { toErrorMessage } from "@/utils/errorMessage";
 
 function AddToCartButton({ sauce, selected, quantity }: AddToCartProps) {
-  const { showSuccess } = useToast();
+  const { showError } = useToast();
+  const { addItem } = useCart();
+  const [pending, setPending] = useState(false);
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
     if (!sauce || !selected) return;
-    AddSauceToCart(sauce, selected, quantity);
-    showSuccess(`${quantity} × ${sauce.name} ajouté${quantity > 1 ? "s" : ""} au panier.`);
-  }, [sauce, selected, quantity, showSuccess]);
+    setPending(true);
+    try {
+      await addItem(sauce.id, selected.id, quantity);
+    } catch (e) {
+      showError(toErrorMessage(e, "Impossible d’ajouter au panier."));
+    } finally {
+      setPending(false);
+    }
+  }, [sauce, selected, quantity, addItem, showError]);
 
   if (!sauce || !selected) return null;
 
   const buttonLabel = sauce.is_available ? "Ajouter cette sauce au panier" : "Produit indisponible";
 
   return (
-    <Button type="button" onClick={handleAddToCart} disabled={!sauce.is_available} variant={sauce.is_available ? "primary" : "secondary"} size="lg" fullWidth className="active:scale-[0.99]">
+    <Button type="button" onClick={() => void handleAddToCart()} disabled={!sauce.is_available || pending} variant={sauce.is_available ? "primary" : "secondary"} size="lg" fullWidth className="active:scale-[0.99]">
       {buttonLabel}
     </Button>
   );

@@ -1,6 +1,6 @@
 import type { SauceBuySectionProps } from "@/types/sauce";
 import AddToCartButton from "@/components/Sauce/Detail/Purchase/AddToCartButton";
-import StepperButton from "@/common/button/stepperButton";
+import QuantityStepper from "@/common/fields/quantityStepper";
 
 export default function SauceBuySection({ sauce, selected, quantity, setQuantity }: SauceBuySectionProps) {
   const increment = () => setQuantity((q) => Math.min(selected.stock ?? 100, q + 1));
@@ -16,17 +16,7 @@ export default function SauceBuySection({ sauce, selected, quantity, setQuantity
             {selected.prix.toFixed(2)} €
           </span>
         </p>
-        <div className="inline-flex items-center overflow-hidden rounded-full border border-border bg-background">
-          <StepperButton onClick={decrement} aria-label="Diminuer la quantité">
-            −
-          </StepperButton>
-          <span className="min-w-[3rem] px-2 py-2.5 text-center text-sm font-semibold tabular-nums">
-            {quantity}
-          </span>
-          <StepperButton onClick={increment} aria-label="Augmenter la quantité">
-            +
-          </StepperButton>
-        </div>
+        <QuantityStepper quantity={quantity} onDecrement={decrement} onIncrement={increment} decreaseAriaLabel="Diminuer la quantité" increaseAriaLabel="Augmenter la quantité"/>
       </div>
       <p className="font-display mt-6 text-2xl font-semibold tabular-nums text-foreground">
         Total : {total} €
